@@ -1,0 +1,42 @@
+{
+  "company": {
+    "name": "GoldBooks Demo Pvt Ltd",
+    "legal_name": "GoldBooks Demo Private Limited",
+    "tax_id": "27AABCG1234D1ZP",
+    "email": "accounts@goldbooks.demo",
+    "phone": "+91 22 4000 1234",
+    "address": "402, Pinnacle Tower, Andheri East, Mumbai 400069",
+    "base_currency": "INR",
+    "country": "India"
+  },
+  "fiscal_years": [
+    { "name": "FY 2026-2027", "start": "2026-04-01", "end": "2027-03-31", "status": "Active" },
+    { "name": "FY 2025-2026", "start": "2025-04-01", "end": "2026-03-31", "status": "Closed" },
+    { "name": "FY 2024-2025", "start": "2024-04-01", "end": "2025-03-31", "status": "Closed" }
+  ],
+  "currencies": [
+    { "code": "INR", "symbol": "₹", "name": "Indian Rupee", "rate": 1.0, "base": true },
+    { "code": "USD", "symbol": "$", "name": "US Dollar", "rate": 83.45, "base": false },
+    { "code": "EUR", "symbol": "€", "name": "Euro", "rate": 90.12, "base": false },
+    { "code": "GBP", "symbol": "£", "name": "Pound Sterling", "rate": 105.30, "base": false },
+    { "code": "AED", "symbol": "د.إ", "name": "UAE Dirham", "rate": 22.72, "base": false }
+  ],
+  "numbering": [
+    { "doctype": "Sales Invoice", "prefix": "SINV-2026-", "next": 149, "padding": 4 },
+    { "doctype": "Purchase Invoice", "prefix": "PINV-2026-", "next": 73, "padding": 4 },
+    { "doctype": "Journal Entry", "prefix": "JV-2026-", "next": 211, "padding": 4 },
+    { "doctype": "Payment", "prefix": "PAY-2026-", "next": 92, "padding": 4 },
+    { "doctype": "Customer", "prefix": "CUST-", "next": 7, "padding": 4 },
+    { "doctype": "Supplier", "prefix": "SUPP-", "next": 6, "padding": 4 }
+  ],
+  "roles": [
+    { "user": "John", "email": "John@yopmail.com", "role": "Administrator", "status": "Active" },
+    { "user": "Priya Shah", "email": "priya@goldbooks.demo", "role": "Accountant", "status": "Active" },
+    { "user": "Rahul Mehta", "email": "rahul@goldbooks.demo", "role": "Accounts Manager", "status": "Active" },
+    { "user": "Auditor (External)", "email": "audit@ca-firm.demo", "role": "Auditor (Read-only)", "status": "Invited" }
+  ],
+  "period_closes": [
+    { "period": "Q1 FY2026-27 (Apr-Jun)", "closed_on": "—", "closing_account": "3200 · Retained Earnings", "status": "Open" },
+    { "period": "FY 2025-2026", "closed_on": "2026-04-15", "closing_account": "3200 · Retained Earnings", "status": "Closed" }
+  ]
+}

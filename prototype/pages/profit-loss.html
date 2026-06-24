@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profit &amp; Loss · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Profit &amp; Loss</h1>
+            <div class="crumb">Reports · <b>Profit &amp; Loss Statement</b></div>
+          </div>
+          <div class="head-actions">
+            <select class="form-select form-select-sm" style="width:auto"><option>FY 2026-2027</option></select>
+            <button class="btn btn-soft" onclick="App.print.report('Profit &amp; Loss Statement','FY 2026-2027 · for the period ending 24 Jun 2026', document.querySelector('.report-table').outerHTML)"><i class="bx bx-printer"></i> Print</button>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3" data-aos="fade-up">
+          <div class="col-md-4"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-trending-up"></i></div><div><div class="kpi-label">Total Income</div><div class="kpi-value" id="kInc">₹0</div></div></div></div>
+          <div class="col-md-4"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-trending-down"></i></div><div><div class="kpi-label">Total Expense</div><div class="kpi-value" id="kExp">₹0</div></div></div></div>
+          <div class="col-md-4"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-line-chart"></i></div><div><div class="kpi-label">Net Profit</div><div class="kpi-value text-gold" id="kNet">₹0</div></div></div></div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-7">
+            <div class="card" data-aos="fade-up">
+              <div class="card-pad"><h5 class="card-title">Statement — FY 2026-2027</h5><div class="card-sub">For the period ending 24 Jun 2026</div></div>
+              <div class="table-wrap">
+                <table class="report-table">
+                  <thead><tr><th>Particulars</th><th class="num">Amount</th></tr></thead>
+                  <tbody id="plRows"><tr><td colspan="2" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card card-pad" data-aos="fade-up">
+              <h5 class="card-title mb-3">Income vs Expense</h5>
+              <div id="plChart" style="min-height:280px"></div>
+              <div class="divider"></div>
+              <div class="d-flex justify-content-between"><span class="text-muted-2">Profit Margin</span><span class="fw-8 text-gold" id="margin">0%</span></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.49.0/dist/apexcharts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/print.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('pnl');
+      var CUR = '₹';
+
+      App.data('accounts.json').done(function (d) {
+        CUR = d.currency;
+        var ledgers = d.accounts.filter(a => !a.is_group);
+        var income = ledgers.filter(a => a.root_type === 'Income');
+        var expense = ledgers.filter(a => a.root_type === 'Expense');
+        var totInc = income.reduce((s, a) => s + a.balance, 0);
+        var totExp = expense.reduce((s, a) => s + a.balance, 0);
+        var net = totInc - totExp;
+
+        function drillRow(a) { return '<tr class="indent drill" style="cursor:pointer" data-acct="' + a.code + ' · ' + a.name + '" title="View ledger"><td><span class="acct-link">' + a.code + ' · ' + a.name + '</span></td><td class="num tabular">' + App.number(a.balance) + '</td></tr>'; }
+        var html = '<tr class="grp"><td>Income</td><td class="num"></td></tr>';
+        income.forEach(a => html += drillRow(a));
+        html += '<tr class="total"><td>Total Income</td><td class="num tabular">' + App.number(totInc) + '</td></tr>';
+        html += '<tr class="grp"><td>Expenses</td><td class="num"></td></tr>';
+        expense.forEach(a => html += drillRow(a));
+        html += '<tr class="total"><td>Total Expense</td><td class="num tabular">' + App.number(totExp) + '</td></tr>';
+        html += '<tr class="total" style="background:var(--gold-100)"><td>NET PROFIT</td><td class="num tabular">' + App.currency(net, CUR) + '</td></tr>';
+        $('#plRows').html(html);
+        $(document).on('click', '.drill', function () { location.href = 'general-ledger.html?account=' + encodeURIComponent($(this).data('acct')); });
+
+        App.countUp($('#kInc'), totInc, { prefix: CUR, decimals: 0 });
+        App.countUp($('#kExp'), totExp, { prefix: CUR, decimals: 0 });
+        App.countUp($('#kNet'), net, { prefix: CUR, decimals: 0 });
+        $('#margin').text((net / totInc * 100).toFixed(1) + '%');
+
+        new ApexCharts(document.querySelector('#plChart'), {
+          chart: { type: 'donut', height: 280, fontFamily: 'Public Sans' },
+          series: [totExp, net], labels: ['Expenses', 'Net Profit'],
+          colors: ['#B8B3A7', '#C9A227'], stroke: { width: 2, colors: ['#fff'] },
+          legend: { position: 'bottom' }, dataLabels: { enabled: true, formatter: v => v.toFixed(1) + '%' },
+          plotOptions: { pie: { donut: { size: '68%', labels: { show: true, total: { show: true, label: 'Income', formatter: () => CUR + (totInc / 1000).toFixed(0) + 'k' } } } } }
+        }).render();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payments · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .alloc-row td { padding:.5rem .6rem; }
+    .type-switch .btn { flex:1; }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Payments</h1>
+            <div class="crumb">Banking · <b>Payments</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back to List</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Payment</button>
+          </div>
+        </div>
+
+        <div id="listView">
+          <div class="row g-3 mb-3" data-aos="fade-up">
+            <div class="col-6 col-xl-4"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-down-arrow-circle"></i></div><div><div class="kpi-label">Received</div><div class="kpi-value" id="stRecv">₹0</div></div></div></div>
+            <div class="col-6 col-xl-4"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-up-arrow-circle"></i></div><div><div class="kpi-label">Paid Out</div><div class="kpi-value" id="stPaid">₹0</div></div></div></div>
+            <div class="col-12 col-xl-4"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-wallet"></i></div><div><div class="kpi-label">Net Cash Movement</div><div class="kpi-value" id="stNet">₹0</div></div></div></div>
+          </div>
+          <div class="card" data-aos="fade-up">
+            <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Payment Entries</h5>
+              <div style="max-width:240px;width:100%"><input id="search" class="form-control form-control-sm" placeholder="Search payment or party…"></div>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead><tr><th>Payment</th><th>Type</th><th>Party</th><th>Date</th><th>Mode</th><th class="num">Amount</th><th>Allocated To</th><th></th></tr></thead>
+                <tbody id="rows"><tr><td colspan="7" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="detailView" class="d-none"></div>
+
+        <div id="formView" class="d-none">
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="card card-pad mb-3" data-aos="fade-up">
+                <div class="d-flex gap-2 type-switch mb-3">
+                  <button class="btn btn-gold" id="tReceive" data-type="Receive"><i class="bx bx-down-arrow-circle"></i> Receive</button>
+                  <button class="btn btn-soft" id="tPay" data-type="Pay"><i class="bx bx-up-arrow-circle"></i> Pay</button>
+                </div>
+                <div class="row g-3">
+                  <div class="col-md-4"><label class="form-label">Payment No.</label><input class="form-control" id="payNo" readonly></div>
+                  <div class="col-md-4"><label class="form-label">Date</label><input class="form-control" type="date" id="payDate"></div>
+                  <div class="col-md-4"><label class="form-label">Mode</label><select class="form-select" id="payMode"><option>Bank Transfer</option><option>UPI</option><option>Cheque</option><option>Cash</option></select></div>
+                  <div class="col-md-6"><label class="form-label" id="partyLabel">Customer *</label><select class="form-select" id="payParty"></select></div>
+                  <div class="col-md-6"><label class="form-label" id="acctLabel">Deposit To</label><input class="form-control" value="1120 · Bank - HDFC Current A/c" readonly></div>
+                  <div class="col-md-6"><label class="form-label">Amount Received / Paid *</label><input class="form-control" id="payAmount" value="0"></div>
+                  <div class="col-md-6"><label class="form-label">Unallocated</label><input class="form-control" id="payUnalloc" readonly value="0"></div>
+                </div>
+              </div>
+              <div class="card card-pad gl-preview" style="background:var(--gold-50);border:1px dashed var(--gold-300)" data-aos="fade-up">
+                <h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> GL Posting Preview</h6>
+                <table class="tbl" style="background:transparent"><tbody id="glRows"></tbody></table>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card" data-aos="fade-up">
+                <div class="card-pad"><h5 class="card-title">Allocate Against Outstanding</h5><div class="card-sub">Tick invoices and the payment auto-allocates oldest-first</div></div>
+                <div class="table-wrap">
+                  <table class="tbl">
+                    <thead><tr><th></th><th>Invoice</th><th class="num">Outstanding</th><th class="num">Allocated</th></tr></thead>
+                    <tbody id="allocRows"></tbody>
+                    <tfoot><tr style="border-top:2px solid var(--line)"><td colspan="3" class="text-end fw-8">Total Allocated</td><td class="num fw-8 tabular text-gold" id="allocTotal">0.00</td></tr></tfoot>
+                  </table>
+                </div>
+                <div class="card-pad d-grid gap-2">
+                  <button class="btn btn-gold" id="submitPay"><i class="bx bx-check-double"></i> Submit Payment</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/print.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('payments');
+      var DATA = [], CUR = '₹', OPEN_SI = [], OPEN_PI = [], CUSTOMERS = [], SUPPLIERS = [], TYPE = 'Receive', seq = 92;
+
+      $.when(App.data('payments.json'), App.data('customers.json'), App.data('suppliers.json'))
+        .done(function (pa, cu, su) {
+          DATA = pa[0].payments; CUR = pa[0].currency;
+          OPEN_SI = pa[0].open_sales_invoices; OPEN_PI = pa[0].open_purchase_invoices;
+          CUSTOMERS = cu[0].customers; SUPPLIERS = su[0].suppliers;
+          renderStats(); render();
+        }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function renderStats() {
+        var recv = DATA.filter(p => p.type === 'Receive').reduce((s, p) => s + p.amount, 0);
+        var paid = DATA.filter(p => p.type === 'Pay').reduce((s, p) => s + p.amount, 0);
+        App.countUp($('#stRecv'), recv, { prefix: CUR, decimals: 0 });
+        App.countUp($('#stPaid'), paid, { prefix: CUR, decimals: 0 });
+        App.countUp($('#stNet'), recv - paid, { prefix: CUR, decimals: 0 });
+      }
+
+      function render() {
+        var q = $('#search').val() ? $('#search').val().toLowerCase() : '';
+        var list = DATA.filter(p => p.no.toLowerCase().includes(q) || p.party.toLowerCase().includes(q));
+        $('#rows').html(list.map(function (p) {
+          var isRecv = p.type === 'Receive';
+          return '<tr class="row-click" style="cursor:pointer" data-id="' + p.id + '" title="View payment">' +
+            '<td><span class="fw-bold text-gold">' + p.no + '</span></td>' +
+            '<td><span class="badge-soft ' + (isRecv ? 'badge-paid' : 'badge-unpaid') + '">' + p.type + '</span></td>' +
+            '<td>' + p.party + '</td>' +
+            '<td class="text-muted-2">' + App.shortDate(p.date) + '</td>' +
+            '<td>' + p.mode + '</td>' +
+            '<td class="num tabular fw-bold ' + (isRecv ? 'text-success' : 'text-danger') + '">' + (isRecv ? '+' : '−') + App.currency(p.amount, CUR).replace('₹', '₹') + '</td>' +
+            '<td class="text-muted-2 small">' + (p.allocations || []).map(a => a.invoice).join(', ') + '</td>' +
+            '<td class="text-end">' + App.kebab(p.id, [
+              { act: 'view', icon: 'bx-show', label: 'View Receipt' },
+              { act: 'k-print', icon: 'bx-printer', label: 'Print' },
+              { act: 'k-download', icon: 'bx-download', label: 'Download PDF' },
+              { act: 'k-send', icon: 'bx-share-alt', label: 'Send / Share' },
+              { act: 'k-delete', icon: 'bx-trash', label: 'Delete Payment', danger: true }
+            ]) + '</td>' +
+          '</tr>';
+        }).join('') || '<tr><td colspan="8" class="text-center text-muted-2 py-4">No payments</td></tr>');
+      }
+      $('#search').on('input', render);
+
+      // ---- Detail view + row actions ----
+      $(document).on('click', '.row-click', function (e) {
+        if ($(e.target).closest('.dropdown').length) return;
+        var p = DATA.find(x => x.id == $(this).data('id'));
+        if (p) showDetail(p);
+      });
+      function byId(el) { return DATA.find(function (x) { return x.id == $(el).data('id'); }); }
+      $(document).on('click', '[data-act="view"]', function () { var p = byId(this); if (p) showDetail(p); });
+      $(document).on('click', '[data-act="k-print"]', function () { App.print.payment(byId(this)); });
+      $(document).on('click', '[data-act="k-download"]', function () { App.print.download('payment', byId(this)); });
+      $(document).on('click', '[data-act="k-send"]', function () { App.shareDoc('payment', byId(this)); });
+      $(document).on('click', '[data-act="k-delete"]', function () {
+        var p = byId(this); if (!p) return;
+        App.confirm({ title: 'Delete this payment?', message: 'Payment ' + p.no + ' (' + App.currency(p.amount, CUR) + ') will be deleted and its allocations released.', confirmText: 'Delete Payment',
+          onConfirm: function () { DATA = DATA.filter(function (x) { return x.id != p.id; }); renderStats(); render(); if (!$('#detailView').hasClass('d-none')) showList(); App.toast('Payment ' + p.no + ' deleted (demo)'); } });
+      });
+
+      function showDetail(p) {
+        window.__doc = p;
+        $('#listView,#formView').addClass('d-none'); $('#detailView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        var isRecv = p.type === 'Receive';
+        var allocs = (p.allocations || []).map(a => '<tr><td class="fw-bold text-gold">' + a.invoice + '</td><td class="num tabular fw-bold">' + App.currency(a.allocated, CUR) + '</td></tr>').join('') ||
+          '<tr><td colspan="2" class="text-center text-muted-2 py-3">No allocations (advance payment)</td></tr>';
+        var bank = p.account;
+        var gl = isRecv ? [{ a: bank, d: p.amount, c: 0 }, { a: '1130 · Debtors', d: 0, c: p.amount }]
+                        : [{ a: '2110 · Creditors', d: p.amount, c: 0 }, { a: bank, d: 0, c: p.amount }];
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up">' +
+            '<div class="d-flex flex-wrap align-items-start gap-3">' +
+              '<div><div class="kpi-label">Payment ' + (isRecv ? 'Received' : 'Made') + '</div><h2 class="fw-8 mb-0 text-gold">' + p.no + '</h2>' +
+                '<div class="card-sub mt-1">' + App.shortDate(p.date) + ' · ' + p.mode + '</div></div>' +
+              '<div class="ms-auto text-end"><span class="badge-soft ' + (isRecv ? 'badge-paid' : 'badge-unpaid') + '">' + p.type + '</span>' +
+                '<div class="mt-2"><div class="kpi-label">Amount</div><div class="fw-8 ' + (isRecv ? 'text-success' : 'text-danger') + '" style="font-size:1.6rem">' + (isRecv ? '+' : '−') + App.currency(p.amount, CUR) + '</div></div></div>' +
+            '</div><div class="divider"></div>' +
+            '<div class="row g-3">' +
+              '<div class="col-md-4"><div class="kpi-label">Party</div><div class="fw-bold" style="color:var(--ink-900)">' + p.party + '</div></div>' +
+              '<div class="col-md-4"><div class="kpi-label">' + (isRecv ? 'Deposited To' : 'Paid From') + '</div><div class="fw-bold" style="color:var(--ink-900)">' + p.account + '</div></div>' +
+              '<div class="col-md-4"><div class="kpi-label">Unallocated (Advance)</div><div class="fw-bold ' + (p.unallocated > 0 ? 'text-gold' : 'text-muted-2') + '">' + App.currency(p.unallocated, CUR) + '</div></div>' +
+            '</div></div>' +
+          '<div class="row g-3"><div class="col-lg-7">' +
+            '<div class="card" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Allocated Against</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Invoice</th><th class="num">Allocated</th></tr></thead><tbody>' + allocs + '</tbody></table></div></div>' +
+          '</div><div class="col-lg-5">' +
+            '<div class="card card-pad gl-preview" style="background:var(--gold-50);border:1px dashed var(--gold-300)" data-aos="fade-up"><h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> Posted GL Entries</h6>' +
+              '<table class="tbl" style="background:transparent"><tbody>' + gl.map(g => '<tr><td class="small">' + g.a + '</td><td class="num tabular small">' + (g.d ? App.number(g.d) : '—') + '</td><td class="num tabular small">' + (g.c ? App.number(g.c) : '—') + '</td></tr>').join('') +
+              '<tr style="border-top:1px solid var(--gold-300)"><td class="fw-8 small">Total</td><td class="num fw-8 tabular small">' + App.number(p.amount) + '</td><td class="num fw-8 tabular small">' + App.number(p.amount) + '</td></tr></tbody></table>' +
+              '<div class="d-grid gap-2 mt-2"><button class="btn btn-gold" onclick="App.shareDoc(\'payment\', window.__doc)"><i class="bx bx-share-alt"></i> Send / Share</button>' +
+              '<div class="d-flex gap-2"><button class="btn btn-soft flex-fill" onclick="App.print.payment(window.__doc)"><i class="bx bx-printer"></i> Print</button>' +
+              '<button class="btn btn-soft flex-fill" onclick="App.print.download(\'payment\', window.__doc)"><i class="bx bx-download"></i> PDF</button></div>' +
+              '<button class="btn btn-soft text-danger" data-act="k-delete" data-id="' + p.id + '"><i class="bx bx-trash"></i> Delete Payment</button></div></div>' +
+          '</div></div>';
+        $('#detailView').html(html);
+      }
+
+      function setType(t) {
+        TYPE = t;
+        $('#tReceive').toggleClass('btn-gold', t === 'Receive').toggleClass('btn-soft', t !== 'Receive');
+        $('#tPay').toggleClass('btn-gold', t === 'Pay').toggleClass('btn-soft', t !== 'Pay');
+        $('#partyLabel').text(t === 'Receive' ? 'Customer *' : 'Supplier *');
+        $('#acctLabel').text(t === 'Receive' ? 'Deposit To' : 'Pay From');
+        var parties = t === 'Receive' ? CUSTOMERS : SUPPLIERS;
+        $('#payParty').html('<option value="">Select…</option>' + parties.map(p => '<option>' + p.name + '</option>').join(''));
+        $('#allocRows').empty(); buildAlloc();
+        recalc();
+      }
+      $('#tReceive,#tPay').on('click', function () { setType($(this).data('type')); });
+
+      function buildAlloc() {
+        var party = $('#payParty').val();
+        var open = (TYPE === 'Receive' ? OPEN_SI : OPEN_PI).filter(o => !party || (TYPE === 'Receive' ? o.customer : o.supplier) === party);
+        if (!open.length) { $('#allocRows').html('<tr><td colspan="4" class="text-center text-muted-2 py-3">No outstanding invoices' + (party ? ' for ' + party : '') + '</td></tr>'); return; }
+        $('#allocRows').html(open.map(function (o, idx) {
+          return '<tr class="alloc-row">' +
+            '<td><input type="checkbox" class="form-check-input alloc-chk" data-out="' + o.outstanding + '" data-idx="' + idx + '"></td>' +
+            '<td><span class="fw-bold">' + o.no + '</span><div class="card-sub">' + (o.customer || o.supplier) + '</div></td>' +
+            '<td class="num tabular">' + App.currency(o.outstanding, CUR) + '</td>' +
+            '<td class="num tabular alloc-amt" data-idx="' + idx + '">0.00</td>' +
+          '</tr>';
+        }).join(''));
+      }
+      $(document).on('change', '#payParty', function () { buildAlloc(); recalc(); });
+
+      // Auto-allocate oldest-first up to amount
+      function autoAllocate() {
+        var amount = parseFloat($('#payAmount').val()) || 0;
+        var remaining = amount;
+        $('.alloc-chk').each(function () {
+          var $tr = $(this).closest('tr');
+          if ($(this).is(':checked')) {
+            var out = parseFloat($(this).data('out'));
+            var alloc = Math.min(out, remaining);
+            remaining -= alloc;
+            $tr.find('.alloc-amt').text(App.number(alloc));
+          } else {
+            $tr.find('.alloc-amt').text('0.00');
+          }
+        });
+        return amount - remaining;
+      }
+      $(document).on('change', '.alloc-chk', recalc);
+      $('#payAmount').on('input', recalc);
+
+      function recalc() {
+        var amount = parseFloat($('#payAmount').val()) || 0;
+        var allocated = autoAllocate();
+        $('#allocTotal').text(App.number(allocated));
+        $('#payUnalloc').val(App.number(amount - allocated));
+        // GL preview
+        var bank = '1120 · Bank - HDFC Current A/c';
+        var gl;
+        if (TYPE === 'Receive') gl = [{ a: bank, d: amount, c: 0 }, { a: '1130 · Debtors', d: 0, c: amount }];
+        else gl = [{ a: '2110 · Creditors', d: amount, c: 0 }, { a: bank, d: 0, c: amount }];
+        $('#glRows').html(gl.map(g => '<tr><td class="small">' + g.a + '</td><td class="num tabular small">' + (g.d ? App.number(g.d) : '—') + '</td><td class="num tabular small">' + (g.c ? App.number(g.c) : '—') + '</td></tr>').join('') +
+          '<tr style="border-top:1px solid var(--gold-300)"><td class="fw-8 small">Total</td><td class="num fw-8 tabular small">' + App.number(amount) + '</td><td class="num fw-8 tabular small">' + App.number(amount) + '</td></tr>');
+      }
+
+      function showForm() {
+        $('#listView').addClass('d-none'); $('#formView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        $('#payNo').val('PAY-2026-' + String(seq).padStart(4, '0'));
+        $('#payDate').val('2026-06-24'); $('#payAmount').val('0');
+        setType('Receive');
+      }
+      function showList() {
+        $('#formView,#detailView').addClass('d-none'); $('#listView').removeClass('d-none');
+        $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none');
+      }
+      $('#btnNew').on('click', showForm);
+      $('#btnBack').on('click', showList);
+
+      $('#submitPay').on('click', function () {
+        var party = $('#payParty').val(), amount = parseFloat($('#payAmount').val()) || 0;
+        if (!party) { App.toast('Please select a party', 'error'); return; }
+        if (amount <= 0) { App.toast('Enter a payment amount', 'error'); return; }
+        var allocs = [];
+        $('.alloc-chk:checked').each(function () {
+          var $tr = $(this).closest('tr');
+          allocs.push({ invoice: $tr.find('.fw-bold').text(), allocated: parseFloat($tr.find('.alloc-amt').text().replace(/,/g, '')) });
+        });
+        DATA.unshift({ id: Date.now(), no: $('#payNo').val(), type: TYPE, party: party, date: $('#payDate').val(),
+          mode: $('#payMode').val(), account: '1120 · Bank - HDFC Current A/c', amount: amount,
+          unallocated: amount - allocs.reduce((s, a) => s + a.allocated, 0), allocations: allocs });
+        seq++;
+        App.toast('Payment submitted — GL posted (demo)');
+        renderStats(); render(); showList();
+      });
+    });
+  </script>
+</body>
+</html>

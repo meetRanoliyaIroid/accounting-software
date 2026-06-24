@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ageing · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .nav-pills .nav-link { color: var(--ink-700); font-weight: 600; border-radius: var(--radius-sm); padding: .5rem 1.1rem; }
+    .nav-pills .nav-link.active { background: linear-gradient(135deg, var(--gold-500), var(--gold-600)); color: #fff; box-shadow: var(--shadow-gold); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Ageing Report</h1>
+            <div class="crumb">Reports · <b>Receivable / Payable Ageing</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft" onclick="App.print.report($('#tblTitle').text(),'Ageing as on 24 Jun 2026', document.querySelector('.report-table').outerHTML)"><i class="bx bx-printer"></i> Print</button>
+          </div>
+        </div>
+
+        <ul class="nav nav-pills gap-2 mb-3" data-aos="fade-up">
+          <li class="nav-item"><button class="nav-link active" data-tab="ar"><i class="bx bx-down-arrow-circle"></i> Receivable (Customers)</button></li>
+          <li class="nav-item"><button class="nav-link" data-tab="ap"><i class="bx bx-up-arrow-circle"></i> Payable (Suppliers)</button></li>
+        </ul>
+
+        <div class="row g-3 mb-3" data-aos="fade-up" id="bucketCards"></div>
+
+        <div class="card" data-aos="fade-up">
+          <div class="card-pad"><h5 class="card-title" id="tblTitle">Outstanding Receivables</h5><div class="card-sub">As on 24 Jun 2026 — buckets by days overdue from due date</div></div>
+          <div class="table-wrap">
+            <table class="report-table">
+              <thead><tr><th id="partyHead">Customer</th><th>Invoice</th><th>Due Date</th><th class="num">0-30</th><th class="num">31-60</th><th class="num">61-90</th><th class="num">90+</th><th class="num">Total</th></tr></thead>
+              <tbody id="rows"><tr><td colspan="8" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/print.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('ageing');
+      var CUR = '₹', SI = [], PI = [], AS_ON = new Date('2026-06-24');
+
+      $.when(App.data('sales-invoices.json'), App.data('purchase-invoices.json')).done(function (si, pi) {
+        CUR = si[0].currency;
+        SI = si[0].invoices.filter(i => i.outstanding > 0);
+        PI = pi[0].invoices.filter(i => i.outstanding > 0);
+        renderTab('ar');
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function bucketOf(dueStr) {
+        var due = new Date(dueStr);
+        var days = Math.floor((AS_ON - due) / 86400000);
+        if (days <= 30) return 0; if (days <= 60) return 1; if (days <= 90) return 2; return 3;
+      }
+
+      function renderTab(tab) {
+        var data = tab === 'ar' ? SI : PI;
+        var partyKey = tab === 'ar' ? 'customer' : 'supplier';
+        $('#partyHead').text(tab === 'ar' ? 'Customer' : 'Supplier');
+        $('#tblTitle').text(tab === 'ar' ? 'Outstanding Receivables' : 'Outstanding Payables');
+
+        var totals = [0, 0, 0, 0];
+        var html = data.map(function (inv) {
+          var b = bucketOf(inv.due_date);
+          var cells = [0, 0, 0, 0]; cells[b] = inv.outstanding; totals[b] += inv.outstanding;
+          return '<tr>' +
+            '<td class="fw-bold" style="color:var(--ink-900)">' + inv[partyKey] + '</td>' +
+            '<td><span class="text-gold fw-bold">' + inv.no + '</span></td>' +
+            '<td class="text-muted-2">' + App.shortDate(inv.due_date) + '</td>' +
+            cells.map((c, i) => '<td class="num tabular ' + (c && i === 3 ? 'text-danger fw-bold' : '') + '">' + (c ? App.number(c) : '—') + '</td>').join('') +
+            '<td class="num tabular fw-bold">' + App.number(inv.outstanding) + '</td>' +
+          '</tr>';
+        }).join('');
+        var grand = totals.reduce((a, b) => a + b, 0);
+        html += '<tr class="total"><td colspan="3" class="text-end">TOTAL</td>' +
+          totals.map(t => '<td class="num tabular">' + App.number(t) + '</td>').join('') +
+          '<td class="num tabular">' + App.number(grand) + '</td></tr>';
+        $('#rows').html(html || '<tr><td colspan="8" class="text-center text-muted-2 py-4">Nothing outstanding</td></tr>');
+
+        // bucket cards
+        var labels = ['Current (0-30)', '31-60 days', '61-90 days', '90+ days (overdue)'];
+        var icons = ['bx-check-circle', 'bx-time', 'bx-time-five', 'bx-error-circle'];
+        var tones = ['green', 'gold', 'blue', 'red'];
+        $('#bucketCards').html(totals.map((t, i) =>
+          '<div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon ' + tones[i] + '"><i class="bx ' + icons[i] + '"></i></div><div><div class="kpi-label">' + labels[i] + '</div><div class="kpi-value" style="font-size:1.25rem">' + App.currency(t, CUR) + '</div></div></div></div>'
+        ).join(''));
+      }
+
+      $('[data-tab]').on('click', function () {
+        $('[data-tab]').removeClass('active'); $(this).addClass('active');
+        renderTab($(this).data('tab'));
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Items · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Items</h1>
+            <div class="crumb">Inventory &amp; Tax · <b>Items</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back to List</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Item</button>
+          </div>
+        </div>
+
+        <div id="detailView" class="d-none"></div>
+        <div id="listView">
+        <div class="row g-3 mb-3" data-aos="fade-up">
+          <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-package"></i></div><div><div class="kpi-label">Total Items</div><div class="kpi-value" id="stTotal">0</div></div></div></div>
+          <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-box"></i></div><div><div class="kpi-label">Stock Items</div><div class="kpi-value" id="stStock">0</div></div></div></div>
+          <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-cog"></i></div><div><div class="kpi-label">Services</div><div class="kpi-value" id="stService">0</div></div></div></div>
+          <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-rupee"></i></div><div><div class="kpi-label">Stock Value (est.)</div><div class="kpi-value" id="stValue">₹0</div></div></div></div>
+        </div>
+
+        <div class="card" data-aos="fade-up">
+          <div class="card-pad d-flex flex-wrap align-items-center gap-2">
+            <h5 class="card-title me-auto">Item Master</h5>
+            <select class="form-select form-select-sm" id="fltGroup" style="width:auto"><option value="">All Groups</option></select>
+            <div style="max-width:240px;width:100%"><input id="search" class="form-control form-control-sm" placeholder="Search item name or code…"></div>
+          </div>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>Item</th><th>Group</th><th>UoM</th><th class="num">Sales Rate</th><th class="num">Purchase Rate</th><th>Tax</th><th class="num">Stock Qty</th><th></th></tr></thead>
+              <tbody id="rows"><tr><td colspan="8" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        </div><!-- /listView -->
+      </main>
+    </div>
+  </div>
+
+  <div class="modal fade" id="itemModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content" style="border-radius:var(--radius);border:none">
+        <div class="modal-header" style="border-bottom:1px solid var(--line)">
+          <h5 class="modal-title fw-8" id="modalTitle">New Item</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="fId">
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Item Code *</label><input class="form-control" id="fCode"></div>
+            <div class="col-md-6"><label class="form-label">Item Name *</label><input class="form-control" id="fName"></div>
+            <div class="col-md-4"><label class="form-label">Item Group</label><select class="form-select" id="fGroup"><option>Raw Material</option><option>Finished Goods</option><option>Packaging</option><option>Services</option></select></div>
+            <div class="col-md-4"><label class="form-label">Unit of Measure</label><select class="form-select" id="fUom"><option>Nos</option><option>Metre</option><option>Kg</option><option>Litre</option><option>Hour</option></select></div>
+            <div class="col-md-4"><label class="form-label">Default Tax</label><select class="form-select" id="fTax"><option>GST 5%</option><option>GST 12%</option><option>GST 18%</option><option>GST 28%</option></select></div>
+            <div class="col-md-6"><label class="form-label">Sales Rate</label><input class="form-control" id="fSales" value="0"></div>
+            <div class="col-md-6"><label class="form-label">Purchase Rate</label><input class="form-control" id="fPurchase" value="0"></div>
+            <div class="col-md-6"><label class="form-label">Income Account</label><select class="form-select" id="fInc"><option>4100 · Sales Revenue</option><option>4200 · Other Income</option></select></div>
+            <div class="col-md-6"><label class="form-label">Expense Account</label><select class="form-select" id="fExp"><option>5100 · Cost of Goods Sold</option><option>5200 · Salaries &amp; Wages</option><option>5400 · Utilities</option></select></div>
+            <div class="col-md-6"><label class="form-label">Opening Stock Qty</label><input class="form-control" id="fQty" value="0"></div>
+            <div class="col-md-6 d-flex align-items-end"><div class="form-check"><input class="form-check-input" type="checkbox" id="fIsStock" checked><label class="form-check-label" for="fIsStock">Maintain Stock</label></div></div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--line)">
+          <button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-gold" id="save"><i class="bx bx-check"></i> Save Item</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('items');
+      var DATA = [], CUR = '₹';
+      var modal = new bootstrap.Modal('#itemModal');
+
+      App.data('items.json').done(function (d) {
+        DATA = d.items; CUR = d.currency;
+        var groups = [...new Set(DATA.map(i => i.group))];
+        $('#fltGroup').append(groups.map(g => '<option>' + g + '</option>').join(''));
+        renderStats(); render();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function renderStats() {
+        $('#stTotal').text(DATA.length);
+        $('#stStock').text(DATA.filter(i => i.is_stock).length);
+        $('#stService').text(DATA.filter(i => !i.is_stock).length);
+        var val = DATA.reduce((s, i) => s + (i.is_stock ? i.stock_qty * i.purchase_rate : 0), 0);
+        App.countUp($('#stValue'), val, { prefix: CUR, decimals: 0 });
+      }
+
+      function render() {
+        var q = $('#search').val().toLowerCase(), g = $('#fltGroup').val();
+        var list = DATA.filter(i => (!g || i.group === g) && (i.name.toLowerCase().includes(q) || i.code.toLowerCase().includes(q)));
+        if (!list.length) { $('#rows').html('<tr><td colspan="8" class="text-center text-muted-2 py-4">No items found</td></tr>'); return; }
+        $('#rows').html(list.map(function (i) {
+          return '<tr>' +
+            '<td><div class="d-flex align-items-center"><span class="avatar-sm"><i class="bx ' + (i.is_stock ? 'bx-box' : 'bx-cog') + '"></i></span><div><div class="fw-bold detail-link" data-id="' + i.id + '" style="color:var(--ink-900);cursor:pointer" title="View item">' + i.name + '</div><div class="card-sub">' + i.code + '</div></div></div></td>' +
+            '<td><span class="badge-soft badge-draft">' + i.group + '</span></td>' +
+            '<td>' + i.uom + '</td>' +
+            '<td class="num tabular fw-bold">' + App.currency(i.sales_rate, CUR) + '</td>' +
+            '<td class="num tabular text-muted-2">' + App.currency(i.purchase_rate, CUR) + '</td>' +
+            '<td><span class="badge-soft" style="background:var(--gold-50);color:var(--gold-700)">' + i.tax + '</span></td>' +
+            '<td class="num tabular">' + (i.is_stock ? i.stock_qty.toLocaleString('en-IN') : '<span class="text-muted-2">—</span>') + '</td>' +
+            '<td class="text-end">' + App.kebab(i.id, [
+              { act: 'iview', icon: 'bx-show', label: 'View Item' },
+              { act: 'edit', icon: 'bx-edit', label: 'Edit' },
+              { act: 'dup', icon: 'bx-copy', label: 'Duplicate' },
+              { act: 'del', icon: 'bx-trash', label: 'Delete', danger: true }
+            ]) + '</td>' +
+          '</tr>';
+        }).join(''));
+      }
+
+      $('#search, #fltGroup').on('input change', render);
+
+      // ---- Detail view ----
+      $(document).on('click', '.detail-link', function () {
+        var i = DATA.find(x => x.id == $(this).data('id'));
+        if (i) showDetail(i);
+      });
+      $('#btnBack').on('click', showList);
+      function showList() { $('#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); }
+      $(document).on('click', '[data-act="iview"]', function () { var i = DATA.find(x => x.id == $(this).data('id')); if (i) showDetail(i); });
+      $(document).on('click', '[data-act="dup"]', function () {
+        var i = DATA.find(x => x.id == $(this).data('id')); if (!i) return;
+        var copy = Object.assign({}, i, { id: Date.now(), code: i.code + '-COPY', name: i.name + ' (Copy)' });
+        DATA.push(copy); renderStats(); render(); App.toast('Item duplicated (demo)');
+      });
+      $(document).on('click', '[data-act="del"]', function () {
+        var i = DATA.find(x => x.id == $(this).data('id')); if (!i) return;
+        App.confirm({ title: 'Delete item?', message: i.name + ' (' + i.code + ') will be removed from the item master.', confirmText: 'Delete',
+          onConfirm: function () { DATA = DATA.filter(x => x.id != i.id); renderStats(); render(); if (!$('#detailView').hasClass('d-none')) showList(); App.toast('Item "' + i.name + '" deleted (demo)'); } });
+      });
+      function showDetail(i) {
+        $('#listView').addClass('d-none'); $('#detailView').removeClass('d-none'); $('#btnBack').removeClass('d-none');
+        var margin = i.sales_rate ? Math.round((i.sales_rate - i.purchase_rate) / i.sales_rate * 100) : 0;
+        var stockVal = i.is_stock ? i.stock_qty * i.purchase_rate : 0;
+        function line(label, val) { return '<div style="display:flex;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid var(--line-soft)"><span class="text-muted-2">' + label + '</span><span class="fw-bold" style="color:var(--ink-900)">' + val + '</span></div>'; }
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up"><div class="d-flex flex-wrap align-items-center gap-3">' +
+            '<span class="avatar-sm" style="width:56px;height:56px;font-size:1.5rem"><i class="bx ' + (i.is_stock ? 'bx-box' : 'bx-cog') + '"></i></span>' +
+            '<div><h2 class="fw-8 mb-0" style="color:var(--ink-900)">' + i.name + '</h2><div class="card-sub">' + i.code + ' · <span class="badge-soft badge-draft">' + i.group + '</span> ' + (i.is_stock ? '<span class="badge-soft badge-submitted">Stock Item</span>' : '<span class="badge-soft badge-partial">Service</span>') + '</div></div>' +
+            '<button class="btn btn-outline-gold ms-auto" data-act="edit" data-id="' + i.id + '"><i class="bx bx-edit"></i> Edit</button>' +
+          '</div></div>' +
+          '<div class="row g-3 mb-3">' +
+            '<div class="col-md-3"><div class="card card-pad"><div class="kpi-label">Sales Rate</div><div class="fw-8 text-gold" style="font-size:1.3rem">' + App.currency(i.sales_rate, CUR) + '</div></div></div>' +
+            '<div class="col-md-3"><div class="card card-pad"><div class="kpi-label">Purchase Rate</div><div class="fw-8" style="color:var(--ink-900);font-size:1.3rem">' + App.currency(i.purchase_rate, CUR) + '</div></div></div>' +
+            '<div class="col-md-3"><div class="card card-pad"><div class="kpi-label">Margin</div><div class="fw-8 text-success" style="font-size:1.3rem">' + margin + '%</div></div></div>' +
+            '<div class="col-md-3"><div class="card card-pad"><div class="kpi-label">Stock Value</div><div class="fw-8" style="color:var(--ink-900);font-size:1.3rem">' + App.currency(stockVal, CUR) + '</div></div></div>' +
+          '</div>' +
+          '<div class="row g-3"><div class="col-lg-6"><div class="card card-pad" data-aos="fade-up"><h5 class="card-title mb-3">Item Details</h5>' +
+            line('Item Code', i.code) + line('Item Group', i.group) + line('Unit of Measure', i.uom) +
+            line('Default Tax', '<span class="badge-soft" style="background:var(--gold-50);color:var(--gold-700)">' + i.tax + '</span>') +
+            line('Maintain Stock', i.is_stock ? 'Yes' : 'No') + line('Current Stock', i.is_stock ? i.stock_qty.toLocaleString('en-IN') + ' ' + i.uom : '—') +
+          '</div></div>' +
+          '<div class="col-lg-6"><div class="card card-pad" data-aos="fade-up"><h5 class="card-title mb-3">Accounting Defaults</h5>' +
+            line('Income Account', i.income_account) + line('Expense Account', i.expense_account) +
+            '<div class="card card-pad bg-soft border-0 mt-2"><div class="card-sub">On a sales invoice this item credits <b>' + i.income_account + '</b>; on a purchase it debits <b>' + i.expense_account + '</b>.</div></div>' +
+          '</div></div></div>';
+        $('#detailView').html(html);
+      }
+
+      $('#btnNew').on('click', function () {
+        $('#modalTitle').text('New Item');
+        $('#fId').val(''); $('#itemModal input[type=text],#itemModal input:not([type])').val('');
+        $('#fSales,#fPurchase,#fQty').val('0'); $('#fIsStock').prop('checked', true);
+        modal.show();
+      });
+
+      $(document).on('click', '[data-act="edit"]', function () {
+        var i = DATA.find(x => x.id == $(this).data('id'));
+        $('#modalTitle').text('Edit Item');
+        $('#fId').val(i.id); $('#fCode').val(i.code); $('#fName').val(i.name); $('#fGroup').val(i.group);
+        $('#fUom').val(i.uom); $('#fTax').val(i.tax); $('#fSales').val(i.sales_rate); $('#fPurchase').val(i.purchase_rate);
+        $('#fQty').val(i.stock_qty); $('#fIsStock').prop('checked', i.is_stock);
+        modal.show();
+      });
+
+      $('#save').on('click', function () {
+        var code = $('#fCode').val().trim(), name = $('#fName').val().trim();
+        if (!code || !name) { App.toast('Code and Name are required', 'error'); return; }
+        var id = $('#fId').val();
+        var obj = {
+          code: code, name: name, group: $('#fGroup').val(), uom: $('#fUom').val(), tax: $('#fTax').val(),
+          sales_rate: parseFloat($('#fSales').val()) || 0, purchase_rate: parseFloat($('#fPurchase').val()) || 0,
+          income_account: $('#fInc').val(), expense_account: $('#fExp').val(),
+          stock_qty: parseFloat($('#fQty').val()) || 0, is_stock: $('#fIsStock').is(':checked')
+        };
+        if (id) { Object.assign(DATA.find(x => x.id == id), obj); App.toast('Item updated'); }
+        else { obj.id = Date.now(); DATA.push(obj); App.toast('Item created (demo — not persisted)'); }
+        renderStats(); render(); modal.hide();
+      });
+    });
+  </script>
+</body>
+</html>

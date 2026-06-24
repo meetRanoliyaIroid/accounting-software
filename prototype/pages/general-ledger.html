@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>General Ledger · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>General Ledger</h1>
+            <div class="crumb">Reports · <b>General Ledger</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft" onclick="App.print.report('General Ledger', $('#glTitle').text() + ' · to 24 Jun 2026', document.querySelector('.report-table').outerHTML)"><i class="bx bx-printer"></i> Print</button>
+          </div>
+        </div>
+
+        <div class="card card-pad mb-3" data-aos="fade-up">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5"><label class="form-label">Account</label><select class="form-select" id="acctSel"></select></div>
+            <div class="col-md-3"><label class="form-label">From</label><input class="form-control" type="date" value="2026-04-01"></div>
+            <div class="col-md-3"><label class="form-label">To</label><input class="form-control" type="date" value="2026-06-24"></div>
+            <div class="col-md-1"><button class="btn btn-gold w-100" id="run"><i class="bx bx-search"></i></button></div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3" data-aos="fade-up">
+          <div class="col-md-4"><div class="card card-pad"><div class="kpi-label">Opening Balance</div><div class="fw-8" id="kOpen" style="color:var(--ink-900);font-size:1.2rem">₹0</div></div></div>
+          <div class="col-md-4"><div class="card card-pad"><div class="kpi-label">Period Movement</div><div class="fw-8 text-gold" id="kMove" style="font-size:1.2rem">₹0</div></div></div>
+          <div class="col-md-4"><div class="card card-pad"><div class="kpi-label">Closing Balance</div><div class="fw-8" id="kClose" style="color:var(--ink-900);font-size:1.2rem">₹0</div></div></div>
+        </div>
+
+        <div class="card" data-aos="fade-up">
+          <div class="card-pad"><h5 class="card-title" id="glTitle">Ledger Entries</h5></div>
+          <div class="table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Date</th><th>Voucher</th><th>Against</th><th class="num">Debit</th><th class="num">Credit</th><th class="num">Balance</th></tr></thead>
+              <tbody id="glRows"><tr><td colspan="6" class="text-center text-muted-2 py-4">Select an account…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/print.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('ledger');
+      var CUR = '₹', ENTRIES = [], ACCOUNTS = [];
+
+      $.when(App.data('gl-entries.json'), App.data('accounts.json')).done(function (gl, ac) {
+        CUR = gl[0].currency; ENTRIES = gl[0].entries;
+        // accounts that actually have entries
+        var withEntries = [...new Set(ENTRIES.map(e => e.account))];
+        ACCOUNTS = ac[0].accounts.filter(a => !a.is_group);
+        $('#acctSel').html(ACCOUNTS.map(a => {
+          var label = a.code + ' · ' + a.name;
+          var has = withEntries.includes(label);
+          return '<option' + (has ? '' : ' disabled') + '>' + label + (has ? '' : ' (no entries)') + '</option>';
+        }).join(''));
+        // honour ?account= query param (drill-down from reports / CoA), else first with entries
+        var params = new URLSearchParams(location.search);
+        var wanted = params.get('account');
+        var match = wanted ? ACCOUNTS.map(a => a.code + ' · ' + a.name).find(l => l === wanted || l.indexOf(wanted) > -1) : null;
+        $('#acctSel').val(match && withEntries.includes(match) ? match : withEntries[0]);
+        if (match && !withEntries.includes(match)) { $('#acctSel').append('<option selected>' + match + '</option>'); }
+        run();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function run() {
+        var acct = $('#acctSel').val();
+        var rows = ENTRIES.filter(e => e.account === acct).sort((a, b) => a.date.localeCompare(b.date));
+        $('#glTitle').text('Ledger Entries — ' + acct);
+        if (!rows.length) { $('#glRows').html('<tr><td colspan="6" class="text-center text-muted-2 py-4">No entries</td></tr>'); return; }
+        // first row treated as opening if it's an Opening Entry
+        var opening = 0, html = '', bal = 0, totDr = 0, totCr = 0, startIdx = 0;
+        if (rows[0].type === 'Opening Entry') { opening = rows[0].debit - rows[0].credit; bal = opening; startIdx = 1; }
+        html += '<tr class="grp"><td colspan="5">Opening Balance</td><td class="num tabular">' + App.number(bal) + '</td></tr>';
+        for (var i = startIdx; i < rows.length; i++) {
+          var e = rows[i];
+          bal += e.debit - e.credit; totDr += e.debit; totCr += e.credit;
+          html += '<tr>' +
+            '<td class="text-muted-2">' + App.shortDate(e.date) + '</td>' +
+            '<td><span class="fw-bold text-gold">' + e.voucher + '</span><div class="card-sub">' + e.type + '</div></td>' +
+            '<td>' + e.against + '</td>' +
+            '<td class="num tabular">' + (e.debit ? App.number(e.debit) : '—') + '</td>' +
+            '<td class="num tabular">' + (e.credit ? App.number(e.credit) : '—') + '</td>' +
+            '<td class="num tabular fw-bold">' + App.number(bal) + '</td>' +
+          '</tr>';
+        }
+        html += '<tr class="total"><td colspan="3" class="text-end">TOTAL MOVEMENT</td><td class="num tabular">' + App.number(totDr) + '</td><td class="num tabular">' + App.number(totCr) + '</td><td class="num tabular">' + App.number(bal) + '</td></tr>';
+        $('#glRows').html(html);
+        $('#kOpen').text(App.currency(opening, CUR));
+        $('#kMove').text(App.currency(totDr - totCr, CUR));
+        $('#kClose').text(App.currency(bal, CUR));
+      }
+      $('#run, #acctSel').on('click change', run);
+    });
+  </script>
+</body>
+</html>

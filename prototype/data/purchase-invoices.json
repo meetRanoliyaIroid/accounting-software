@@ -1,0 +1,13 @@
+{
+  "currency": "₹",
+  "invoices": [
+    { "id": 1, "no": "PINV-2026-0072", "supplier": "Zenith Supplies", "date": "2026-06-21", "due_date": "2026-07-21", "status": "Submitted", "net_total": 83389.83, "tax_total": 15010.17, "grand_total": 98400.00, "outstanding": 98400.00,
+      "lines": [ { "item": "Polyester Yarn (kg)", "qty": 694, "rate": 120.00, "amount": 83280.00, "tax": "GST 18%" } ] },
+    { "id": 2, "no": "PINV-2026-0071", "supplier": "Orbit Logistics", "date": "2026-06-17", "due_date": "2026-07-02", "status": "Overdue", "net_total": 20847.46, "tax_total": 3752.54, "grand_total": 24600.00, "outstanding": 24600.00,
+      "lines": [ { "item": "Annual Maintenance Contract", "qty": 1, "rate": 20847.46, "amount": 20847.46, "tax": "GST 18%" } ] },
+    { "id": 3, "no": "PINV-2026-0066", "supplier": "Apex Raw Materials", "date": "2026-06-08", "due_date": "2026-07-23", "status": "Unpaid", "net_total": 264406.78, "tax_total": 47593.22, "grand_total": 312000.00, "outstanding": 312000.00,
+      "lines": [ { "item": "Cotton Fabric (per metre)", "qty": 1259, "rate": 210.00, "amount": 264390.00, "tax": "GST 18%" } ] },
+    { "id": 4, "no": "PINV-2026-0061", "supplier": "Crystal Packaging", "date": "2026-06-02", "due_date": "2026-07-02", "status": "Paid", "net_total": 75211.86, "tax_total": 13538.14, "grand_total": 88750.00, "outstanding": 0.00,
+      "lines": [ { "item": "Packaging Box (Large)", "qty": 2686, "rate": 28.00, "amount": 75208.00, "tax": "GST 18%" } ] }
+  ]
+}

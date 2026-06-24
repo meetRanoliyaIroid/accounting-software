@@ -1,0 +1,46 @@
+{
+  "company": "GoldBooks Demo Pvt Ltd",
+  "currency": "₹",
+  "fiscal_year": "2026-2027",
+  "kpis": {
+    "cash_and_bank": 1842500.50,
+    "receivables": 968400.00,
+    "payables": 612750.00,
+    "net_profit": 734820.75,
+    "revenue_mtd": 1256900.00,
+    "expense_mtd": 522079.25,
+    "cash_trend": 8.4,
+    "recv_trend": -3.1,
+    "pay_trend": 5.7,
+    "profit_trend": 12.6
+  },
+  "income_expense": {
+    "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "income":  [820000, 910000, 1050000, 980000, 1180000, 1256900],
+    "expense": [510000, 540000, 605000, 560000, 640000, 522079]
+  },
+  "cashflow": {
+    "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "net": [310000, 370000, 445000, 420000, 540000, 734820]
+  },
+  "receivable_ageing": {
+    "labels": ["0-30 days", "31-60 days", "61-90 days", "90+ days"],
+    "values": [512000, 248400, 142000, 66000]
+  },
+  "recent_transactions": [
+    { "date": "2026-06-22", "voucher": "SINV-2026-0148", "type": "Sales Invoice", "party": "Aarav Textiles", "amount": 145200.00, "status": "Unpaid" },
+    { "date": "2026-06-21", "voucher": "PAY-2026-0091", "type": "Payment", "party": "Zenith Supplies", "amount": -86000.00, "status": "Paid" },
+    { "date": "2026-06-21", "voucher": "PINV-2026-0072", "type": "Purchase Invoice", "party": "Zenith Supplies", "amount": 98400.00, "status": "Submitted" },
+    { "date": "2026-06-20", "voucher": "SINV-2026-0147", "type": "Sales Invoice", "party": "Meridian Corp", "amount": 312500.00, "status": "Partly Paid" },
+    { "date": "2026-06-19", "voucher": "JV-2026-0210", "type": "Journal Entry", "party": "Depreciation Run", "amount": 42000.00, "status": "Submitted" },
+    { "date": "2026-06-18", "voucher": "SINV-2026-0146", "type": "Sales Invoice", "party": "Sunrise Traders", "amount": 78900.00, "status": "Paid" },
+    { "date": "2026-06-17", "voucher": "PINV-2026-0071", "type": "Purchase Invoice", "party": "Orbit Logistics", "amount": 24600.00, "status": "Overdue" }
+  ],
+  "top_customers": [
+    { "name": "Meridian Corp", "amount": 1245000, "share": 32 },
+    { "name": "Aarav Textiles", "amount": 868000, "share": 22 },
+    { "name": "Sunrise Traders", "amount": 622000, "share": 16 },
+    { "name": "Blue Ocean Ltd", "amount": 510000, "share": 13 },
+    { "name": "Others", "amount": 655000, "share": 17 }
+  ]
+}

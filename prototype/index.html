@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard · GoldBooks Accounting</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- AOS animations -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <!-- Theme -->
+  <link href="assets/css/theme.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+
+      <main class="content">
+        <!-- Page head -->
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Dashboard</h1>
+            <div class="crumb">Accounting · <b>Overview</b> · FY <span id="fyLabel">—</span></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft"><i class="bx bx-calendar"></i> This Month</button>
+            <button class="btn btn-gold"><i class="bx bx-plus"></i> New Invoice</button>
+          </div>
+        </div>
+
+        <!-- KPI ROW -->
+        <div class="row g-3 mb-1">
+          <div class="col-12 col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="0">
+            <div class="card card-hover kpi">
+              <div class="kpi-icon gold"><i class="bx bxs-wallet"></i></div>
+              <div>
+                <div class="kpi-label">Cash &amp; Bank</div>
+                <div class="kpi-value" data-kpi="cash_and_bank">₹0.00</div>
+                <div class="kpi-trend up" data-trend="cash_trend"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="80">
+            <div class="card card-hover kpi">
+              <div class="kpi-icon blue"><i class="bx bx-down-arrow-circle"></i></div>
+              <div>
+                <div class="kpi-label">Receivables</div>
+                <div class="kpi-value" data-kpi="receivables">₹0.00</div>
+                <div class="kpi-trend" data-trend="recv_trend"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="160">
+            <div class="card card-hover kpi">
+              <div class="kpi-icon red"><i class="bx bx-up-arrow-circle"></i></div>
+              <div>
+                <div class="kpi-label">Payables</div>
+                <div class="kpi-value" data-kpi="payables">₹0.00</div>
+                <div class="kpi-trend" data-trend="pay_trend"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="240">
+            <div class="card card-hover kpi">
+              <div class="kpi-icon green"><i class="bx bx-line-chart"></i></div>
+              <div>
+                <div class="kpi-label">Net Profit</div>
+                <div class="kpi-value" data-kpi="net_profit">₹0.00</div>
+                <div class="kpi-trend up" data-trend="profit_trend"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHARTS ROW -->
+        <div class="row g-3 mt-1">
+          <div class="col-12 col-xl-8" data-aos="fade-up">
+            <div class="card card-pad h-100">
+              <div class="d-flex align-items-center mb-3">
+                <div>
+                  <h5 class="card-title">Income vs Expense</h5>
+                  <div class="card-sub">Last 6 months performance</div>
+                </div>
+                <div class="ms-auto d-flex gap-3 small">
+                  <span class="d-flex align-items-center gap-1"><span style="width:10px;height:10px;border-radius:3px;background:var(--gold-500);display:inline-block"></span> Income</span>
+                  <span class="d-flex align-items-center gap-1"><span style="width:10px;height:10px;border-radius:3px;background:var(--ink-300);display:inline-block"></span> Expense</span>
+                </div>
+              </div>
+              <div id="chartIncomeExpense" style="min-height:300px"></div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card card-pad h-100">
+              <h5 class="card-title">Receivables Ageing</h5>
+              <div class="card-sub mb-2">Outstanding by bucket</div>
+              <div id="chartAgeing" style="min-height:250px"></div>
+              <div id="ageingLegend" class="mt-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECOND ROW -->
+        <div class="row g-3 mt-1">
+          <div class="col-12 col-xl-8" data-aos="fade-up">
+            <div class="card h-100">
+              <div class="card-pad d-flex align-items-center">
+                <div>
+                  <h5 class="card-title">Recent Transactions</h5>
+                  <div class="card-sub">Latest vouchers across modules</div>
+                </div>
+                <a href="pages/general-ledger.html" class="btn btn-outline-gold btn-sm ms-auto">View All</a>
+              </div>
+              <div class="table-wrap">
+                <table class="tbl">
+                  <thead>
+                    <tr><th>Date</th><th>Voucher</th><th>Type</th><th>Party</th><th class="num">Amount</th><th>Status</th></tr>
+                  </thead>
+                  <tbody id="recentTxnBody">
+                    <tr><td colspan="6" class="text-center text-muted-2 py-4">Loading…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card card-pad h-100">
+              <h5 class="card-title mb-1">Top Customers</h5>
+              <div class="card-sub mb-3">By revenue this year</div>
+              <div id="topCustomers"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="row g-3 mt-1" data-aos="fade-up">
+          <div class="col-12"><h6 class="fw-8 text-muted-2 text-uppercase" style="letter-spacing:.05em;font-size:.74rem">Quick Actions</h6></div>
+          <div class="col-6 col-md-3 col-xl-2"><a class="quick-tile" href="pages/sales-invoice.html"><i class="bx bx-receipt"></i><span>New Sales Invoice</span></a></div>
+          <div class="col-6 col-md-3 col-xl-2"><a class="quick-tile" href="pages/purchase-invoice.html"><i class="bx bx-cart"></i><span>New Purchase Bill</span></a></div>
+          <div class="col-6 col-md-3 col-xl-2"><a class="quick-tile" href="pages/payments.html"><i class="bx bx-money"></i><span>Record Payment</span></a></div>
+          <div class="col-6 col-md-3 col-xl-2"><a class="quick-tile" href="pages/journal-entry.html"><i class="bx bx-book-content"></i><span>Journal Entry</span></a></div>
+          <div class="col-6 col-md-3 col-xl-2"><a class="quick-tile" href="pages/customers.html"><i class="bx bx-user-plus"></i><span>Add Customer</span></a></div>
+          <div class="col-6 col-md-3 col-xl-2"><a class="quick-tile" href="pages/trial-balance.html"><i class="bx bx-spreadsheet"></i><span>Trial Balance</span></a></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.49.0/dist/apexcharts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true });
+      App.loadShell('dashboard');
+
+      App.data('dashboard.json').done(function (d) {
+        $('#fyLabel').text(d.fiscal_year);
+
+        // KPIs (animated counters)
+        $('[data-kpi]').each(function () {
+          var key = $(this).data('kpi');
+          App.countUp($(this), d.kpis[key], { prefix: d.currency, decimals: 2 });
+        });
+        $('[data-trend]').each(function () {
+          var v = d.kpis[$(this).data('trend')];
+          var up = v >= 0;
+          $(this).removeClass('up down').addClass(up ? 'up' : 'down')
+            .html('<i class="bx bx-' + (up ? 'up' : 'down') + '-arrow-alt"></i> ' + Math.abs(v) + '% vs last month');
+        });
+
+        renderIncomeExpense(d.income_expense);
+        renderAgeing(d.receivable_ageing, d.currency);
+        renderRecent(d.recent_transactions, d.currency);
+        renderTopCustomers(d.top_customers, d.currency);
+      }).fail(function () {
+        App.toast('Could not load dashboard data. Serve via http:// (XAMPP), not file://', 'error');
+      });
+
+      function renderIncomeExpense(ie) {
+        new ApexCharts(document.querySelector('#chartIncomeExpense'), {
+          chart: { type: 'bar', height: 320, toolbar: { show: false }, fontFamily: 'Public Sans', animations: { enabled: true, speed: 800 } },
+          series: [ { name: 'Income', data: ie.income }, { name: 'Expense', data: ie.expense } ],
+          colors: ['#C9A227', '#B8B3A7'],
+          plotOptions: { bar: { borderRadius: 6, columnWidth: '45%' } },
+          dataLabels: { enabled: false },
+          grid: { borderColor: '#F2EEE4', strokeDashArray: 4 },
+          xaxis: { categories: ie.months, axisBorder: { show: false }, axisTicks: { show: false } },
+          yaxis: { labels: { formatter: function (v) { return '₹' + (v / 1000).toFixed(0) + 'k'; } } },
+          legend: { show: false },
+          tooltip: { y: { formatter: function (v) { return App.currency(v); } } }
+        }).render();
+      }
+
+      function renderAgeing(a, cur) {
+        var chart = new ApexCharts(document.querySelector('#chartAgeing'), {
+          chart: { type: 'donut', height: 250, fontFamily: 'Public Sans' },
+          series: a.values, labels: a.labels,
+          colors: ['#C9A227', '#DCBE6B', '#E9D49A', '#B8860B'],
+          stroke: { width: 2, colors: ['#fff'] },
+          legend: { show: false },
+          dataLabels: { enabled: false },
+          plotOptions: { pie: { donut: { size: '70%', labels: { show: true, total: { show: true, label: 'Total Due', formatter: function (w) { return cur + (w.globals.seriesTotals.reduce(function (a, b) { return a + b; }, 0) / 1000).toFixed(0) + 'k'; } } } } } }
+        });
+        chart.render();
+        var total = a.values.reduce(function (x, y) { return x + y; }, 0);
+        var cols = ['#C9A227', '#DCBE6B', '#E9D49A', '#B8860B'];
+        var html = '';
+        a.labels.forEach(function (lbl, i) {
+          html += '<div class="d-flex align-items-center justify-content-between py-1">' +
+            '<span class="small"><span style="width:9px;height:9px;border-radius:2px;background:' + cols[i] + ';display:inline-block;margin-right:6px"></span>' + lbl + '</span>' +
+            '<span class="small fw-bold tabular">' + App.currency(a.values[i], cur) + '</span></div>';
+        });
+        $('#ageingLegend').html(html);
+      }
+
+      function renderRecent(rows, cur) {
+        var html = rows.map(function (r) {
+          var amtCls = r.amount < 0 ? 'text-danger' : '';
+          return '<tr>' +
+            '<td class="text-muted-2">' + App.shortDate(r.date) + '</td>' +
+            '<td><a href="#" class="fw-bold text-gold">' + r.voucher + '</a></td>' +
+            '<td>' + r.type + '</td>' +
+            '<td>' + r.party + '</td>' +
+            '<td class="num fw-bold tabular ' + amtCls + '">' + App.currency(r.amount, cur) + '</td>' +
+            '<td>' + App.statusBadge(r.status) + '</td>' +
+          '</tr>';
+        }).join('');
+        $('#recentTxnBody').html(html);
+      }
+
+      function renderTopCustomers(list, cur) {
+        var html = list.map(function (c) {
+          return '<div class="mb-3">' +
+            '<div class="d-flex justify-content-between mb-1">' +
+              '<span class="fw-bold" style="color:var(--ink-900);font-size:.85rem">' + c.name + '</span>' +
+              '<span class="small tabular text-muted-2">' + App.currency(c.amount, cur) + '</span>' +
+            '</div>' +
+            '<div class="progress" style="height:7px;background:var(--bg-soft)">' +
+              '<div class="progress-bar" style="width:' + c.share + '%;background:linear-gradient(90deg,var(--gold-400),var(--gold-600))"></div>' +
+            '</div></div>';
+        }).join('');
+        $('#topCustomers').html(html);
+      }
+    });
+  </script>
+</body>
+</html>

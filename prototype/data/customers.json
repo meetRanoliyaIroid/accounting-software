@@ -1,0 +1,32 @@
+{
+  "currency": "₹",
+  "customers": [
+    { "id": 1, "code": "CUST-0001", "name": "Meridian Corp", "tax_id": "27AABCM1234D1ZP", "email": "accounts@meridian.com", "phone": "+91 98200 11223", "city": "Mumbai", "currency": "INR", "payment_terms": "Net 30", "receivable_account": "1130 · Accounts Receivable", "credit_limit": 1500000, "balance": 312500.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-06-20", "voucher": "SINV-2026-0147", "type": "Sales Invoice", "debit": 312500, "credit": 0, "balance": 312500 },
+        { "date": "2026-05-28", "voucher": "PAY-2026-0083", "type": "Payment", "debit": 0, "credit": 250000, "balance": 0 },
+        { "date": "2026-05-12", "voucher": "SINV-2026-0131", "type": "Sales Invoice", "debit": 250000, "credit": 0, "balance": 250000 }
+      ] },
+    { "id": 2, "code": "CUST-0002", "name": "Aarav Textiles", "tax_id": "24AAACA5678F1Z5", "email": "finance@aaravtex.in", "phone": "+91 99099 44556", "city": "Surat", "currency": "INR", "payment_terms": "Net 15", "receivable_account": "1130 · Accounts Receivable", "credit_limit": 800000, "balance": 145200.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-06-22", "voucher": "SINV-2026-0148", "type": "Sales Invoice", "debit": 145200, "credit": 0, "balance": 145200 }
+      ] },
+    { "id": 3, "code": "CUST-0003", "name": "Sunrise Traders", "tax_id": "29AAGCS9012K1Z9", "email": "ap@sunrisetraders.com", "phone": "+91 90080 77881", "city": "Bengaluru", "currency": "INR", "payment_terms": "Net 30", "receivable_account": "1130 · Accounts Receivable", "credit_limit": 500000, "balance": 0.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-06-18", "voucher": "SINV-2026-0146", "type": "Sales Invoice", "debit": 78900, "credit": 0, "balance": 78900 },
+        { "date": "2026-06-19", "voucher": "PAY-2026-0089", "type": "Payment", "debit": 0, "credit": 78900, "balance": 0 }
+      ] },
+    { "id": 4, "code": "CUST-0004", "name": "Blue Ocean Ltd", "tax_id": "27AABCB3344L1Z7", "email": "billing@blueocean.co", "phone": "+91 98765 33221", "city": "Pune", "currency": "INR", "payment_terms": "Net 45", "receivable_account": "1130 · Accounts Receivable", "credit_limit": 1000000, "balance": 240800.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-06-10", "voucher": "SINV-2026-0140", "type": "Sales Invoice", "debit": 240800, "credit": 0, "balance": 240800 }
+      ] },
+    { "id": 5, "code": "CUST-0005", "name": "Galaxy Enterprises", "tax_id": "07AAFCG7788M1Z2", "email": "accounts@galaxyent.in", "phone": "+91 99100 22334", "city": "New Delhi", "currency": "INR", "payment_terms": "Net 30", "receivable_account": "1130 · Accounts Receivable", "credit_limit": 600000, "balance": 168900.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-06-05", "voucher": "SINV-2026-0136", "type": "Sales Invoice", "debit": 168900, "credit": 0, "balance": 168900 }
+      ] },
+    { "id": 6, "code": "CUST-0006", "name": "Pioneer Foods", "tax_id": "33AAHCP5566N1Z8", "email": "pay@pioneerfoods.com", "phone": "+91 94440 55667", "city": "Chennai", "currency": "INR", "payment_terms": "Net 15", "receivable_account": "1130 · Accounts Receivable", "credit_limit": 350000, "balance": 100000.00, "status": "Inactive",
+      "transactions": [
+        { "date": "2026-04-22", "voucher": "SINV-2026-0118", "type": "Sales Invoice", "debit": 100000, "credit": 0, "balance": 100000 }
+      ] }
+  ]
+}

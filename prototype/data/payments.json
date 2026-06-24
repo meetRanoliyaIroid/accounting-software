@@ -1,0 +1,24 @@
+{
+  "currency": "₹",
+  "payments": [
+    { "id": 1, "no": "PAY-2026-0091", "type": "Pay", "party": "Zenith Supplies", "date": "2026-06-21", "mode": "Bank Transfer", "account": "1120 · Bank - HDFC Current A/c", "amount": 86000.00, "unallocated": 0.00,
+      "allocations": [ { "invoice": "PINV-2026-0072", "allocated": 86000.00 } ] },
+    { "id": 2, "no": "PAY-2026-0089", "type": "Receive", "party": "Sunrise Traders", "date": "2026-06-19", "mode": "UPI", "account": "1120 · Bank - HDFC Current A/c", "amount": 78900.00, "unallocated": 0.00,
+      "allocations": [ { "invoice": "SINV-2026-0146", "allocated": 78900.00 } ] },
+    { "id": 3, "no": "PAY-2026-0086", "type": "Receive", "party": "Meridian Corp", "date": "2026-06-14", "mode": "Cheque", "account": "1120 · Bank - HDFC Current A/c", "amount": 250000.00, "unallocated": 0.00,
+      "allocations": [ { "invoice": "SINV-2026-0147", "allocated": 250000.00 } ] },
+    { "id": 4, "no": "PAY-2026-0083", "type": "Pay", "party": "Crystal Packaging", "date": "2026-06-05", "mode": "Bank Transfer", "account": "1120 · Bank - HDFC Current A/c", "amount": 88750.00, "unallocated": 0.00,
+      "allocations": [ { "invoice": "PINV-2026-0061", "allocated": 88750.00 } ] }
+  ],
+  "open_sales_invoices": [
+    { "no": "SINV-2026-0148", "customer": "Aarav Textiles", "outstanding": 145200.00 },
+    { "no": "SINV-2026-0147", "customer": "Meridian Corp", "outstanding": 62500.00 },
+    { "no": "SINV-2026-0140", "customer": "Blue Ocean Ltd", "outstanding": 240800.00 },
+    { "no": "SINV-2026-0136", "customer": "Galaxy Enterprises", "outstanding": 168900.00 }
+  ],
+  "open_purchase_invoices": [
+    { "no": "PINV-2026-0072", "supplier": "Zenith Supplies", "outstanding": 12400.00 },
+    { "no": "PINV-2026-0071", "supplier": "Orbit Logistics", "outstanding": 24600.00 },
+    { "no": "PINV-2026-0066", "supplier": "Apex Raw Materials", "outstanding": 312000.00 }
+  ]
+}

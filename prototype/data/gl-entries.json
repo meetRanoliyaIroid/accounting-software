@@ -1,0 +1,33 @@
+{
+  "currency": "₹",
+  "as_on": "2026-06-24",
+  "entries": [
+    { "date": "2026-04-01", "account": "1120 · Bank - HDFC Current A/c", "voucher": "JV-2026-0001", "type": "Opening Entry", "against": "Opening Balance", "debit": 1450000, "credit": 0 },
+    { "date": "2026-06-10", "account": "1120 · Bank - HDFC Current A/c", "voucher": "JV-2026-0208", "type": "Journal Entry", "against": "Other Income", "debit": 12500, "credit": 0 },
+    { "date": "2026-06-14", "account": "1120 · Bank - HDFC Current A/c", "voucher": "PAY-2026-0086", "type": "Payment", "against": "Meridian Corp", "debit": 250000, "credit": 0 },
+    { "date": "2026-06-15", "account": "1120 · Bank - HDFC Current A/c", "voucher": "JV-2026-0209", "type": "Journal Entry", "against": "Rent Expense", "debit": 0, "credit": 60000 },
+    { "date": "2026-06-19", "account": "1120 · Bank - HDFC Current A/c", "voucher": "PAY-2026-0089", "type": "Payment", "against": "Sunrise Traders", "debit": 78900, "credit": 0 },
+    { "date": "2026-06-21", "account": "1120 · Bank - HDFC Current A/c", "voucher": "PAY-2026-0091", "type": "Payment", "against": "Zenith Supplies", "debit": 0, "credit": 86000 },
+    { "date": "2026-06-05", "account": "1120 · Bank - HDFC Current A/c", "voucher": "PAY-2026-0083", "type": "Payment", "against": "Crystal Packaging", "debit": 0, "credit": 88750 },
+
+    { "date": "2026-04-01", "account": "1130 · Accounts Receivable (Debtors)", "voucher": "JV-2026-0001", "type": "Opening Entry", "against": "Opening Balance", "debit": 420000, "credit": 0 },
+    { "date": "2026-06-05", "account": "1130 · Accounts Receivable (Debtors)", "voucher": "SINV-2026-0136", "type": "Sales Invoice", "against": "Galaxy Enterprises", "debit": 168900, "credit": 0 },
+    { "date": "2026-06-10", "account": "1130 · Accounts Receivable (Debtors)", "voucher": "SINV-2026-0140", "type": "Sales Invoice", "against": "Blue Ocean Ltd", "debit": 240800, "credit": 0 },
+    { "date": "2026-06-14", "account": "1130 · Accounts Receivable (Debtors)", "voucher": "PAY-2026-0086", "type": "Payment", "against": "Meridian Corp", "debit": 0, "credit": 250000 },
+    { "date": "2026-06-18", "account": "1130 · Accounts Receivable (Debtors)", "voucher": "SINV-2026-0146", "type": "Sales Invoice", "against": "Sunrise Traders", "debit": 78900, "credit": 0 },
+    { "date": "2026-06-19", "account": "1130 · Accounts Receivable (Debtors)", "voucher": "PAY-2026-0089", "type": "Payment", "against": "Sunrise Traders", "debit": 0, "credit": 78900 },
+    { "date": "2026-06-20", "account": "1130 · Accounts Receivable (Debtors)", "voucher": "SINV-2026-0147", "type": "Sales Invoice", "against": "Meridian Corp", "debit": 312500, "credit": 0 },
+    { "date": "2026-06-22", "account": "1130 · Accounts Receivable (Debtors)", "voucher": "SINV-2026-0148", "type": "Sales Invoice", "against": "Aarav Textiles", "debit": 145200, "credit": 0 },
+
+    { "date": "2026-06-05", "account": "4100 · Sales Revenue", "voucher": "SINV-2026-0136", "type": "Sales Invoice", "against": "Galaxy Enterprises", "debit": 0, "credit": 143135.59 },
+    { "date": "2026-06-10", "account": "4100 · Sales Revenue", "voucher": "SINV-2026-0140", "type": "Sales Invoice", "against": "Blue Ocean Ltd", "debit": 0, "credit": 204067.80 },
+    { "date": "2026-06-18", "account": "4100 · Sales Revenue", "voucher": "SINV-2026-0146", "type": "Sales Invoice", "against": "Sunrise Traders", "debit": 0, "credit": 70446.43 },
+    { "date": "2026-06-20", "account": "4100 · Sales Revenue", "voucher": "SINV-2026-0147", "type": "Sales Invoice", "against": "Meridian Corp", "debit": 0, "credit": 279017.86 },
+    { "date": "2026-06-22", "account": "4100 · Sales Revenue", "voucher": "SINV-2026-0148", "type": "Sales Invoice", "against": "Aarav Textiles", "debit": 0, "credit": 129642.86 },
+
+    { "date": "2026-06-08", "account": "5100 · Cost of Goods Sold", "voucher": "PINV-2026-0066", "type": "Purchase Invoice", "against": "Apex Raw Materials", "debit": 264406.78, "credit": 0 },
+    { "date": "2026-06-21", "account": "5100 · Cost of Goods Sold", "voucher": "PINV-2026-0072", "type": "Purchase Invoice", "against": "Zenith Supplies", "debit": 83389.83, "credit": 0 },
+    { "date": "2026-06-15", "account": "5300 · Rent Expense", "voucher": "JV-2026-0209", "type": "Journal Entry", "against": "Bank", "debit": 60000, "credit": 0 },
+    { "date": "2026-06-19", "account": "5500 · Depreciation", "voucher": "JV-2026-0210", "type": "Depreciation Entry", "against": "Plant & Machinery", "debit": 42000, "credit": 0 }
+  ]
+}

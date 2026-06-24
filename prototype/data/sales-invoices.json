@@ -1,0 +1,15 @@
+{
+  "currency": "₹",
+  "invoices": [
+    { "id": 1, "no": "SINV-2026-0148", "customer": "Aarav Textiles", "date": "2026-06-22", "due_date": "2026-07-07", "status": "Unpaid", "net_total": 129642.86, "tax_total": 15557.14, "grand_total": 145200.00, "outstanding": 145200.00,
+      "lines": [ { "item": "Finished Shirt", "qty": 144, "rate": 899.00, "amount": 129456.00, "tax": "GST 12%" } ] },
+    { "id": 2, "no": "SINV-2026-0147", "customer": "Meridian Corp", "date": "2026-06-20", "due_date": "2026-07-20", "status": "Partly Paid", "net_total": 279017.86, "tax_total": 33482.14, "grand_total": 312500.00, "outstanding": 62500.00,
+      "lines": [ { "item": "Consulting Service (hour)", "qty": 100, "rate": 2500.00, "amount": 250000.00, "tax": "GST 18%" } ] },
+    { "id": 3, "no": "SINV-2026-0146", "customer": "Sunrise Traders", "date": "2026-06-18", "due_date": "2026-07-18", "status": "Paid", "net_total": 70446.43, "tax_total": 8453.57, "grand_total": 78900.00, "outstanding": 0.00,
+      "lines": [ { "item": "Packaging Box (Large)", "qty": 1500, "rate": 45.00, "amount": 67500.00, "tax": "GST 18%" } ] },
+    { "id": 4, "no": "SINV-2026-0140", "customer": "Blue Ocean Ltd", "date": "2026-06-10", "due_date": "2026-07-25", "status": "Unpaid", "net_total": 204067.80, "tax_total": 36732.20, "grand_total": 240800.00, "outstanding": 240800.00,
+      "lines": [ { "item": "Cotton Fabric (per metre)", "qty": 638, "rate": 320.00, "amount": 204160.00, "tax": "GST 18%" } ] },
+    { "id": 5, "no": "SINV-2026-0136", "customer": "Galaxy Enterprises", "date": "2026-06-05", "due_date": "2026-07-05", "status": "Overdue", "net_total": 143135.59, "tax_total": 25764.41, "grand_total": 168900.00, "outstanding": 168900.00,
+      "lines": [ { "item": "Dye Chemical (litre)", "qty": 412, "rate": 410.00, "amount": 168920.00, "tax": "GST 18%" } ] }
+  ]
+}

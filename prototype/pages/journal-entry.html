@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journal Entry · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .je-grid td { padding: .4rem .5rem; }
+    .je-grid .form-control, .je-grid .form-select { padding: .4rem .6rem; font-size: .84rem; }
+    .balance-pill { padding:.5rem 1rem; border-radius:999px; font-weight:700; display:inline-flex; align-items:center; gap:.4rem; transition:.2s; }
+    .balance-pill.ok { background: var(--success-soft); color: var(--success); }
+    .balance-pill.bad { background: var(--danger-soft); color: var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Journal Entry</h1>
+            <div class="crumb">Accounting · <b>Journal Entry</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back to List</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Journal Entry</button>
+          </div>
+        </div>
+
+        <!-- LIST VIEW -->
+        <div id="listView">
+          <div class="card" data-aos="fade-up">
+            <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Journal Entries</h5>
+              <div style="max-width:240px;width:100%"><input id="search" class="form-control form-control-sm" placeholder="Search voucher or reference…"></div>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead><tr><th>Voucher</th><th>Date</th><th>Type</th><th>Reference</th><th class="num">Debit</th><th class="num">Credit</th><th>Status</th><th></th></tr></thead>
+                <tbody id="rows"><tr><td colspan="7" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL VIEW -->
+        <div id="detailView" class="d-none"></div>
+
+        <!-- FORM VIEW -->
+        <div id="formView" class="d-none">
+          <div class="card card-pad mb-3" data-aos="fade-up">
+            <div class="row g-3">
+              <div class="col-md-3"><label class="form-label">Voucher No.</label><input class="form-control" id="jeNo" readonly></div>
+              <div class="col-md-3"><label class="form-label">Posting Date</label><input class="form-control" id="jeDate" type="date"></div>
+              <div class="col-md-3"><label class="form-label">Entry Type</label><select class="form-select" id="jeType"><option>Journal Entry</option><option>Opening Entry</option><option>Depreciation Entry</option><option>Bank Entry</option><option>Cash Entry</option></select></div>
+              <div class="col-md-3"><label class="form-label">Reference</label><input class="form-control" id="jeRef" placeholder="Narration / reference"></div>
+            </div>
+          </div>
+
+          <div class="card" data-aos="fade-up">
+            <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Accounting Entries</h5>
+              <button class="btn btn-outline-gold btn-sm" id="addRow"><i class="bx bx-plus"></i> Add Row</button>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl je-grid">
+                <thead><tr><th style="width:38%">Account</th><th style="width:24%">Party (optional)</th><th class="num" style="width:16%">Debit</th><th class="num" style="width:16%">Credit</th><th></th></tr></thead>
+                <tbody id="jeRows"></tbody>
+                <tfoot>
+                  <tr style="border-top:2px solid var(--line)">
+                    <td colspan="2" class="text-end fw-8" style="color:var(--ink-900)">Totals</td>
+                    <td class="num fw-8 tabular" id="totDr" style="color:var(--ink-900)">0.00</td>
+                    <td class="num fw-8 tabular" id="totCr" style="color:var(--ink-900)">0.00</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="card-pad d-flex flex-wrap align-items-center gap-3">
+              <span class="balance-pill" id="balPill"><i class="bx bx-info-circle"></i> <span id="balText"></span></span>
+              <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-soft" id="saveDraft"><i class="bx bx-save"></i> Save as Draft</button>
+                <button class="btn btn-gold" id="submitJe"><i class="bx bx-check-double"></i> Submit Entry</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/print.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('journal');
+      var DATA = [], CUR = '₹', ACCOUNTS = [], seq = 211;
+
+      $.when(App.data('journal-entries.json'), App.data('accounts.json')).done(function (je, ac) {
+        DATA = je[0].entries; CUR = je[0].currency;
+        ACCOUNTS = ac[0].accounts.filter(a => !a.is_group).map(a => a.code + ' · ' + a.name);
+        render();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function render() {
+        var q = $('#search').val() ? $('#search').val().toLowerCase() : '';
+        var list = DATA.filter(e => e.no.toLowerCase().includes(q) || (e.reference || '').toLowerCase().includes(q));
+        $('#rows').html(list.map(function (e) {
+          return '<tr class="row-click" style="cursor:pointer" data-id="' + e.id + '" title="View voucher">' +
+            '<td><span class="fw-bold text-gold">' + e.no + '</span></td>' +
+            '<td class="text-muted-2">' + App.shortDate(e.date) + '</td>' +
+            '<td>' + e.type + '</td>' +
+            '<td class="text-muted-2">' + e.reference + '</td>' +
+            '<td class="num tabular fw-bold">' + App.currency(e.total_debit, CUR) + '</td>' +
+            '<td class="num tabular fw-bold">' + App.currency(e.total_credit, CUR) + '</td>' +
+            '<td>' + App.statusBadge(e.status) + '</td>' +
+            '<td class="text-end">' + App.kebab(e.id, [
+              { act: 'view', icon: 'bx-show', label: 'View Voucher' },
+              { act: 'k-print', icon: 'bx-printer', label: 'Print' },
+              { act: 'k-download', icon: 'bx-download', label: 'Download PDF' },
+              { act: 'k-send', icon: 'bx-share-alt', label: 'Send / Share' },
+              { act: 'k-cancel', icon: 'bx-x-circle', label: 'Cancel Entry', danger: true }
+            ]) + '</td>' +
+          '</tr>';
+        }).join('') || '<tr><td colspan="8" class="text-center text-muted-2 py-4">No entries</td></tr>');
+      }
+      $('#search').on('input', render);
+
+      // ---- Detail view + row actions ----
+      $(document).on('click', '.row-click', function (ev) {
+        if ($(ev.target).closest('.dropdown').length) return;
+        var e = DATA.find(x => x.id == $(this).data('id'));
+        if (e) showDetail(e);
+      });
+      function byId(el) { return DATA.find(function (x) { return x.id == $(el).data('id'); }); }
+      $(document).on('click', '[data-act="view"]', function () { var e = byId(this); if (e) showDetail(e); });
+      $(document).on('click', '[data-act="k-print"]', function () { App.print.journal(byId(this)); });
+      $(document).on('click', '[data-act="k-download"]', function () { App.print.download('journal', byId(this)); });
+      $(document).on('click', '[data-act="k-send"]', function () { App.shareDoc('journal', byId(this)); });
+      $(document).on('click', '[data-act="k-cancel"]', function () {
+        var e = byId(this); if (!e) return;
+        App.confirm({ title: 'Cancel this voucher?', message: 'Journal Entry ' + e.no + ' will be cancelled. This cannot be undone.', confirmText: 'Cancel Entry',
+          onConfirm: function () { e.status = 'Cancelled'; render(); if (!$('#detailView').hasClass('d-none')) showList(); App.toast('Voucher ' + e.no + ' cancelled (demo)'); } });
+      });
+
+      function showDetail(e) {
+        window.__doc = e;
+        $('#listView,#formView').addClass('d-none'); $('#detailView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        var rows = (e.lines || []).map(function (l) {
+          return '<tr>' +
+            '<td class="fw-bold" style="color:var(--ink-900)">' + l.account + '</td>' +
+            '<td class="text-muted-2">' + (l.party || '—') + '</td>' +
+            '<td class="num tabular">' + (l.debit ? App.number(l.debit) : '—') + '</td>' +
+            '<td class="num tabular">' + (l.credit ? App.number(l.credit) : '—') + '</td></tr>';
+        }).join('');
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up">' +
+            '<div class="d-flex flex-wrap align-items-start gap-3">' +
+              '<div><div class="kpi-label">' + e.type + '</div><h2 class="fw-8 mb-0 text-gold">' + e.no + '</h2>' +
+                '<div class="card-sub mt-1">Posted ' + App.shortDate(e.date) + ' · ' + e.reference + '</div></div>' +
+              '<div class="ms-auto text-end">' + App.statusBadge(e.status) +
+                '<div class="mt-2"><div class="kpi-label">Amount</div><div class="fw-8 text-gold" style="font-size:1.5rem">' + App.currency(e.total_debit, CUR) + '</div></div></div>' +
+            '</div></div>' +
+          '<div class="card" data-aos="fade-up"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Accounting Entries</h5>' +
+            '<span class="balance-pill ok" style="padding:.4rem .9rem;border-radius:999px;background:var(--success-soft);color:var(--success);font-weight:700"><i class="bx bx-check-circle"></i> Balanced</span></div>' +
+            '<div class="table-wrap"><table class="report-table"><thead><tr><th>Account</th><th>Party</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead><tbody>' + rows +
+            '<tr class="total"><td colspan="2" class="text-end">TOTAL</td><td class="num tabular">' + App.number(e.total_debit) + '</td><td class="num tabular">' + App.number(e.total_credit) + '</td></tr>' +
+            '</tbody></table></div>' +
+            '<div class="card-pad d-flex flex-wrap gap-2">' +
+              '<button class="btn btn-gold" onclick="App.shareDoc(\'journal\', window.__doc)"><i class="bx bx-share-alt"></i> Send / Share</button>' +
+              '<button class="btn btn-soft" onclick="App.print.journal(window.__doc)"><i class="bx bx-printer"></i> Print</button>' +
+              '<button class="btn btn-soft" onclick="App.print.download(\'journal\', window.__doc)"><i class="bx bx-download"></i> Download PDF</button>' +
+              '<button class="btn btn-soft text-danger ms-auto" data-act="k-cancel" data-id="' + e.id + '"><i class="bx bx-x-circle"></i> Cancel Entry</button>' +
+            '</div></div>';
+        $('#detailView').html(html);
+      }
+
+      function acctOptions(sel) {
+        return '<option value="">Select account…</option>' + ACCOUNTS.map(a => '<option' + (a === sel ? ' selected' : '') + '>' + a + '</option>').join('');
+      }
+      function addRow(line) {
+        line = line || {};
+        var tr = '<tr>' +
+          '<td><select class="form-select acct">' + acctOptions(line.account) + '</select></td>' +
+          '<td><input class="form-control party" placeholder="—" value="' + (line.party || '') + '"></td>' +
+          '<td><input class="form-control num dr text-end" value="' + (line.debit || '') + '" placeholder="0.00"></td>' +
+          '<td><input class="form-control num cr text-end" value="' + (line.credit || '') + '" placeholder="0.00"></td>' +
+          '<td class="text-center"><button class="icon-btn delRow" style="width:30px;height:30px;font-size:1rem;color:var(--danger)"><i class="bx bx-trash"></i></button></td>' +
+        '</tr>';
+        $('#jeRows').append(tr);
+      }
+
+      function recalc() {
+        var dr = 0, cr = 0;
+        $('#jeRows tr').each(function () {
+          dr += parseFloat($(this).find('.dr').val()) || 0;
+          cr += parseFloat($(this).find('.cr').val()) || 0;
+        });
+        $('#totDr').text(App.number(dr)); $('#totCr').text(App.number(cr));
+        var diff = +(dr - cr).toFixed(2);
+        var $pill = $('#balPill');
+        if (diff === 0 && dr > 0) {
+          $pill.removeClass('bad').addClass('ok').html('<i class="bx bx-check-circle"></i> Balanced — Dr = Cr = ' + App.currency(dr, CUR));
+          $('#submitJe').prop('disabled', false).css('opacity', 1);
+        } else {
+          $pill.removeClass('ok').addClass('bad').html('<i class="bx bx-error-circle"></i> Out of balance by ' + App.currency(Math.abs(diff), CUR));
+          $('#submitJe').prop('disabled', true).css('opacity', .55);
+        }
+      }
+
+      // typing debit clears credit (mutually exclusive, like ERPNext)
+      $(document).on('input', '.dr', function () { if ($(this).val()) $(this).closest('tr').find('.cr').val(''); recalc(); });
+      $(document).on('input', '.cr', function () { if ($(this).val()) $(this).closest('tr').find('.dr').val(''); recalc(); });
+      $(document).on('click', '.delRow', function () { $(this).closest('tr').remove(); recalc(); });
+      $('#addRow').on('click', function () { addRow(); });
+
+      function showForm() {
+        $('#listView').addClass('d-none'); $('#formView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        $('#jeNo').val('JV-2026-' + String(seq).padStart(4, '0'));
+        $('#jeDate').val('2026-06-24'); $('#jeRef').val(''); $('#jeType').val('Journal Entry');
+        $('#jeRows').empty(); addRow(); addRow(); recalc();
+      }
+      function showList() {
+        $('#formView,#detailView').addClass('d-none'); $('#listView').removeClass('d-none');
+        $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none');
+      }
+      $('#btnNew').on('click', showForm);
+      $('#btnBack').on('click', showList);
+
+      function collect() {
+        var lines = [], dr = 0, cr = 0;
+        $('#jeRows tr').each(function () {
+          var acct = $(this).find('.acct').val();
+          var d = parseFloat($(this).find('.dr').val()) || 0;
+          var c = parseFloat($(this).find('.cr').val()) || 0;
+          if (acct && (d || c)) { lines.push({ account: acct, party: $(this).find('.party').val(), debit: d, credit: c }); dr += d; cr += c; }
+        });
+        return { lines: lines, dr: dr, cr: cr };
+      }
+
+      function save(status) {
+        var c = collect();
+        if (c.lines.length < 2) { App.toast('At least two accounting lines are required', 'error'); return; }
+        if (status === 'Submitted' && +(c.dr - c.cr).toFixed(2) !== 0) { App.toast('Entry must balance before submitting', 'error'); return; }
+        DATA.unshift({ id: Date.now(), no: $('#jeNo').val(), date: $('#jeDate').val(), type: $('#jeType').val(),
+          reference: $('#jeRef').val() || '—', status: status, total_debit: c.dr, total_credit: c.cr, lines: c.lines });
+        seq++;
+        App.toast('Journal Entry ' + (status === 'Draft' ? 'saved as draft' : 'submitted') + ' (demo — not persisted)');
+        render(); showList();
+      }
+      $('#saveDraft').on('click', function () { save('Draft'); });
+      $('#submitJe').on('click', function () { save('Submitted'); });
+    });
+  </script>
+</body>
+</html>

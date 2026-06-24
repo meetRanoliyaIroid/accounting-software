@@ -1,0 +1,24 @@
+{
+  "currency": "₹",
+  "bank_account": "1120 · Bank - HDFC Current A/c",
+  "statement_opening": 1450000.00,
+  "statement_closing": 1556650.00,
+  "ledger_balance": 1556650.00,
+  "statement_lines": [
+    { "id": "S1", "date": "2026-06-05", "description": "NEFT OUT - CRYSTAL PACKAGING", "deposit": 0, "withdrawal": 88750.00, "suggested": "PAY-2026-0083" },
+    { "id": "S2", "date": "2026-06-10", "description": "INT CREDIT - SAVINGS INTEREST", "deposit": 12500.00, "withdrawal": 0, "suggested": "JV-2026-0208" },
+    { "id": "S3", "date": "2026-06-14", "description": "CHQ DEP - MERIDIAN CORP", "deposit": 250000.00, "withdrawal": 0, "suggested": "PAY-2026-0086" },
+    { "id": "S4", "date": "2026-06-15", "description": "ACH DEBIT - OFFICE RENT", "deposit": 0, "withdrawal": 60000.00, "suggested": "JV-2026-0209" },
+    { "id": "S5", "date": "2026-06-19", "description": "UPI IN - SUNRISE TRADERS", "deposit": 78900.00, "withdrawal": 0, "suggested": "PAY-2026-0089" },
+    { "id": "S6", "date": "2026-06-21", "description": "NEFT OUT - ZENITH SUPPLIES", "deposit": 0, "withdrawal": 86000.00, "suggested": "PAY-2026-0091" },
+    { "id": "S7", "date": "2026-06-23", "description": "BANK CHARGES - QTRLY FEES", "deposit": 0, "withdrawal": 0, "suggested": null }
+  ],
+  "system_vouchers": [
+    { "id": "PAY-2026-0083", "date": "2026-06-05", "type": "Payment", "party": "Crystal Packaging", "debit": 0, "credit": 88750.00 },
+    { "id": "JV-2026-0208", "date": "2026-06-10", "type": "Journal Entry", "party": "Bank Interest", "debit": 12500.00, "credit": 0 },
+    { "id": "PAY-2026-0086", "date": "2026-06-14", "type": "Payment", "party": "Meridian Corp", "debit": 250000.00, "credit": 0 },
+    { "id": "JV-2026-0209", "date": "2026-06-15", "type": "Journal Entry", "party": "Office Rent", "debit": 0, "credit": 60000.00 },
+    { "id": "PAY-2026-0089", "date": "2026-06-19", "type": "Payment", "party": "Sunrise Traders", "debit": 78900.00, "credit": 0 },
+    { "id": "PAY-2026-0091", "date": "2026-06-21", "type": "Payment", "party": "Zenith Supplies", "debit": 0, "credit": 86000.00 }
+  ]
+}

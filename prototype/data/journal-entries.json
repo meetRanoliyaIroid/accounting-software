@@ -1,0 +1,25 @@
+{
+  "currency": "₹",
+  "entries": [
+    { "id": 1, "no": "JV-2026-0210", "date": "2026-06-19", "type": "Depreciation Entry", "reference": "Monthly depreciation run", "status": "Submitted", "total_debit": 42000, "total_credit": 42000,
+      "lines": [
+        { "account": "5500 · Depreciation", "debit": 42000, "credit": 0 },
+        { "account": "1210 · Plant & Machinery", "debit": 0, "credit": 42000 }
+      ] },
+    { "id": 2, "no": "JV-2026-0209", "date": "2026-06-15", "type": "Journal Entry", "reference": "Rent paid for June", "status": "Submitted", "total_debit": 60000, "total_credit": 60000,
+      "lines": [
+        { "account": "5300 · Rent Expense", "debit": 60000, "credit": 0 },
+        { "account": "1120 · Bank - HDFC Current A/c", "debit": 0, "credit": 60000 }
+      ] },
+    { "id": 3, "no": "JV-2026-0208", "date": "2026-06-10", "type": "Opening Entry", "reference": "Bank interest received", "status": "Submitted", "total_debit": 12500, "total_credit": 12500,
+      "lines": [
+        { "account": "1120 · Bank - HDFC Current A/c", "debit": 12500, "credit": 0 },
+        { "account": "4200 · Other Income", "debit": 0, "credit": 12500 }
+      ] },
+    { "id": 4, "no": "JV-2026-0207", "date": "2026-06-03", "type": "Journal Entry", "reference": "Salary provision", "status": "Draft", "total_debit": 180000, "total_credit": 180000,
+      "lines": [
+        { "account": "5200 · Salaries & Wages", "debit": 180000, "credit": 0 },
+        { "account": "2110 · Accounts Payable (Creditors)", "debit": 0, "credit": 180000 }
+      ] }
+  ]
+}

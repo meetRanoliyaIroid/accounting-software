@@ -1,0 +1,61 @@
+<button class="icon-btn menu-toggle" id="menuToggle" aria-label="Menu"><i class="bx bx-menu"></i></button>
+<div class="search">
+  <i class="bx bx-search"></i>
+  <input type="text" placeholder="Search accounts, invoices, parties…" aria-label="Search">
+</div>
+<div class="topbar-actions">
+
+  <!-- Quick create -->
+  <div class="dropdown d-inline-block">
+    <button class="icon-btn" title="New" data-bs-toggle="dropdown" aria-expanded="false"><i class="bx bx-plus-circle"></i></button>
+    <ul class="dropdown-menu dropdown-menu-end gb-menu">
+      <li><h6 class="dropdown-header fw-8 text-uppercase" style="font-size:.68rem;letter-spacing:.05em">Create New</h6></li>
+      <li><a class="dropdown-item" href="pages/sales-invoice.html"><i class="bx bx-receipt"></i> Sales Invoice</a></li>
+      <li><a class="dropdown-item" href="pages/purchase-invoice.html"><i class="bx bx-cart"></i> Purchase Bill</a></li>
+      <li><a class="dropdown-item" href="pages/payments.html"><i class="bx bx-money"></i> Payment</a></li>
+      <li><a class="dropdown-item" href="pages/journal-entry.html"><i class="bx bx-book-content"></i> Journal Entry</a></li>
+      <li><a class="dropdown-item" href="pages/customers.html"><i class="bx bx-user-plus"></i> Customer</a></li>
+    </ul>
+  </div>
+
+  <!-- Notifications -->
+  <div class="dropdown d-inline-block">
+    <button class="icon-btn" title="Notifications" data-bs-toggle="dropdown" aria-expanded="false"><i class="bx bx-bell"></i><span class="dot"></span></button>
+    <div class="dropdown-menu dropdown-menu-end notif-menu">
+      <div class="notif-head"><span class="fw-8" style="color:var(--ink-900)">Notifications</span><span class="badge-soft badge-unpaid ms-auto">4 new</span></div>
+      <div class="notif-item"><div class="notif-ic" style="background:var(--danger-soft);color:var(--danger)"><i class="bx bx-error-circle"></i></div><div><div class="nt">Invoice SINV-2026-0136 is overdue</div><div class="nm">Galaxy Enterprises · ₹1,68,900 · 2 days ago</div></div></div>
+      <div class="notif-item"><div class="notif-ic" style="background:var(--success-soft);color:var(--success)"><i class="bx bx-down-arrow-circle"></i></div><div><div class="nt">Payment received ₹78,900</div><div class="nm">Sunrise Traders · UPI · 5 days ago</div></div></div>
+      <div class="notif-item"><div class="notif-ic" style="background:var(--warning-soft);color:var(--warning)"><i class="bx bx-calendar-exclamation"></i></div><div><div class="nt">GSTR-1 filing due in 3 days</div><div class="nm">Period: Jun 2026 · Tax compliance</div></div></div>
+      <div class="notif-item"><div class="notif-ic" style="background:var(--info-soft);color:var(--info)"><i class="bx bx-cart"></i></div><div><div class="nt">New bill from Zenith Supplies</div><div class="nm">PINV-2026-0072 · ₹98,400 · 3 days ago</div></div></div>
+      <a class="dropdown-item text-center text-gold fw-bold" href="pages/general-ledger.html" style="justify-content:center;padding:.7rem">View all activity</a>
+    </div>
+  </div>
+
+  <button class="icon-btn" title="Help"><i class="bx bx-help-circle"></i></button>
+
+  <!-- Profile -->
+  <div class="dropdown d-inline-block">
+    <a href="javascript:void(0)" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+      <div class="d-none d-sm-block ms-2 me-1 text-end" style="line-height:1.1">
+        <div class="fw-bold" style="font-size:.82rem;color:var(--ink-900)">John</div>
+        <div id="tbRole" style="font-size:.72rem;color:var(--gold-600);font-weight:600">Administrator</div>
+      </div>
+      <div class="topbar-avatar">JO</div>
+    </a>
+    <div class="dropdown-menu dropdown-menu-end profile-menu">
+      <div class="profile-head">
+        <div class="d-flex align-items-center gap-2">
+          <div class="topbar-avatar" style="width:44px;height:44px">JO</div>
+          <div><div class="fw-8" style="color:var(--ink-900)">John</div><div class="card-sub">John@yopmail.com</div></div>
+        </div>
+      </div>
+      <ul class="list-unstyled p-2 mb-0">
+        <li><a class="dropdown-item" href="pages/settings.html"><i class="bx bx-user"></i> My Profile</a></li>
+        <li><a class="dropdown-item" href="pages/settings.html"><i class="bx bx-cog"></i> Account Settings</a></li>
+        <li><a class="dropdown-item" href="login.html"><i class="bx bx-refresh"></i> Switch Role</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="javascript:void(0)" id="logoutBtn"><i class="bx bx-log-out"></i> Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</div>

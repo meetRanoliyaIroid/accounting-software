@@ -1,0 +1,12 @@
+{
+  "currency": "₹",
+  "items": [
+    { "id": 1, "code": "ITM-001", "name": "Cotton Fabric (per metre)", "group": "Raw Material", "uom": "Metre", "sales_rate": 320.00, "purchase_rate": 210.00, "income_account": "4100 · Sales Revenue", "expense_account": "5100 · Cost of Goods Sold", "tax": "GST 5%", "stock_qty": 4200, "is_stock": true },
+    { "id": 2, "code": "ITM-002", "name": "Polyester Yarn (kg)", "group": "Raw Material", "uom": "Kg", "sales_rate": 185.00, "purchase_rate": 120.00, "income_account": "4100 · Sales Revenue", "expense_account": "5100 · Cost of Goods Sold", "tax": "GST 12%", "stock_qty": 1850, "is_stock": true },
+    { "id": 3, "code": "ITM-003", "name": "Finished Shirt", "group": "Finished Goods", "uom": "Nos", "sales_rate": 899.00, "purchase_rate": 540.00, "income_account": "4100 · Sales Revenue", "expense_account": "5100 · Cost of Goods Sold", "tax": "GST 12%", "stock_qty": 980, "is_stock": true },
+    { "id": 4, "code": "ITM-004", "name": "Packaging Box (Large)", "group": "Packaging", "uom": "Nos", "sales_rate": 45.00, "purchase_rate": 28.00, "income_account": "4100 · Sales Revenue", "expense_account": "5100 · Cost of Goods Sold", "tax": "GST 18%", "stock_qty": 6400, "is_stock": true },
+    { "id": 5, "code": "SRV-001", "name": "Consulting Service (hour)", "group": "Services", "uom": "Hour", "sales_rate": 2500.00, "purchase_rate": 0.00, "income_account": "4200 · Other Income", "expense_account": "5200 · Salaries & Wages", "tax": "GST 18%", "stock_qty": 0, "is_stock": false },
+    { "id": 6, "code": "SRV-002", "name": "Annual Maintenance Contract", "group": "Services", "uom": "Nos", "sales_rate": 15000.00, "purchase_rate": 0.00, "income_account": "4200 · Other Income", "expense_account": "5400 · Utilities", "tax": "GST 18%", "stock_qty": 0, "is_stock": false },
+    { "id": 7, "code": "ITM-005", "name": "Dye Chemical (litre)", "group": "Raw Material", "uom": "Litre", "sales_rate": 410.00, "purchase_rate": 295.00, "income_account": "4100 · Sales Revenue", "expense_account": "5100 · Cost of Goods Sold", "tax": "GST 18%", "stock_qty": 720, "is_stock": true }
+  ]
+}

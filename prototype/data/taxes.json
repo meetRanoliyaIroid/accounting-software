@@ -1,0 +1,18 @@
+{
+  "currency": "₹",
+  "taxes": [
+    { "id": 1, "name": "GST 5%",  "rate": 5.0,  "account": "2120 · GST Output Tax", "type": "On Net Total", "inclusive": false, "scope": "Sales & Purchase" },
+    { "id": 2, "name": "GST 12%", "rate": 12.0, "account": "2120 · GST Output Tax", "type": "On Net Total", "inclusive": false, "scope": "Sales & Purchase" },
+    { "id": 3, "name": "GST 18%", "rate": 18.0, "account": "2120 · GST Output Tax", "type": "On Net Total", "inclusive": false, "scope": "Sales & Purchase" },
+    { "id": 4, "name": "GST 28%", "rate": 28.0, "account": "2120 · GST Output Tax", "type": "On Net Total", "inclusive": false, "scope": "Sales & Purchase" },
+    { "id": 5, "name": "IGST 18% (Inclusive)", "rate": 18.0, "account": "2120 · GST Output Tax", "type": "Inclusive", "inclusive": true, "scope": "Sales" },
+    { "id": 6, "name": "Input GST 18%", "rate": 18.0, "account": "2130 · GST Input Tax Credit", "type": "On Net Total", "inclusive": false, "scope": "Purchase" },
+    { "id": 7, "name": "TDS 10%", "rate": 10.0, "account": "2110 · Accounts Payable", "type": "On Net Total", "inclusive": false, "scope": "Purchase" }
+  ],
+  "templates": [
+    { "id": 1, "name": "GST 18% — Output", "scope": "Sales", "taxes": ["GST 18%"], "total_rate": 18.0 },
+    { "id": 2, "name": "GST 12% — Output", "scope": "Sales", "taxes": ["GST 12%"], "total_rate": 12.0 },
+    { "id": 3, "name": "GST 18% — Input", "scope": "Purchase", "taxes": ["Input GST 18%"], "total_rate": 18.0 },
+    { "id": 4, "name": "Purchase 18% + TDS 10%", "scope": "Purchase", "taxes": ["Input GST 18%", "TDS 10%"], "total_rate": 8.0 }
+  ]
+}

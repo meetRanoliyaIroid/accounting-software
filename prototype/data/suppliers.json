@@ -1,0 +1,26 @@
+{
+  "currency": "₹",
+  "suppliers": [
+    { "id": 1, "code": "SUPP-0001", "name": "Zenith Supplies", "tax_id": "27AABCZ1122D1ZK", "email": "sales@zenithsupplies.com", "phone": "+91 98201 99887", "city": "Mumbai", "currency": "INR", "payment_terms": "Net 30", "payable_account": "2110 · Accounts Payable", "balance": 98400.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-06-21", "voucher": "PINV-2026-0072", "type": "Purchase Invoice", "debit": 0, "credit": 98400, "balance": 98400 },
+        { "date": "2026-06-21", "voucher": "PAY-2026-0091", "type": "Payment", "debit": 86000, "credit": 0, "balance": -86000 }
+      ] },
+    { "id": 2, "code": "SUPP-0002", "name": "Orbit Logistics", "tax_id": "24AAFCO3344F1Z3", "email": "billing@orbitlog.in", "phone": "+91 99098 66554", "city": "Ahmedabad", "currency": "INR", "payment_terms": "Net 15", "payable_account": "2110 · Accounts Payable", "balance": 24600.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-06-17", "voucher": "PINV-2026-0071", "type": "Purchase Invoice", "debit": 0, "credit": 24600, "balance": 24600 }
+      ] },
+    { "id": 3, "code": "SUPP-0003", "name": "Apex Raw Materials", "tax_id": "29AAGCA7788K1Z1", "email": "accounts@apexraw.com", "phone": "+91 90081 33445", "city": "Bengaluru", "currency": "INR", "payment_terms": "Net 45", "payable_account": "2110 · Accounts Payable", "balance": 312000.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-06-08", "voucher": "PINV-2026-0066", "type": "Purchase Invoice", "debit": 0, "credit": 312000, "balance": 312000 }
+      ] },
+    { "id": 4, "code": "SUPP-0004", "name": "Crystal Packaging", "tax_id": "27AABCC9900L1Z4", "email": "info@crystalpack.co", "phone": "+91 98766 11009", "city": "Pune", "currency": "INR", "payment_terms": "Net 30", "payable_account": "2110 · Accounts Payable", "balance": 88750.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-06-02", "voucher": "PINV-2026-0061", "type": "Purchase Invoice", "debit": 0, "credit": 88750, "balance": 88750 }
+      ] },
+    { "id": 5, "code": "SUPP-0005", "name": "Nova Hardware", "tax_id": "07AAFCN2233M1Z6", "email": "sales@novahardware.in", "phone": "+91 99101 88776", "city": "New Delhi", "currency": "INR", "payment_terms": "Net 30", "payable_account": "2110 · Accounts Payable", "balance": 89000.00, "status": "Active",
+      "transactions": [
+        { "date": "2026-05-26", "voucher": "PINV-2026-0058", "type": "Purchase Invoice", "debit": 0, "credit": 89000, "balance": 89000 }
+      ] }
+  ]
+}

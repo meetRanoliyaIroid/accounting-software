@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Invoices · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .ln td { padding: .4rem .5rem; }
+    .ln .form-control, .ln .form-select { padding: .4rem .6rem; font-size: .84rem; }
+    .gl-preview { background: var(--gold-50); border:1px dashed var(--gold-300); border-radius: var(--radius); }
+    .tot-line { display:flex; justify-content:space-between; padding:.35rem 0; }
+    .tot-line.grand { border-top:2px solid var(--line); margin-top:.3rem; padding-top:.6rem; font-size:1.15rem; font-weight:800; color:var(--ink-900); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Sales Invoices</h1>
+            <div class="crumb">Sales · <b>Sales Invoices</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back to List</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Invoice</button>
+          </div>
+        </div>
+
+        <!-- LIST -->
+        <div id="listView">
+          <div class="row g-3 mb-3" data-aos="fade-up">
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-receipt"></i></div><div><div class="kpi-label">Invoiced (Total)</div><div class="kpi-value" id="stTotal">₹0</div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-error-circle"></i></div><div><div class="kpi-label">Outstanding</div><div class="kpi-value" id="stOut">₹0</div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-check-circle"></i></div><div><div class="kpi-label">Paid Invoices</div><div class="kpi-value" id="stPaid">0</div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-time"></i></div><div><div class="kpi-label">Overdue</div><div class="kpi-value" id="stOverdue">0</div></div></div></div>
+          </div>
+          <div class="card" data-aos="fade-up">
+            <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">All Sales Invoices</h5>
+              <div style="max-width:240px;width:100%"><input id="search" class="form-control form-control-sm" placeholder="Search invoice or customer…"></div>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Due</th><th class="num">Grand Total</th><th class="num">Outstanding</th><th>Status</th><th></th></tr></thead>
+                <tbody id="rows"><tr><td colspan="7" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL -->
+        <div id="detailView" class="d-none"></div>
+
+        <!-- FORM -->
+        <div id="formView" class="d-none">
+          <div class="row g-3">
+            <div class="col-lg-8">
+              <div class="card card-pad mb-3" data-aos="fade-up">
+                <div class="row g-3">
+                  <div class="col-md-4"><label class="form-label">Invoice No.</label><input class="form-control" id="invNo" readonly></div>
+                  <div class="col-md-4"><label class="form-label">Invoice Date</label><input class="form-control" type="date" id="invDate"></div>
+                  <div class="col-md-4"><label class="form-label">Due Date</label><input class="form-control" type="date" id="invDue"></div>
+                  <div class="col-md-8"><label class="form-label">Customer *</label><select class="form-select" id="invCust"></select></div>
+                  <div class="col-md-4"><label class="form-label">Receivable A/c</label><input class="form-control" value="1130 · Debtors" readonly></div>
+                </div>
+              </div>
+              <div class="card" data-aos="fade-up">
+                <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Items</h5><button class="btn btn-outline-gold btn-sm" id="addLine"><i class="bx bx-plus"></i> Add Item</button></div>
+                <div class="table-wrap">
+                  <table class="tbl ln">
+                    <thead><tr><th style="width:34%">Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th><th style="width:18%">Tax</th><th></th></tr></thead>
+                    <tbody id="lnRows"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card card-pad mb-3" data-aos="fade-up">
+                <h5 class="card-title mb-3">Summary</h5>
+                <div class="tot-line"><span class="text-muted-2">Net Total</span><span class="tabular fw-bold" id="sNet">₹0.00</span></div>
+                <div id="sTaxLines"></div>
+                <div class="tot-line"><span class="text-muted-2">Total Tax</span><span class="tabular fw-bold" id="sTax">₹0.00</span></div>
+                <div class="tot-line grand"><span>Grand Total</span><span class="tabular text-gold" id="sGrand">₹0.00</span></div>
+                <div class="d-grid gap-2 mt-3">
+                  <button class="btn btn-soft" id="saveDraft"><i class="bx bx-save"></i> Save Draft</button>
+                  <button class="btn btn-gold" id="submitInv"><i class="bx bx-check-double"></i> Submit Invoice</button>
+                </div>
+              </div>
+              <div class="card card-pad gl-preview" data-aos="fade-up">
+                <h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> GL Posting Preview</h6>
+                <div class="card-sub mb-2">On submit, these balanced entries post to the ledger:</div>
+                <table class="tbl" style="background:transparent"><tbody id="glRows"></tbody>
+                  <tfoot><tr style="border-top:1px solid var(--gold-300)"><td class="fw-8">Total</td><td class="num fw-8 tabular" id="glDr">0.00</td><td class="num fw-8 tabular" id="glCr">0.00</td></tr></tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/print.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('sales-invoice');
+      var DATA = [], CUR = '₹', ITEMS = [], CUSTOMERS = [], TAXES = [], seq = 149;
+
+      $.when(App.data('sales-invoices.json'), App.data('items.json'), App.data('customers.json'), App.data('taxes.json'))
+        .done(function (si, it, cu, tx) {
+          DATA = si[0].invoices; CUR = si[0].currency;
+          ITEMS = it[0].items; CUSTOMERS = cu[0].customers;
+          TAXES = tx[0].taxes.filter(t => t.scope !== 'Purchase');
+          renderStats(); render();
+        }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function renderStats() {
+        App.countUp($('#stTotal'), DATA.reduce((s, i) => s + i.grand_total, 0), { prefix: CUR, decimals: 0 });
+        App.countUp($('#stOut'), DATA.reduce((s, i) => s + i.outstanding, 0), { prefix: CUR, decimals: 0 });
+        $('#stPaid').text(DATA.filter(i => i.status === 'Paid').length);
+        $('#stOverdue').text(DATA.filter(i => i.status === 'Overdue').length);
+      }
+
+      function render() {
+        var q = $('#search').val() ? $('#search').val().toLowerCase() : '';
+        var list = DATA.filter(i => i.no.toLowerCase().includes(q) || i.customer.toLowerCase().includes(q));
+        $('#rows').html(list.map(function (i) {
+          return '<tr class="row-click" style="cursor:pointer" data-id="' + i.id + '" title="View invoice">' +
+            '<td><span class="fw-bold text-gold">' + i.no + '</span></td>' +
+            '<td>' + i.customer + '</td>' +
+            '<td class="text-muted-2">' + App.shortDate(i.date) + '</td>' +
+            '<td class="text-muted-2">' + App.shortDate(i.due_date) + '</td>' +
+            '<td class="num tabular fw-bold">' + App.currency(i.grand_total, CUR) + '</td>' +
+            '<td class="num tabular ' + (i.outstanding > 0 ? 'text-gold fw-bold' : 'text-muted-2') + '">' + App.currency(i.outstanding, CUR) + '</td>' +
+            '<td>' + App.statusBadge(i.status) + '</td>' +
+            '<td class="text-end">' + App.kebab(i.id, [
+              { act: 'view', icon: 'bx-show', label: 'View Details' },
+              { act: 'k-print', icon: 'bx-printer', label: 'Print' },
+              { act: 'k-download', icon: 'bx-download', label: 'Download PDF' },
+              { act: 'k-send', icon: 'bx-share-alt', label: 'Send / Share' },
+              { act: 'k-cancel', icon: 'bx-x-circle', label: 'Cancel Invoice', danger: true }
+            ]) + '</td>' +
+          '</tr>';
+        }).join('') || '<tr><td colspan="8" class="text-center text-muted-2 py-4">No invoices</td></tr>');
+      }
+      $('#search').on('input', render);
+
+      // ---- Detail view + row actions ----
+      $(document).on('click', '.row-click', function (e) {
+        if ($(e.target).closest('.dropdown').length) return;
+        var inv = DATA.find(x => x.id == $(this).data('id'));
+        if (inv) showDetail(inv);
+      });
+      function byId(el) { return DATA.find(function (x) { return x.id == $(el).data('id'); }); }
+      $(document).on('click', '[data-act="view"]', function () { var i = byId(this); if (i) showDetail(i); });
+      $(document).on('click', '[data-act="k-print"]', function () { App.print.salesInvoice(byId(this)); });
+      $(document).on('click', '[data-act="k-download"]', function () { App.print.download('salesInvoice', byId(this)); });
+      $(document).on('click', '[data-act="k-send"]', function () { App.shareDoc('salesInvoice', byId(this)); });
+      $(document).on('click', '[data-act="k-cancel"]', function () {
+        var i = byId(this); if (!i) return;
+        App.confirm({ title: 'Cancel this invoice?', message: 'Invoice ' + i.no + ' will be cancelled and its ledger impact reversed. This cannot be undone.', confirmText: 'Cancel Invoice',
+          onConfirm: function () { i.status = 'Cancelled'; i.outstanding = 0; renderStats(); render(); if (!$('#detailView').hasClass('d-none')) showList(); App.toast('Invoice ' + i.no + ' cancelled (demo)'); } });
+      });
+
+      function showDetail(inv) {
+        window.__doc = inv;
+        $('#listView,#formView').addClass('d-none'); $('#detailView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        var lines = (inv.lines || []).map(function (l) {
+          return '<tr><td>' + l.item + '</td><td class="num tabular">' + l.qty + '</td><td class="num tabular">' + App.currency(l.rate, CUR) + '</td><td><span class="badge-soft" style="background:var(--gold-50);color:var(--gold-700)">' + (l.tax || '—') + '</span></td><td class="num tabular fw-bold">' + App.currency(l.amount, CUR) + '</td></tr>';
+        }).join('') || '<tr><td colspan="5" class="text-center text-muted-2 py-3">Line details not stored for this demo record</td></tr>';
+        var paidPct = inv.grand_total ? Math.round((inv.grand_total - inv.outstanding) / inv.grand_total * 100) : 0;
+        var gl = [{ a: '1130 · Debtors', d: inv.grand_total, c: 0 }, { a: '4100 · Sales Revenue', d: 0, c: inv.net_total }];
+        if (inv.tax_total > 0) gl.push({ a: '2120 · GST Output Tax', d: 0, c: inv.tax_total });
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up">' +
+            '<div class="d-flex flex-wrap align-items-start gap-3">' +
+              '<div><div class="kpi-label">Tax Invoice</div><h2 class="fw-8 mb-0 text-gold">' + inv.no + '</h2>' +
+                '<div class="card-sub mt-1">Issued ' + App.shortDate(inv.date) + ' · Due ' + App.shortDate(inv.due_date) + '</div></div>' +
+              '<div class="ms-auto text-end">' + App.statusBadge(inv.status) +
+                '<div class="mt-2"><div class="kpi-label">Grand Total</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(inv.grand_total, CUR) + '</div></div></div>' +
+            '</div>' +
+            '<div class="divider"></div>' +
+            '<div class="row g-3">' +
+              '<div class="col-md-4"><div class="kpi-label">Bill To</div><div class="fw-bold" style="color:var(--ink-900)">' + inv.customer + '</div></div>' +
+              '<div class="col-md-4"><div class="kpi-label">Outstanding</div><div class="fw-bold ' + (inv.outstanding > 0 ? 'text-gold' : 'text-success') + '">' + App.currency(inv.outstanding, CUR) + '</div></div>' +
+              '<div class="col-md-4"><div class="kpi-label">Paid</div><div class="progress mt-1" style="height:8px;background:var(--bg-soft)"><div class="progress-bar" style="width:' + paidPct + '%;background:linear-gradient(90deg,var(--gold-400),var(--gold-600))"></div></div><div class="card-sub mt-1">' + paidPct + '% settled</div></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="row g-3"><div class="col-lg-8">' +
+            '<div class="card" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Items</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th>Tax</th><th class="num">Amount</th></tr></thead><tbody>' + lines + '</tbody></table></div></div>' +
+          '</div><div class="col-lg-4">' +
+            '<div class="card card-pad mb-3" data-aos="fade-up"><h5 class="card-title mb-3">Summary</h5>' +
+              '<div class="tot-line"><span class="text-muted-2">Net Total</span><span class="tabular fw-bold">' + App.currency(inv.net_total, CUR) + '</span></div>' +
+              '<div class="tot-line"><span class="text-muted-2">Total Tax</span><span class="tabular fw-bold">' + App.currency(inv.tax_total, CUR) + '</span></div>' +
+              '<div class="tot-line grand"><span>Grand Total</span><span class="tabular text-gold">' + App.currency(inv.grand_total, CUR) + '</span></div>' +
+              '<div class="d-grid gap-2 mt-3">' +
+                '<button class="btn btn-gold" onclick="App.shareDoc(\'salesInvoice\', window.__doc)"><i class="bx bx-share-alt"></i> Send / Share</button>' +
+                '<div class="d-flex gap-2"><button class="btn btn-soft flex-fill" onclick="App.print.salesInvoice(window.__doc)"><i class="bx bx-printer"></i> Print</button>' +
+                '<button class="btn btn-soft flex-fill" onclick="App.print.download(\'salesInvoice\', window.__doc)"><i class="bx bx-download"></i> PDF</button></div>' +
+                (inv.outstanding > 0 ? '<a class="btn btn-outline-gold" href="payments.html"><i class="bx bx-money"></i> Record Payment</a>' : '') +
+                '<button class="btn btn-soft text-danger" data-act="k-cancel" data-id="' + inv.id + '"><i class="bx bx-x-circle"></i> Cancel Invoice</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="card card-pad gl-preview" data-aos="fade-up"><h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> Posted GL Entries</h6>' +
+              '<table class="tbl" style="background:transparent"><tbody>' + gl.map(g => '<tr><td class="small">' + g.a + '</td><td class="num tabular small">' + (g.d ? App.number(g.d) : '—') + '</td><td class="num tabular small">' + (g.c ? App.number(g.c) : '—') + '</td></tr>').join('') +
+              '<tr style="border-top:1px solid var(--gold-300)"><td class="fw-8 small">Total</td><td class="num fw-8 tabular small">' + App.number(inv.grand_total) + '</td><td class="num fw-8 tabular small">' + App.number(inv.grand_total) + '</td></tr></tbody></table></div>' +
+          '</div></div>';
+        $('#detailView').html(html);
+      }
+
+      // ---- Form ----
+      function itemOptions() { return '<option value="">Select item…</option>' + ITEMS.map(i => '<option value="' + i.id + '">' + i.name + '</option>').join(''); }
+      function taxOptions(sel) { return '<option value="">No Tax</option>' + TAXES.map(t => '<option' + (t.name === sel ? ' selected' : '') + '>' + t.name + '</option>').join(''); }
+
+      function addLine() {
+        $('#lnRows').append('<tr>' +
+          '<td><select class="form-select li-item">' + itemOptions() + '</select></td>' +
+          '<td><input class="form-control num li-qty text-end" value="1"></td>' +
+          '<td><input class="form-control num li-rate text-end" value="0"></td>' +
+          '<td class="num tabular li-amt fw-bold">0.00</td>' +
+          '<td><select class="form-select li-tax">' + taxOptions() + '</select></td>' +
+          '<td class="text-center"><button class="icon-btn li-del" style="width:30px;height:30px;font-size:1rem;color:var(--danger)"><i class="bx bx-trash"></i></button></td>' +
+        '</tr>');
+      }
+
+      $(document).on('change', '.li-item', function () {
+        var it = ITEMS.find(x => x.id == $(this).val());
+        var $tr = $(this).closest('tr');
+        if (it) { $tr.find('.li-rate').val(it.sales_rate); $tr.find('.li-tax').val(it.tax); }
+        recalc();
+      });
+      $(document).on('input', '.li-qty, .li-rate', recalc);
+      $(document).on('change', '.li-tax', recalc);
+      $(document).on('click', '.li-del', function () { $(this).closest('tr').remove(); recalc(); });
+      $('#addLine').on('click', addLine);
+
+      function recalc() {
+        var net = 0, taxGroups = {};
+        $('#lnRows tr').each(function () {
+          var qty = parseFloat($(this).find('.li-qty').val()) || 0;
+          var rate = parseFloat($(this).find('.li-rate').val()) || 0;
+          var amt = qty * rate;
+          $(this).find('.li-amt').text(App.number(amt));
+          net += amt;
+          var taxName = $(this).find('.li-tax').val();
+          if (taxName) {
+            var t = TAXES.find(x => x.name === taxName);
+            var taxAmt = t.inclusive ? amt - (amt / (1 + t.rate / 100)) : amt * t.rate / 100;
+            taxGroups[taxName] = (taxGroups[taxName] || 0) + taxAmt;
+          }
+        });
+        var taxTotal = Object.values(taxGroups).reduce((a, b) => a + b, 0);
+        var grand = net + taxTotal;
+        $('#sNet').text(App.currency(net, CUR));
+        $('#sTax').text(App.currency(taxTotal, CUR));
+        $('#sGrand').text(App.currency(grand, CUR));
+        $('#sTaxLines').html(Object.keys(taxGroups).map(k => '<div class="tot-line"><span class="text-muted-2 small">↳ ' + k + '</span><span class="tabular small">' + App.currency(taxGroups[k], CUR) + '</span></div>').join(''));
+
+        // GL preview: Dr Debtors (grand) ; Cr Sales (net) ; Cr Tax (taxTotal)
+        var gl = [{ a: '1130 · Debtors', d: grand, c: 0 }, { a: '4100 · Sales Revenue', d: 0, c: net }];
+        if (taxTotal > 0) gl.push({ a: '2120 · GST Output Tax', d: 0, c: taxTotal });
+        $('#glRows').html(gl.map(g => '<tr><td class="small">' + g.a + '</td><td class="num tabular small">' + (g.d ? App.number(g.d) : '—') + '</td><td class="num tabular small">' + (g.c ? App.number(g.c) : '—') + '</td></tr>').join(''));
+        $('#glDr').text(App.number(grand)); $('#glCr').text(App.number(net + taxTotal));
+        return { net: net, tax: taxTotal, grand: grand };
+      }
+
+      function showForm() {
+        $('#listView').addClass('d-none'); $('#formView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        $('#invNo').val('SINV-2026-' + String(seq).padStart(4, '0'));
+        $('#invDate').val('2026-06-24'); $('#invDue').val('2026-07-09');
+        $('#invCust').html('<option value="">Select customer…</option>' + CUSTOMERS.map(c => '<option>' + c.name + '</option>').join(''));
+        $('#lnRows').empty(); addLine(); recalc();
+      }
+      function showList() {
+        $('#formView,#detailView').addClass('d-none'); $('#listView').removeClass('d-none');
+        $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none');
+      }
+      $('#btnNew').on('click', showForm);
+      $('#btnBack').on('click', showList);
+
+      function save(status) {
+        var cust = $('#invCust').val();
+        if (!cust) { App.toast('Please select a customer', 'error'); return; }
+        var t = recalc();
+        if (t.grand <= 0) { App.toast('Add at least one item line', 'error'); return; }
+        DATA.unshift({ id: Date.now(), no: $('#invNo').val(), customer: cust, date: $('#invDate').val(), due_date: $('#invDue').val(),
+          status: status === 'Draft' ? 'Draft' : 'Unpaid', net_total: t.net, tax_total: t.tax, grand_total: t.grand,
+          outstanding: status === 'Draft' ? 0 : t.grand, lines: [] });
+        seq++;
+        App.toast('Invoice ' + (status === 'Draft' ? 'saved as draft' : 'submitted — GL posted') + ' (demo)');
+        renderStats(); render(); showList();
+      }
+      $('#saveDraft').on('click', function () { save('Draft'); });
+      $('#submitInv').on('click', function () { save('Submit'); });
+    });
+  </script>
+</body>
+</html>

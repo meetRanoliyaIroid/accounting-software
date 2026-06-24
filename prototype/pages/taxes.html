@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taxes · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .nav-pills .nav-link { color: var(--ink-700); font-weight: 600; border-radius: var(--radius-sm); padding: .5rem 1.1rem; }
+    .nav-pills .nav-link.active { background: linear-gradient(135deg, var(--gold-500), var(--gold-600)); color: #fff; box-shadow: var(--shadow-gold); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Taxes</h1>
+            <div class="crumb">Inventory &amp; Tax · <b>Taxes &amp; Templates</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Tax</button>
+          </div>
+        </div>
+
+        <ul class="nav nav-pills gap-2 mb-3" data-aos="fade-up">
+          <li class="nav-item"><button class="nav-link active" data-tab="taxes"><i class="bx bx-receipt"></i> Tax Rates</button></li>
+          <li class="nav-item"><button class="nav-link" data-tab="templates"><i class="bx bx-layer"></i> Tax Templates</button></li>
+        </ul>
+
+        <!-- Tax Rates -->
+        <div class="card" id="panel-taxes" data-aos="fade-up">
+          <div class="card-pad"><h5 class="card-title">Tax Rates</h5><div class="card-sub">GST / VAT / TDS rates and the accounts they post to</div></div>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>Tax Name</th><th class="num">Rate</th><th>Posting Account</th><th>Computation</th><th>Scope</th><th></th></tr></thead>
+              <tbody id="taxRows"><tr><td colspan="6" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Templates -->
+        <div class="card d-none" id="panel-templates" data-aos="fade-up">
+          <div class="card-pad"><h5 class="card-title">Tax Templates</h5><div class="card-sub">Reusable groups of taxes applied to invoices</div></div>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>Template Name</th><th>Scope</th><th>Included Taxes</th><th class="num">Effective Rate</th></tr></thead>
+              <tbody id="tplRows"><tr><td colspan="4" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tax calc preview -->
+        <div class="card card-pad mt-3" data-aos="fade-up">
+          <h5 class="card-title mb-3"><i class="bx bx-calculator text-gold"></i> Tax Calculator (preview)</h5>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3"><label class="form-label">Net Amount</label><input class="form-control" id="calcNet" value="10000"></div>
+            <div class="col-md-3"><label class="form-label">Tax</label><select class="form-select" id="calcTax"></select></div>
+            <div class="col-md-6">
+              <div class="d-flex gap-3">
+                <div class="card card-pad bg-soft border-0 flex-fill text-center"><div class="kpi-label">Tax Amount</div><div class="fw-8 text-gold" id="calcTaxAmt">₹0</div></div>
+                <div class="card card-pad bg-soft border-0 flex-fill text-center"><div class="kpi-label">Grand Total</div><div class="fw-8" id="calcTotal" style="color:var(--ink-900)">₹0</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- New Tax Modal -->
+  <div class="modal fade" id="taxModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius:var(--radius);border:none">
+        <div class="modal-header" style="border-bottom:1px solid var(--line)">
+          <h5 class="modal-title fw-8" id="modalTitle">New Tax</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="fId">
+          <div class="row g-3">
+            <div class="col-md-8"><label class="form-label">Tax Name *</label><input class="form-control" id="fName" placeholder="e.g. GST 18%"></div>
+            <div class="col-md-4"><label class="form-label">Rate (%)</label><input class="form-control" id="fRate" value="0"></div>
+            <div class="col-md-12"><label class="form-label">Posting Account</label><select class="form-select" id="fAcct"><option>2120 · GST Output Tax</option><option>2130 · GST Input Tax Credit</option><option>2110 · Accounts Payable</option></select></div>
+            <div class="col-md-6"><label class="form-label">Computation</label><select class="form-select" id="fType"><option>On Net Total</option><option>Inclusive</option></select></div>
+            <div class="col-md-6"><label class="form-label">Scope</label><select class="form-select" id="fScope"><option>Sales &amp; Purchase</option><option>Sales</option><option>Purchase</option></select></div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--line)">
+          <button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-gold" id="save"><i class="bx bx-check"></i> Save Tax</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('taxes');
+      var TAXES = [], TPLS = [], CUR = '₹';
+      var modal = new bootstrap.Modal('#taxModal');
+
+      App.data('taxes.json').done(function (d) {
+        TAXES = d.taxes; TPLS = d.templates; CUR = d.currency;
+        renderTaxes(); renderTpls(); fillCalc(); calc();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function renderTaxes() {
+        $('#taxRows').html(TAXES.map(function (t) {
+          return '<tr>' +
+            '<td class="fw-bold" style="color:var(--ink-900)">' + t.name + '</td>' +
+            '<td class="num tabular fw-bold text-gold">' + t.rate.toFixed(2) + '%</td>' +
+            '<td class="text-muted-2 small">' + t.account + '</td>' +
+            '<td>' + (t.inclusive ? '<span class="badge-soft badge-partial">Inclusive</span>' : '<span class="badge-soft badge-submitted">On Net</span>') + '</td>' +
+            '<td><span class="badge-soft badge-draft">' + t.scope + '</span></td>' +
+            '<td class="text-end"><button class="icon-btn" style="width:32px;height:32px;font-size:1rem" data-act="edit" data-id="' + t.id + '"><i class="bx bx-edit"></i></button></td>' +
+          '</tr>';
+        }).join(''));
+      }
+
+      function renderTpls() {
+        $('#tplRows').html(TPLS.map(function (t) {
+          return '<tr>' +
+            '<td class="fw-bold" style="color:var(--ink-900)">' + t.name + '</td>' +
+            '<td><span class="badge-soft badge-draft">' + t.scope + '</span></td>' +
+            '<td>' + t.taxes.map(x => '<span class="badge-soft" style="background:var(--gold-50);color:var(--gold-700);margin-right:4px">' + x + '</span>').join('') + '</td>' +
+            '<td class="num tabular fw-bold text-gold">' + t.total_rate.toFixed(2) + '%</td>' +
+          '</tr>';
+        }).join(''));
+      }
+
+      // Tabs
+      $('[data-tab]').on('click', function () {
+        $('[data-tab]').removeClass('active'); $(this).addClass('active');
+        var t = $(this).data('tab');
+        $('#panel-taxes').toggleClass('d-none', t !== 'taxes');
+        $('#panel-templates').toggleClass('d-none', t !== 'templates');
+      });
+
+      // Calculator
+      function fillCalc() { $('#calcTax').html(TAXES.map(t => '<option value="' + t.id + '">' + t.name + '</option>').join('')); }
+      function calc() {
+        var net = parseFloat($('#calcNet').val()) || 0;
+        var tax = TAXES.find(t => t.id == $('#calcTax').val());
+        if (!tax) return;
+        var taxAmt, total;
+        if (tax.inclusive) { taxAmt = net - (net / (1 + tax.rate / 100)); total = net; }
+        else { taxAmt = net * tax.rate / 100; total = net + taxAmt; }
+        $('#calcTaxAmt').text(App.currency(taxAmt, CUR));
+        $('#calcTotal').text(App.currency(total, CUR));
+      }
+      $('#calcNet, #calcTax').on('input change', calc);
+
+      $('#btnNew').on('click', function () {
+        $('#modalTitle').text('New Tax'); $('#fId').val(''); $('#fName').val(''); $('#fRate').val('0');
+        modal.show();
+      });
+      $(document).on('click', '[data-act="edit"]', function () {
+        var t = TAXES.find(x => x.id == $(this).data('id'));
+        $('#modalTitle').text('Edit Tax'); $('#fId').val(t.id); $('#fName').val(t.name); $('#fRate').val(t.rate);
+        $('#fAcct').val(t.account); $('#fType').val(t.type); $('#fScope').val(t.scope);
+        modal.show();
+      });
+      $('#save').on('click', function () {
+        var name = $('#fName').val().trim();
+        if (!name) { App.toast('Tax name is required', 'error'); return; }
+        var id = $('#fId').val();
+        var obj = { name: name, rate: parseFloat($('#fRate').val()) || 0, account: $('#fAcct').val(),
+          type: $('#fType').val(), inclusive: $('#fType').val() === 'Inclusive', scope: $('#fScope').val() };
+        if (id) { Object.assign(TAXES.find(x => x.id == id), obj); App.toast('Tax updated'); }
+        else { obj.id = Date.now(); TAXES.push(obj); App.toast('Tax created (demo — not persisted)'); }
+        renderTaxes(); fillCalc(); calc(); modal.hide();
+      });
+    });
+  </script>
+</body>
+</html>
