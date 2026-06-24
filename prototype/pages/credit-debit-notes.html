@@ -80,14 +80,16 @@
     $(function () {
       AOS.init({ duration: 600, once: true });
       App.loadShell('notes');
-      var CN = [], DN = [], CUR = '₹', REASONS = [], CUSTOMERS = [], SUPPLIERS = [], SALES = [], PURCH = [], TAXES = [], TAB = 'cn', cseq = 4, dseq = 3;
+      var CN = [], DN = [], CUR = '₹', REASONS = [], CUSTOMERS = [], SUPPLIERS = [], SALES = [], PURCH = [], TAXES = [], GR = {}, TAB = 'cn', cseq = 4, dseq = 3;
 
-      $.when(App.data('notes.json'), App.data('customers.json'), App.data('suppliers.json'), App.data('sales-invoices.json'), App.data('purchase-invoices.json'), App.data('taxes.json'))
-        .done(function (n, cu, su, si, pi, tx) {
+      $.when(App.data('notes.json'), App.data('customers.json'), App.data('suppliers.json'), App.data('sales-invoices.json'), App.data('purchase-invoices.json'), App.data('taxes.json'), App.data('settings.json'))
+        .done(function (n, cu, su, si, pi, tx, st) {
           CN = n[0].credit_notes; DN = n[0].debit_notes; CUR = n[0].currency; REASONS = n[0].reasons;
           CUSTOMERS = cu[0].customers; SUPPLIERS = su[0].suppliers; SALES = si[0].invoices; PURCH = pi[0].invoices; TAXES = tx[0].taxes;
+          GR = (st[0] || {}).gr_policy || { salesman_gr_limit: 0 };
           renderKpis(); renderC(); renderD();
         }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+      function isReturn(reason) { return /return/i.test(reason || ''); }
 
       function taxRate(n) { var t = TAXES.find(x => x.name === n); return t ? t.rate : 0; }
 
@@ -144,12 +146,27 @@
           '<div class="col-md-4"><label class="form-label">' + (isCN ? 'Customer' : 'Supplier') + ' *</label><select class="form-select" id="fParty"><option value="">Select…</option>' + parties.map(p => '<option>' + p.name + '</option>').join('') + '</select></div>' +
           '<div class="col-md-6"><label class="form-label">Against ' + dlabel + '</label><select class="form-select" id="fAgainst"><option value="">Select ' + dlabel + '…</option>' + docs.map(d => '<option>' + d.no + '</option>').join('') + '</select></div>' +
           '<div class="col-md-6"><label class="form-label">Reason</label><select class="form-select" id="fReason">' + REASONS.map(r => '<option>' + r + '</option>').join('') + '</select></div>' +
-          '<div class="col-md-12"><label class="form-label">Remark</label><input class="form-control" id="fRemark"></div>');
+          (isCN ? '<div class="col-md-6"><label class="form-label">Salesman (for GR limit)</label><input class="form-control" id="fSalesman" placeholder="Optional"></div>' : '') +
+          '<div class="col-md-12"><label class="form-label">Remark</label><input class="form-control" id="fRemark"></div>' +
+          '<div class="col-md-12"><div id="grHint" class="small text-muted-2"></div></div>');
+        $(document).off('change.gr').on('change.gr', '#fReason, #fAgainst, #fNet', updateGrHint);
         var taxScope = isCN ? TAXES.filter(t => t.scope !== 'Purchase') : TAXES.filter(t => t.scope !== 'Sales');
         $('#fTax').html('<option value="">No Tax</option>' + taxScope.map(t => '<option>' + t.name + '</option>').join(''));
         $('#fNet').val(0); $('#formView').data('type', type); recalc();
       }
-      $(document).on('input', '#fNet', recalc); $(document).on('change', '#fTax', recalc);
+      function updateGrHint() {
+        var type = $('#formView').data('type'), reason = $('#fReason').val(), against = $('#fAgainst').val(), net = parseFloat($('#fNet').val()) || 0;
+        var tn = $('#fTax').val(), tax = tn ? net * taxRate(tn) / 100 : 0, total = net + tax;
+        var parts = [];
+        if (against) parts.push('<i class="bx bx-link text-gold"></i> Issuing this note reduces the outstanding of <b>' + against + '</b> (reflects in Outstanding + Ledger).');
+        if (type === 'cn' && isReturn(reason)) {
+          var lim = GR.salesman_gr_limit || 0;
+          if (lim && total > lim) parts.push('<span class="text-danger"><i class="bx bx-error-circle"></i> Goods Return ' + App.currency(total, CUR) + ' exceeds salesman GR limit of ' + App.currency(lim, CUR) + ' — needs manager approval.</span>');
+          else if (lim) parts.push('<i class="bx bx-check-circle text-success"></i> Within salesman GR limit (' + App.currency(lim, CUR) + ').');
+        }
+        $('#grHint').html(parts.join('<br>'));
+      }
+      $(document).on('input', '#fNet', function () { recalc(); updateGrHint(); }); $(document).on('change', '#fTax', function () { recalc(); updateGrHint(); });
       function recalc() {
         var net = parseFloat($('#fNet').val()) || 0, tn = $('#fTax').val(), tax = tn ? net * taxRate(tn) / 100 : 0, total = net + tax;
         $('#sNet').text(App.currency(net, CUR)); $('#sTax').text(App.currency(tax, CUR)); $('#sTotal').text(App.currency(total, CUR));
@@ -160,11 +177,15 @@
         var type = $('#formView').data('type'), party = $('#fParty').val();
         if (!party) { App.toast('Select a party', 'error'); return; }
         var net = parseFloat($('#fNet').val()) || 0; if (net <= 0) { App.toast('Enter taxable amount', 'error'); return; }
-        var tn = $('#fTax').val(), tax = tn ? net * taxRate(tn) / 100 : 0;
-        var obj = { id: Date.now(), no: $('#fNo').val(), date: $('#fDate').val(), against: $('#fAgainst').val() || '—', reason: $('#fReason').val(), net: net, tax_name: tn || '—', tax: tax, total: net + tax, status: 'Issued', remark: $('#fRemark').val() };
+        var tn = $('#fTax').val(), tax = tn ? net * taxRate(tn) / 100 : 0, total = net + tax;
+        var reason = $('#fReason').val();
+        if (type === 'cn' && isReturn(reason) && GR.salesman_gr_limit && total > GR.salesman_gr_limit) {
+          App.toast('Goods Return ' + App.currency(total, CUR) + ' exceeds salesman GR limit ' + App.currency(GR.salesman_gr_limit, CUR) + ' — manager approval required', 'error'); return;
+        }
+        var obj = { id: Date.now(), no: $('#fNo').val(), date: $('#fDate').val(), against: $('#fAgainst').val() || '—', reason: reason, salesman: $('#fSalesman').val() || '', net: net, tax_name: tn || '—', tax: tax, total: total, status: 'Issued', remark: $('#fRemark').val() };
         if (type === 'cn') { obj.customer = party; CN.unshift(obj); cseq++; renderC(); TAB = 'cn'; } else { obj.supplier = party; DN.unshift(obj); dseq++; renderD(); TAB = 'dn'; }
         $('.tab-btn').removeClass('active'); $('.tab-btn[data-tab="' + TAB + '"]').addClass('active');
-        renderKpis(); showList(); App.toast((type === 'cn' ? 'Credit' : 'Debit') + ' note issued — GL posted (demo)');
+        renderKpis(); showList(); App.toast((type === 'cn' ? 'Credit' : 'Debit') + ' note issued — GL + Outstanding updated' + ($('#fAgainst').val() ? ' (reduced ' + $('#fAgainst').val() + ')' : '') + ' (demo)');
       });
     });
   </script>

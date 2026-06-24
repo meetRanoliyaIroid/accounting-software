@@ -84,6 +84,7 @@
                   <div class="col-md-3"><label class="form-label">Customer PO Ref</label><input class="form-control" id="soPoRef" placeholder="Optional"></div>
                   <div class="col-md-12"><label class="form-label">Remark</label><input class="form-control" id="soRemark" placeholder="Optional note for this order"></div>
                 </div>
+                <div id="creditBanner" class="mt-2 d-none"></div>
               </div>
               <div class="card" data-aos="fade-up">
                 <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Items</h5><button class="btn btn-outline-gold btn-sm" id="addLine"><i class="bx bx-plus"></i> Add Item</button></div>
@@ -126,16 +127,42 @@
     $(function () {
       AOS.init({ duration: 600, once: true });
       App.loadShell('sales-order');
-      var DATA = [], CUR = '₹', CUSTOMERS = [], ITEMS = [], TAXES = [], CHALLANS = [], seq = 57;
+      var DATA = [], CUR = '₹', CUSTOMERS = [], ITEMS = [], TAXES = [], CHALLANS = [], OUTSTANDING = [], POLICY = {}, seq = 57;
 
-      $.when(App.data('sales-orders.json'), App.data('customers.json'), App.data('items.json'), App.data('taxes.json'), App.data('dispatch.json'))
-        .done(function (so, cu, it, tx, dc) {
+      $.when(App.data('sales-orders.json'), App.data('customers.json'), App.data('items.json'), App.data('taxes.json'), App.data('dispatch.json'), App.data('outstanding.json'), App.data('settings.json'))
+        .done(function (so, cu, it, tx, dc, os, st) {
           DATA = so[0].orders; CUR = so[0].currency;
           CUSTOMERS = cu[0].customers; ITEMS = it[0].items;
           TAXES = tx[0].taxes.filter(t => t.scope !== 'Purchase');
           CHALLANS = dc[0].challans;
+          OUTSTANDING = os[0].items || []; POLICY = (st[0] || {}).credit_policy || {};
           renderStats(); render();
         }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      // Credit-control: overdue = receivable bills past the customer's credit days
+      function overdueOf(custName) {
+        var days = POLICY.default_credit_days != null ? POLICY.default_credit_days : 30;
+        return OUTSTANDING.filter(function (o) {
+          return o.type === 'Receivable' && o.party === custName && o.balance > 0 && App.ageBucket(o.due_date).days > 0;
+        }).reduce(function (s, o) { return s + o.balance; }, 0);
+      }
+      function checkCredit() {
+        var name = $('#soCust').val();
+        var c = CUSTOMERS.find(x => x.name === name);
+        var $b = $('#creditBanner');
+        if (!c) { $b.addClass('d-none').empty(); return null; }
+        var cr = App.creditStatus(c, overdueOf(name));
+        if (!cr.blocked) {
+          $b.removeClass('d-none').html('<div class="alert mb-0 d-flex align-items-center gap-2" style="background:var(--success-soft);border-radius:var(--radius);color:var(--success)"><i class="bx bx-check-shield"></i><span class="small"><b>Credit OK</b> · Limit ' + App.currency(cr.limit, CUR) + ' · Available ' + App.currency(cr.available, CUR) + '</span></div>');
+        } else {
+          var reasons = [];
+          if (cr.overLimit) reasons.push('balance ' + App.currency(cr.balance, CUR) + ' exceeds limit ' + App.currency(cr.limit, CUR));
+          if (cr.overdue) reasons.push('overdue ' + App.currency(cr.overdueAmt, CUR) + ' past ' + (POLICY.default_credit_days || 30) + ' credit days');
+          $b.removeClass('d-none').html('<div class="alert mb-0 d-flex align-items-center gap-2" style="background:var(--danger-soft);border-radius:var(--radius);color:var(--danger)"><i class="bx bx-error-circle"></i><span class="small"><b>Order restricted — ' + cr.status + '</b> · ' + reasons.join(' · ') + '. Clear dues or get approval to proceed.</span></div>');
+        }
+        return cr;
+      }
+      $(document).on('change', '#soCust', checkCredit);
 
       function taxRate(name) { var t = TAXES.find(x => x.name === name); return t ? t.rate : 0; }
       function lineAmt(l) { return l.qty * l.rate; }
@@ -325,6 +352,11 @@
       function save(status) {
         var cust = $('#soCust').val();
         if (!cust) { App.toast('Please select a customer', 'error'); return; }
+        var cr = checkCredit();
+        if (status !== 'Draft' && cr && cr.blocked &&
+            ((cr.overLimit && POLICY.block_orders_over_limit !== false) || (cr.overdue && POLICY.block_orders_when_overdue !== false))) {
+          App.toast('Order blocked — ' + cr.status + '. Save as draft or clear dues first.', 'error'); return;
+        }
         var lines = collectLines();
         if (!lines.length) { App.toast('Add at least one item line', 'error'); return; }
         DATA.unshift({ id: Date.now(), no: $('#soNo').val(), customer: cust, date: $('#soDate').val(), delivery: $('#soDel').val(),

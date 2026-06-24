@@ -20,5 +20,21 @@
     { "no": "PINV-2026-0072", "supplier": "Zenith Supplies", "outstanding": 12400.00 },
     { "no": "PINV-2026-0071", "supplier": "Orbit Logistics", "outstanding": 24600.00 },
     { "no": "PINV-2026-0066", "supplier": "Apex Raw Materials", "outstanding": 312000.00 }
+  ],
+  "currencies": [
+    { "code": "INR", "symbol": "₹", "rate": 1 },
+    { "code": "USD", "symbol": "$", "rate": 83.50 },
+    { "code": "EUR", "symbol": "€", "rate": 90.20 },
+    { "code": "AED", "symbol": "AED ", "rate": 22.74 }
+  ],
+  "categories": [
+    { "key": "receipt", "label": "Customer Receipt", "dir": "Receive", "party": "Customer", "alloc": true, "bank": "1120 · Bank - HDFC Current A/c", "control": "1130 · Accounts Receivable (Debtors)" },
+    { "key": "supplier", "label": "Supplier Payment", "dir": "Pay", "party": "Supplier", "alloc": true, "bank": "1120 · Bank - HDFC Current A/c", "control": "2110 · Accounts Payable (Creditors)" },
+    { "key": "import", "label": "Import Purchase Payment", "dir": "Pay", "party": "Supplier", "alloc": true, "forex": true, "lc": true, "bank": "1120 · Bank - HDFC Current A/c", "control": "2110 · Accounts Payable (Creditors)" },
+    { "key": "lc", "label": "LC Direct Payment", "dir": "Pay", "party": "Supplier", "alloc": false, "forex": true, "lc": true, "bank": "1120 · Bank - HDFC Current A/c", "expense": "2160 · Letter of Credit Payable" },
+    { "key": "cheque", "label": "Payment Against Cheque", "dir": "Pay", "party": "Supplier", "alloc": true, "cheque": true, "bank": "1120 · Bank - HDFC Current A/c", "control": "2110 · Accounts Payable (Creditors)" },
+    { "key": "gas", "label": "Gas Bill", "dir": "Pay", "party": null, "alloc": false, "bank": "1120 · Bank - HDFC Current A/c", "expense": "5410 · Gas & Fuel Expense" },
+    { "key": "light", "label": "Light Bill (Electricity)", "dir": "Pay", "party": null, "alloc": false, "bank": "1120 · Bank - HDFC Current A/c", "expense": "5420 · Electricity Expense" },
+    { "key": "shares", "label": "Share & F&O", "dir": "Pay", "party": null, "alloc": false, "forex": false, "bank": "1120 · Bank - HDFC Current A/c", "expense": "1150 · Investments — Shares & F&O" }
   ]
 }

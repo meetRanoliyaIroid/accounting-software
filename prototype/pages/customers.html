@@ -46,8 +46,8 @@
           </div>
           <div class="table-wrap">
             <table class="tbl">
-              <thead><tr><th>Customer</th><th>GSTIN</th><th>City</th><th>Terms</th><th class="num">Credit Limit</th><th class="num">Balance</th><th>Status</th><th></th></tr></thead>
-              <tbody id="rows"><tr><td colspan="8" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+              <thead><tr><th>Customer</th><th>GSTIN</th><th>City</th><th>Terms</th><th class="num">Credit Limit</th><th class="num">Balance</th><th>Credit</th><th>Status</th><th></th></tr></thead>
+              <tbody id="rows"><tr><td colspan="9" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -137,9 +137,10 @@
         var list = DATA.filter(c =>
           (!st || c.status === st) &&
           (c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q) || c.city.toLowerCase().includes(q)));
-        if (!list.length) { $('#rows').html('<tr><td colspan="8" class="text-center text-muted-2 py-4">No customers found</td></tr>'); return; }
+        if (!list.length) { $('#rows').html('<tr><td colspan="9" class="text-center text-muted-2 py-4">No customers found</td></tr>'); return; }
         $('#rows').html(list.map(function (c) {
           var initials = c.name.split(' ').map(w => w[0]).slice(0, 2).join('');
+          var cr = App.creditStatus(c);
           return '<tr>' +
             '<td><div class="d-flex align-items-center"><span class="avatar-sm">' + initials + '</span><div><div class="fw-bold detail-link" data-id="' + c.id + '" style="color:var(--ink-900);cursor:pointer" title="View profile">' + c.name + '</div><div class="card-sub">' + c.code + ' · ' + c.email + '</div></div></div></td>' +
             '<td class="text-muted-2 small">' + c.tax_id + '</td>' +
@@ -147,10 +148,12 @@
             '<td><span class="badge-soft badge-draft">' + c.payment_terms + '</span></td>' +
             '<td class="num tabular">' + App.currency(c.credit_limit, CUR) + '</td>' +
             '<td class="num tabular fw-bold ' + (c.balance > 0 ? 'text-gold' : 'text-muted-2') + '">' + App.currency(c.balance, CUR) + '</td>' +
+            '<td><span class="badge-soft ' + cr.cls + '" title="Available ' + App.currency(cr.available, CUR) + '">' + cr.status + '</span></td>' +
             '<td>' + statusBadge(c.status) + '</td>' +
             '<td class="text-end">' + App.kebab(c.id, [
               { act: 'profile', icon: 'bx-user', label: 'View Profile' },
               { act: 'view', icon: 'bx-receipt', label: 'Statement' },
+              { act: 'outstanding', icon: 'bx-wallet', label: 'Outstanding / Close Bills' },
               { act: 'edit', icon: 'bx-edit', label: 'Edit' },
               { act: 'newinv', icon: 'bx-plus-circle', label: 'New Invoice' },
               { act: 'del', icon: 'bx-trash', label: 'Delete', danger: true }
@@ -170,6 +173,9 @@
       function showList() { $('#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); }
       $(document).on('click', '[data-act="profile"]', function () { var c = DATA.find(x => x.id == $(this).data('id')); if (c) showDetail(c); });
       $(document).on('click', '[data-act="newinv"]', function () { window.location.href = 'sales-invoice.html'; });
+      $(document).on('click', '[data-act="outstanding"]', function () {
+        var c = DATA.find(x => x.id == $(this).data('id')); if (c) window.location.href = 'outstanding.html?type=ar&party=' + encodeURIComponent(c.name);
+      });
       $(document).on('click', '[data-act="del"]', function () {
         var c = DATA.find(x => x.id == $(this).data('id')); if (!c) return;
         App.confirm({ title: 'Delete customer?', message: c.name + ' will be removed from the master. Existing transactions are not affected.', confirmText: 'Delete',

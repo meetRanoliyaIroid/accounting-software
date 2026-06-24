@@ -48,8 +48,8 @@
             </div>
             <div class="table-wrap">
               <table class="tbl">
-                <thead><tr><th>Code</th><th>Agent</th><th>Area</th><th class="num">Comm %</th><th class="num">Sales</th><th class="num">Commission</th><th class="num">TDS</th><th class="num">Net Payable</th><th>Status</th><th></th></tr></thead>
-                <tbody id="rows"><tr><td colspan="10" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+                <thead><tr><th>Code</th><th>Agent</th><th>Area</th><th class="num">Comm %</th><th class="num">Sales</th><th class="num">Earned</th><th class="num">Pending</th><th class="num">TDS</th><th class="num">Net Payable</th><th>Status</th><th></th></tr></thead>
+                <tbody id="rows"><tr><td colspan="11" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
               </table>
             </div>
           </div>
@@ -75,6 +75,20 @@
     <div class="modal-footer" style="border-top:1px solid var(--line)"><button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button><button class="btn btn-gold" id="aSave"><i class="bx bx-check"></i> Save Agent</button></div>
   </div></div></div>
 
+  <!-- Settle customer from agent account modal -->
+  <div class="modal fade" id="settleModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none;border-radius:var(--radius)">
+    <div class="modal-header" style="border-bottom:1px solid var(--line)"><h5 class="modal-title fw-8">Settle Customer from Agent A/c</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="card card-pad bg-soft border-0 mb-3"><div class="card-sub" id="scAgent"></div></div>
+      <div class="row g-3">
+        <div class="col-12"><label class="form-label">Customer (with outstanding under this agent)</label><select class="form-select" id="scCust"></select></div>
+        <div class="col-12"><label class="form-label">Amount to settle</label><input class="form-control" id="scAmt"></div>
+      </div>
+      <div class="small text-muted-2 mt-3"><i class="bx bx-transfer text-gold"></i> Reduces the customer's outstanding and draws down the agent's earned commission balance. Posts to Ledger + Outstanding (demo).</div>
+    </div>
+    <div class="modal-footer" style="border-top:1px solid var(--line)"><button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button><button class="btn btn-gold" id="scConfirm"><i class="bx bx-check-double"></i> Settle</button></div>
+  </div></div></div>
+
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
@@ -83,17 +97,24 @@
     $(function () {
       AOS.init({ duration: 600, once: true });
       App.loadShell('agents');
-      var DATA = [], CUR = '₹', seq = 4;
+      var DATA = [], CUR = '₹', seq = 4, CURRENT = null;
       var agentModal = new bootstrap.Modal('#agentModal');
+      var settleModal = new bootstrap.Modal('#settleModal');
 
       App.data('agents.json').done(function (d) {
         DATA = d.agents; CUR = d.currency; renderStats(); render();
       }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
 
+      function paidInFull(s) { return (s.outstanding || 0) <= 0; }
       function salesOf(a) { return a.sales.reduce((s, x) => s + x.amount, 0); }
-      function commOf(a) { return salesOf(a) * a.commission_pct / 100; }
+      // Commission EARNED only on invoices paid in full; the rest is Pending (accruing).
+      function earnedBaseOf(a) { return a.sales.filter(paidInFull).reduce((s, x) => s + x.amount, 0); }
+      function pendingBaseOf(a) { return a.sales.filter(s => !paidInFull(s)).reduce((s, x) => s + x.amount, 0); }
+      function commOf(a) { return earnedBaseOf(a) * a.commission_pct / 100; }            // earned commission
+      function pendingCommOf(a) { return pendingBaseOf(a) * a.commission_pct / 100; }     // not yet payable
       function tdsOf(a) { return commOf(a) * a.tds_pct / 100; }
       function netOf(a) { return commOf(a) - tdsOf(a); }
+      function availableOf(a) { return netOf(a) - (a._settled || 0); }                    // balance usable to settle customers
 
       function renderStats() {
         $('#stAgents').text(DATA.filter(a => a.status === 'Active').length);
@@ -105,12 +126,14 @@
       function render() {
         var q = ($('#search').val() || '').toLowerCase();
         var list = DATA.filter(a => a.name.toLowerCase().includes(q) || (a.area || '').toLowerCase().includes(q));
-        if (!list.length) { $('#rows').html('<tr><td colspan="10" class="text-center text-muted-2 py-4">No agents</td></tr>'); return; }
+        if (!list.length) { $('#rows').html('<tr><td colspan="11" class="text-center text-muted-2 py-4">No agents</td></tr>'); return; }
         $('#rows').html(list.map(function (a) {
           return '<tr class="row-click" style="cursor:pointer" data-id="' + a.id + '" title="View commission statement">' +
             '<td><span class="fw-bold text-gold">' + a.code + '</span></td><td>' + a.name + '</td><td class="text-muted-2">' + (a.area || '—') + '</td>' +
             '<td class="num tabular">' + a.commission_pct + '%</td><td class="num tabular">' + App.currency(salesOf(a), CUR) + '</td>' +
-            '<td class="num tabular fw-bold">' + App.currency(commOf(a), CUR) + '</td><td class="num tabular text-muted-2">' + App.currency(tdsOf(a), CUR) + '</td>' +
+            '<td class="num tabular fw-bold text-success">' + App.currency(commOf(a), CUR) + '</td>' +
+            '<td class="num tabular text-muted-2" title="Accrues when customer pays in full">' + App.currency(pendingCommOf(a), CUR) + '</td>' +
+            '<td class="num tabular text-muted-2">' + App.currency(tdsOf(a), CUR) + '</td>' +
             '<td class="num tabular fw-bold text-gold">' + App.currency(netOf(a), CUR) + '</td>' +
             '<td>' + App.statusBadge(a.status === 'Active' ? 'Paid' : 'Draft').replace('Paid', 'Active').replace('Draft', 'Inactive') + '</td>' +
             '<td class="text-end">' + App.kebab(a.id, [{ act: 'view', icon: 'bx-show', label: 'Commission Statement' }]) + '</td></tr>';
@@ -124,31 +147,74 @@
 
       function showDetail(a) {
         if (!a) return;
+        CURRENT = a;
         $('#listView').addClass('d-none'); $('#detailView').removeClass('d-none'); $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
         var rows = a.sales.map(function (s) {
           var c = s.amount * a.commission_pct / 100;
-          return '<tr><td class="text-muted-2">' + App.shortDate(s.date) + '</td><td><span class="fw-bold text-gold">' + s.voucher + '</span></td><td>' + s.customer + '</td><td class="num tabular">' + App.currency(s.amount, CUR) + '</td><td class="num tabular fw-bold">' + App.currency(c, CUR) + '</td></tr>';
-        }).join('') || '<tr><td colspan="5" class="text-center text-muted-2 py-3">No sales booked for this agent</td></tr>';
+          var earned = paidInFull(s);
+          var badge = earned ? '<span class="badge-soft badge-paid">Earned</span>' : '<span class="badge-soft badge-partial">Pending</span>';
+          return '<tr><td class="text-muted-2">' + App.shortDate(s.date) + '</td><td><span class="fw-bold text-gold">' + s.voucher + '</span></td><td>' + s.customer + '</td>' +
+            '<td class="num tabular">' + App.currency(s.amount, CUR) + '</td>' +
+            '<td class="num tabular fw-bold ' + (earned ? '' : 'text-muted-2') + '">' + App.currency(c, CUR) + '</td>' +
+            '<td>' + badge + '<div class="card-sub">' + (earned ? 'Invoice paid in full' : 'Awaiting full payment · O/s ' + App.currency(s.outstanding, CUR)) + '</div></td></tr>';
+        }).join('') || '<tr><td colspan="6" class="text-center text-muted-2 py-3">No sales booked for this agent</td></tr>';
         var html =
           '<div class="card card-pad mb-3" data-aos="fade-up"><div class="d-flex flex-wrap align-items-start gap-3">' +
-            '<div><div class="kpi-label">Agent</div><h2 class="fw-8 mb-0 text-gold">' + a.name + '</h2><div class="card-sub mt-1">' + a.code + ' · ' + (a.area || '—') + ' · ' + a.commission_pct + '% commission</div></div>' +
-            '<div class="ms-auto text-end"><div class="kpi-label">Net Commission Payable</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(netOf(a), CUR) + '</div></div>' +
+            '<div><div class="kpi-label">Agent</div><h2 class="fw-8 mb-0 text-gold">' + a.name + '</h2><div class="card-sub mt-1">' + a.code + ' · ' + (a.area || '—') + ' · ' + a.commission_pct + '% commission · ' + a.account + '</div></div>' +
+            '<div class="ms-auto text-end"><div class="kpi-label">Net Commission Payable (Earned)</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(netOf(a), CUR) + '</div></div>' +
           '</div></div>' +
-          '<div class="row g-3"><div class="col-lg-8"><div class="card" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Commission Statement</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th class="num">Sale Amount</th><th class="num">Commission</th></tr></thead><tbody>' + rows + '</tbody>' +
-            '<tfoot><tr style="border-top:2px solid var(--line)"><td colspan="3" class="fw-8">Total</td><td class="num fw-8 tabular">' + App.currency(salesOf(a), CUR) + '</td><td class="num fw-8 tabular text-gold">' + App.currency(commOf(a), CUR) + '</td></tr></tfoot></table></div></div></div>' +
+          '<div class="alert d-flex align-items-center gap-2 mb-3" style="background:var(--gold-50);border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-700)"><i class="bx bx-info-circle text-gold"></i><span class="small">Commission is <b>Earned</b> only when the customer pays the invoice in full. Pending commission of <b>' + App.currency(pendingCommOf(a), CUR) + '</b> will accrue once outstanding invoices are cleared.</span></div>' +
+          '<div class="row g-3"><div class="col-lg-8"><div class="card" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Commission Statement</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th class="num">Sale Amount</th><th class="num">Commission</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody>' +
+            '<tfoot><tr style="border-top:2px solid var(--line)"><td colspan="3" class="fw-8">Total (Earned only)</td><td class="num fw-8 tabular">' + App.currency(earnedBaseOf(a), CUR) + '</td><td class="num fw-8 tabular text-gold">' + App.currency(commOf(a), CUR) + '</td><td></td></tr></tfoot></table></div></div></div>' +
           '<div class="col-lg-4"><div class="card card-pad comm-card mb-3" data-aos="fade-up"><h5 class="card-title mb-3">Payable Computation</h5>' +
-            '<div class="tot-line"><span class="text-muted-2">Gross Commission</span><span class="tabular fw-bold">' + App.currency(commOf(a), CUR) + '</span></div>' +
+            '<div class="tot-line"><span class="text-muted-2">Earned Commission</span><span class="tabular fw-bold">' + App.currency(commOf(a), CUR) + '</span></div>' +
             '<div class="tot-line"><span class="text-muted-2">Less: TDS 194H @ ' + a.tds_pct + '%</span><span class="tabular fw-bold text-danger">-' + App.currency(tdsOf(a), CUR) + '</span></div>' +
             '<div class="tot-line grand"><span>Net Payable</span><span class="tabular text-gold">' + App.currency(netOf(a), CUR) + '</span></div>' +
-            '<div class="d-grid gap-2 mt-3"><button class="btn btn-gold" id="payComm"><i class="bx bx-money"></i> Pay Commission</button></div></div>' +
-            '<div class="card card-pad" style="background:var(--gold-50);border:1px dashed var(--gold-300)" data-aos="fade-up"><h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> GL on Payment</h6><table class="tbl" style="background:transparent"><tbody>' +
-              '<tr><td class="small">5300 · Commission Expense</td><td class="num tabular small">' + App.number(commOf(a)) + '</td><td class="num tabular small">—</td></tr>' +
+            '<div class="tot-line" style="border:0"><span class="text-muted-2">Available to settle</span><span class="tabular fw-bold">' + App.currency(availableOf(a), CUR) + '</span></div>' +
+            '<div class="d-grid gap-2 mt-3"><button class="btn btn-gold" id="payComm"><i class="bx bx-money"></i> Pay Commission</button>' +
+            '<button class="btn btn-outline-gold" id="settleCust"><i class="bx bx-transfer"></i> Settle Customer from Agent A/c</button></div></div>' +
+            '<div class="card card-pad" style="background:var(--gold-50);border:1px dashed var(--gold-300)" data-aos="fade-up"><h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> GL on Commission Payment</h6><table class="tbl" style="background:transparent"><tbody>' +
+              '<tr><td class="small">5700 · Commission Expense</td><td class="num tabular small">' + App.number(commOf(a)) + '</td><td class="num tabular small">—</td></tr>' +
               '<tr><td class="small">2140 · TDS Payable (194H)</td><td class="num tabular small">—</td><td class="num tabular small">' + App.number(tdsOf(a)) + '</td></tr>' +
-              '<tr><td class="small">1010 · Bank</td><td class="num tabular small">—</td><td class="num tabular small">' + App.number(netOf(a)) + '</td></tr>' +
+              '<tr><td class="small">1120 · Bank</td><td class="num tabular small">—</td><td class="num tabular small">' + App.number(netOf(a)) + '</td></tr>' +
             '</tbody></table></div></div></div>';
         $('#detailView').html(html);
       }
-      $(document).on('click', '#payComm', function () { App.toast('Commission payment voucher created — TDS deducted (demo)'); });
+      $(document).on('click', '#payComm', function () { App.toast('Commission payment voucher created — TDS deducted, posted to Ledger (demo)'); });
+      $(document).on('click', '#settleCust', function () { openSettle(CURRENT); });
+
+      function openSettle(a) {
+        if (!a) return;
+        var avail = availableOf(a);
+        if (avail <= 0) { App.toast('No earned balance available to settle for this agent', 'error'); return; }
+        var custs = [...new Set(a.sales.filter(s => !paidInFull(s)).map(s => s.customer))];
+        if (!custs.length) { App.toast('No customer with outstanding under this agent', 'error'); return; }
+        $('#scAgent').text(a.name + ' · available ' + App.currency(avail, CUR));
+        $('#scCust').html(custs.map(c => {
+          var os = a.sales.filter(s => s.customer === c && !paidInFull(s)).reduce((t, s) => t + s.outstanding, 0);
+          return '<option value="' + c + '" data-os="' + os + '">' + c + ' (O/s ' + App.currency(os, CUR) + ')</option>';
+        }).join(''));
+        $('#scAmt').val(Math.min(avail, parseFloat($('#scCust option:first').data('os')) || 0).toFixed(2));
+        settleModal.show();
+      }
+      $(document).on('change', '#scCust', function () {
+        var os = parseFloat($(this).find(':selected').data('os')) || 0;
+        $('#scAmt').val(Math.min(availableOf(CURRENT), os).toFixed(2));
+      });
+      $('#scConfirm').on('click', function () {
+        var a = CURRENT, cust = $('#scCust').val(), amt = parseFloat($('#scAmt').val()) || 0;
+        var os = parseFloat($('#scCust option:selected').data('os')) || 0;
+        if (amt <= 0 || amt > availableOf(a) + 0.01) { App.toast('Amount exceeds available agent balance', 'error'); return; }
+        if (amt > os + 0.01) { App.toast('Amount exceeds customer outstanding', 'error'); return; }
+        // reduce the customer's oldest outstanding sale under this agent, and consume agent balance
+        var remaining = amt;
+        a.sales.filter(s => s.customer === cust && !paidInFull(s)).forEach(function (s) {
+          var cut = Math.min(s.outstanding, remaining); s.outstanding = +(s.outstanding - cut).toFixed(2); remaining -= cut;
+        });
+        a._settled = (a._settled || 0) + amt;
+        settleModal.hide(); renderStats(); render(); showDetail(a);
+        App.toast('Settled ' + App.currency(amt, CUR) + ' of ' + cust + "'s outstanding from " + a.name + "'s account — Outstanding + Ledger updated (demo)");
+      });
 
       function showList() { $('#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none'); }
       $('#btnBack').on('click', showList);

@@ -1,0 +1,20 @@
+{
+  "currency": "₹",
+  "as_on": "2026-06-24",
+  "note": "Bill-to-bill / payable-debitable adjustment. Knock off a debit-nature open item against a credit-nature open item for the same party. Net-zero in the control ledger; reduces specific bill balances in Outstanding.",
+  "open_items": [
+    { "id": 1, "party": "Meridian Corp", "party_type": "Customer", "account": "1130 · Accounts Receivable (Debtors)", "ref": "SINV-2026-0147", "doc_type": "Sales Invoice", "date": "2026-06-20", "unit": "U1", "nature": "Dr", "amount": 62500.00, "balance": 62500.00 },
+    { "id": 2, "party": "Meridian Corp", "party_type": "Customer", "account": "1130 · Accounts Receivable (Debtors)", "ref": "ADV-2026-0012", "doc_type": "Customer Advance", "date": "2026-06-10", "unit": "U1", "nature": "Cr", "amount": 40000.00, "balance": 40000.00 },
+    { "id": 3, "party": "Meridian Corp", "party_type": "Customer", "account": "1130 · Accounts Receivable (Debtors)", "ref": "CN-2026-0005", "doc_type": "Credit Note (Sales Return)", "date": "2026-06-12", "unit": "U1", "nature": "Cr", "amount": 15000.00, "balance": 15000.00 },
+    { "id": 4, "party": "Aarav Textiles", "party_type": "Customer", "account": "1130 · Accounts Receivable (Debtors)", "ref": "SINV-2026-0148", "doc_type": "Sales Invoice", "date": "2026-06-22", "unit": "U1", "nature": "Dr", "amount": 145200.00, "balance": 145200.00 },
+    { "id": 5, "party": "Aarav Textiles", "party_type": "Customer", "account": "1130 · Accounts Receivable (Debtors)", "ref": "ADV-2026-0015", "doc_type": "Customer Advance", "date": "2026-06-18", "unit": "U1", "nature": "Cr", "amount": 50000.00, "balance": 50000.00 },
+    { "id": 6, "party": "Zenith Supplies", "party_type": "Supplier", "account": "2110 · Accounts Payable (Creditors)", "ref": "PINV-2026-0072", "doc_type": "Purchase Invoice", "date": "2026-06-21", "unit": "U1", "nature": "Cr", "amount": 98400.00, "balance": 98400.00 },
+    { "id": 7, "party": "Zenith Supplies", "party_type": "Supplier", "account": "2110 · Accounts Payable (Creditors)", "ref": "DN-2026-0009", "doc_type": "Debit Note (Purchase Return)", "date": "2026-06-19", "unit": "U1", "nature": "Dr", "amount": 18400.00, "balance": 18400.00 },
+    { "id": 8, "party": "Zenith Supplies", "party_type": "Supplier", "account": "2110 · Accounts Payable (Creditors)", "ref": "ADV-2026-0020", "doc_type": "Advance to Supplier", "date": "2026-06-05", "unit": "U1", "nature": "Dr", "amount": 30000.00, "balance": 30000.00 },
+    { "id": 9, "party": "Apex Raw Materials", "party_type": "Supplier", "account": "2110 · Accounts Payable (Creditors)", "ref": "PINV-2026-0066", "doc_type": "Purchase Invoice", "date": "2026-06-08", "unit": "U1", "nature": "Cr", "amount": 312000.00, "balance": 312000.00 },
+    { "id": 10, "party": "Apex Raw Materials", "party_type": "Supplier", "account": "2110 · Accounts Payable (Creditors)", "ref": "DN-2026-0011", "doc_type": "Debit Note (Purchase Return)", "date": "2026-06-15", "unit": "U1", "nature": "Dr", "amount": 12000.00, "balance": 12000.00 }
+  ],
+  "recent": [
+    { "id": 1, "no": "ADJ-2026-0007", "date": "2026-06-16", "party": "Galaxy Enterprises", "dr_ref": "SINV-2026-0136", "cr_ref": "CN-2026-0004", "amount": 9000.00, "remark": "Sales return knocked off against invoice" }
+  ]
+}

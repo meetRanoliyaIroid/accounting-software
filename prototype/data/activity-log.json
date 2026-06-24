@@ -1,0 +1,17 @@
+{
+  "note": "Audit trail across departments. Each posted/edited/closed/locked document writes an entry.",
+  "logs": [
+    { "id": 1, "time": "2026-06-24 11:42", "user": "John", "role": "Administrator", "module": "Accounts", "department": "Accounts", "action": "Lock", "document": "GSTR-3B May 2026", "detail": "Filed return — period locked up to 31 May 2026" },
+    { "id": 2, "time": "2026-06-24 11:20", "user": "Priya Shah", "role": "Accountant", "module": "Outstanding", "department": "Accounts", "action": "Close", "document": "SINV-2026-0147", "detail": "Closed ₹2,50,000 against receipt PAY-2026-0086" },
+    { "id": 3, "time": "2026-06-24 10:55", "user": "Priya Shah", "role": "Accountant", "module": "Journal", "department": "Accounts", "action": "Post", "document": "JV-2026-0210", "detail": "Depreciation entry ₹42,000 — Ledger + Outstanding" },
+    { "id": 4, "time": "2026-06-24 10:30", "user": "Rahul Mehta", "role": "Accounts Manager", "module": "Adjustments", "department": "Accounts", "action": "Post", "document": "ADJ-2026-0007", "detail": "Bill-to-bill: CN-2026-0004 knocked off SINV-2026-0136 (₹9,000)" },
+    { "id": 5, "time": "2026-06-24 09:48", "user": "Rahul Mehta", "role": "Accounts Manager", "module": "Payments", "department": "Accounts", "action": "Post", "document": "PAY-2026-0091", "detail": "Supplier payment ₹86,000 to Zenith Supplies" },
+    { "id": 6, "time": "2026-06-23 18:05", "user": "John", "role": "Administrator", "module": "Sales Orders", "department": "Sales", "action": "Approve", "document": "SO-2026-0056", "detail": "VP approval — order released for dispatch" },
+    { "id": 7, "time": "2026-06-23 16:20", "user": "S. Kapoor", "role": "Sales", "department": "Sales", "module": "Sales Orders", "action": "Block", "document": "SO-2026-0057", "detail": "Order blocked — Blue Ocean Ltd over credit limit" },
+    { "id": 8, "time": "2026-06-23 15:10", "user": "Priya Shah", "role": "Accountant", "module": "Notes", "department": "Accounts", "action": "Create", "document": "CN-2026-003", "detail": "Sales return / rate difference ₹3,764.20 — reduced SINV-2026-0140" },
+    { "id": 9, "time": "2026-06-23 12:35", "user": "Store Keeper", "role": "Stores", "department": "Stores", "module": "GRN", "action": "Create", "document": "GRN-2026-0044", "detail": "Goods received against PO-2026-0031 (Apex Raw Materials)" },
+    { "id": 10, "time": "2026-06-23 11:02", "user": "Rahul Mehta", "role": "Accounts Manager", "module": "Customers", "department": "Accounts", "action": "Edit", "document": "CUST-0002", "detail": "Credit limit revised 10,00,000 → 12,00,000" },
+    { "id": 11, "time": "2026-06-22 17:40", "user": "John", "role": "Administrator", "module": "Letters of Credit", "department": "Accounts", "action": "Create", "document": "LC-2026-002", "detail": "Import LC (Sight) USD 12,000 — Orbit Logistics" },
+    { "id": 12, "time": "2026-06-22 14:15", "user": "Priya Shah", "role": "Accountant", "module": "Statutory", "department": "Accounts", "action": "Post", "document": "TDS 194H", "detail": "TDS ₹2,100 deducted on commission — R. Mehta (PAN ABCPM…)" }
+  ]
+}

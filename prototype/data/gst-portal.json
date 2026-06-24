@@ -1,0 +1,17 @@
+{
+  "currency": "₹",
+  "period": "Jun 2026",
+  "note": "Purchase register (our books) reconciled against GSTR-2B downloaded from the GST portal — Tally/Busy style match.",
+  "books": [
+    { "invoice": "PINV-2026-0072", "supplier": "Zenith Supplies", "gstin": "24AAACZ1234B1Z5", "date": "2026-06-21", "taxable": 83389.83, "itc": 15010.17 },
+    { "invoice": "PINV-2026-0071", "supplier": "Orbit Logistics", "gstin": "27AAACO5678C1Z3", "date": "2026-06-17", "taxable": 20847.46, "itc": 3752.54 },
+    { "invoice": "PINV-2026-0066", "supplier": "Apex Raw Materials", "gstin": "24AAACA9012D1Z1", "date": "2026-06-08", "taxable": 264406.78, "itc": 47593.22 },
+    { "invoice": "PINV-2026-0061", "supplier": "Crystal Packaging", "gstin": "24AAACC3456E1Z9", "date": "2026-06-02", "taxable": 75211.86, "itc": 13538.14 }
+  ],
+  "portal": [
+    { "invoice": "PINV-2026-0072", "supplier": "Zenith Supplies", "gstin": "24AAACZ1234B1Z5", "date": "2026-06-21", "taxable": 83389.83, "itc": 15010.17 },
+    { "invoice": "PINV-2026-0071", "supplier": "Orbit Logistics", "gstin": "27AAACO5678C1Z3", "date": "2026-06-17", "taxable": 20847.46, "itc": 3752.54 },
+    { "invoice": "PINV-2026-0066", "supplier": "Apex Raw Materials", "gstin": "24AAACA9012D1Z1", "date": "2026-06-09", "taxable": 264406.78, "itc": 45000.00 },
+    { "invoice": "INV-VOLT-889", "supplier": "Volt Power Co", "gstin": "24AAACV0001F1Z2", "date": "2026-06-14", "taxable": 10000.00, "itc": 1800.00 }
+  ]
+}

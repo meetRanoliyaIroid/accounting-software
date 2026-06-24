@@ -43,7 +43,9 @@
           <div class="seg">
             <button class="tab-btn active" data-tab="gst">GST Summary (3B)</button>
             <button class="tab-btn" data-tab="gstr1">GSTR-1 (Sales)</button>
+            <button class="tab-btn" data-tab="recon">Purchase Recon</button>
             <button class="tab-btn" data-tab="tds">TDS / TCS</button>
+            <button class="tab-btn" data-tab="tdsret">TDS Return (26Q)</button>
           </div>
         </div>
 
@@ -68,6 +70,34 @@
               <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">GSTR-1 — B2B Outward Supplies (Jun 2026)</h5><button class="btn btn-outline-gold btn-sm" onclick="window.print()"><i class="bx bx-export"></i> Export</button></div>
               <div class="table-wrap"><table class="tbl"><thead><tr><th>Invoice</th><th>Date</th><th>Party</th><th>GSTIN</th><th class="num">Taxable</th><th class="num">Rate</th><th class="num">IGST</th><th class="num">Invoice Total</th></tr></thead><tbody id="g1Rows"></tbody>
                 <tfoot><tr style="border-top:2px solid var(--line)"><td colspan="4" class="fw-8">Total</td><td class="num fw-8 tabular" id="g1Taxable"></td><td></td><td class="num fw-8 tabular" id="g1Igst"></td><td class="num fw-8 tabular" id="g1Total"></td></tr></tfoot>
+              </table></div>
+            </div>
+            <div class="card mt-3">
+              <div class="card-pad"><h5 class="card-title">HSN-wise Summary (Table 12)</h5><div class="card-sub">Required for the monthly return</div></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>HSN</th><th>Description</th><th>UQC</th><th class="num">Qty</th><th class="num">Taxable</th><th class="num">Rate</th><th class="num">Tax</th></tr></thead><tbody id="hsnRows"></tbody>
+                <tfoot><tr style="border-top:2px solid var(--line)"><td colspan="4" class="fw-8">Total</td><td class="num fw-8 tabular" id="hsnTaxable"></td><td></td><td class="num fw-8 tabular" id="hsnTax"></td></tr></tfoot>
+              </table></div>
+            </div>
+          </div>
+          <!-- Purchase register vs portal recon -->
+          <div class="tab-pane d-none" data-pane="recon">
+            <div class="row g-3 mb-3">
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-check-circle"></i></div><div><div class="kpi-label">Matched</div><div class="kpi-value" id="rcMatch">0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-error"></i></div><div><div class="kpi-label">ITC Mismatch</div><div class="kpi-value" id="rcMis">0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-x-circle"></i></div><div><div class="kpi-label">Missing in Portal</div><div class="kpi-value" id="rcNoPortal">0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-down-arrow-circle"></i></div><div><div class="kpi-label">Missing in Books</div><div class="kpi-value" id="rcNoBooks">0</div></div></div></div>
+            </div>
+            <div class="card">
+              <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Purchase Register vs GST Portal (GSTR-2B) — Jun 2026</h5><button class="btn btn-outline-gold btn-sm" onclick="window.print()"><i class="bx bx-export"></i> Export</button></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Invoice</th><th>Supplier</th><th>GSTIN</th><th class="num">Books ITC</th><th class="num">Portal ITC</th><th class="num">Diff</th><th>Status</th></tr></thead><tbody id="rcRows"></tbody></table></div>
+            </div>
+          </div>
+          <!-- TDS quarterly return 26Q -->
+          <div class="tab-pane d-none" data-pane="tdsret">
+            <div class="card">
+              <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Form 26Q — Quarterly TDS Return · Q1 FY 2026-27 (Apr–Jun)</h5><button class="btn btn-gold btn-sm" onclick="window.print()"><i class="bx bx-printer"></i> Print 26Q</button></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Section</th><th class="num">Deductees</th><th class="num">Total Paid / Credited</th><th class="num">TDS Deducted</th><th class="num">Deposited</th><th>Status</th></tr></thead><tbody id="qRows"></tbody>
+                <tfoot><tr style="border-top:2px solid var(--line)"><td class="fw-8">Total</td><td class="num fw-8 tabular" id="qCount"></td><td class="num fw-8 tabular" id="qBase"></td><td class="num fw-8 tabular" id="qTds"></td><td class="num fw-8 tabular" id="qDep"></td><td></td></tr></tfoot>
               </table></div>
             </div>
           </div>
@@ -98,7 +128,9 @@
     <div class="modal-body"><div class="row g-3">
       <div class="col-md-4"><label class="form-label">Type</label><select class="form-select" id="tType"><option>TDS</option><option>TCS</option></select></div>
       <div class="col-md-8"><label class="form-label">Section</label><select class="form-select" id="tSec"><option>194C - Contractor</option><option>194H - Commission</option><option>194J - Professional</option><option>194Q - Purchase of Goods</option><option>206C(1H) - Sale of Goods</option></select></div>
-      <div class="col-md-12"><label class="form-label">Party</label><input class="form-control" id="tParty"></div>
+      <div class="col-md-7"><label class="form-label">Party</label><input class="form-control" id="tParty"></div>
+      <div class="col-md-5"><label class="form-label">Deductee PAN <span class="text-muted-2">(4th letter → rate)</span></label><input class="form-control" id="tPan" placeholder="ABCPM1234K" maxlength="10" style="text-transform:uppercase"></div>
+      <div class="col-md-12"><div id="panHint" class="small text-muted-2"></div></div>
       <div class="col-md-4"><label class="form-label">Base Amount</label><input class="form-control num text-end" id="tBase" value="0"></div>
       <div class="col-md-4"><label class="form-label">Rate %</label><input class="form-control num text-end" id="tRate" value="0"></div>
       <div class="col-md-4"><label class="form-label">Amount</label><input class="form-control num text-end" id="tAmt" value="0" readonly></div>
@@ -114,14 +146,83 @@
     $(function () {
       AOS.init({ duration: 600, once: true });
       App.loadShell('statutory');
-      var CUR = '₹', RET = [], G1 = [], TDS = [];
+      var CUR = '₹', RET = [], G1 = [], TDS = [], HSN = [], SECTIONS = [], PANTYPES = {}, NOPAN = 20, BOOKS = [], PORTAL = [];
       var tdsModal = new bootstrap.Modal('#tdsModal');
 
-      App.data('statutory.json').done(function (d) {
-        CUR = d.currency; RET = d.gst_returns; G1 = d.gstr1; TDS = d.tds;
+      $.when(App.data('statutory.json'), App.data('gst-portal.json')).done(function (s, gp) {
+        var d = s[0];
+        CUR = d.currency; RET = d.gst_returns; G1 = d.gstr1; TDS = d.tds; HSN = d.hsn_summary || [];
+        SECTIONS = d.tds_sections || []; PANTYPES = d.pan_types || {}; NOPAN = d.no_pan_rate || 20;
+        BOOKS = gp[0].books || []; PORTAL = gp[0].portal || [];
         $('#gstinLbl').text(d.gstin);
-        renderGST(); renderG1(); renderTDS();
+        renderGST(); renderG1(); renderHSN(); renderRecon(); renderTDS(); renderQuarter();
+        buildSectionOpts();
       }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      // ---- HSN summary ----
+      function renderHSN() {
+        $('#hsnRows').html(HSN.map(h => '<tr><td><span class="fw-bold text-gold">' + h.hsn + '</span></td><td>' + h.desc + '</td><td>' + h.uqc + '</td><td class="num tabular">' + App.number(h.qty) + '</td><td class="num tabular">' + App.currency(h.taxable, CUR) + '</td><td class="num tabular">' + h.rate + '%</td><td class="num tabular fw-bold">' + App.currency(h.tax, CUR) + '</td></tr>').join(''));
+        $('#hsnTaxable').text(App.currency(HSN.reduce((s, h) => s + h.taxable, 0), CUR));
+        $('#hsnTax').text(App.currency(HSN.reduce((s, h) => s + h.tax, 0), CUR));
+      }
+
+      // ---- Purchase register vs portal recon ----
+      function renderRecon() {
+        var keys = [...new Set(BOOKS.map(b => b.invoice).concat(PORTAL.map(p => p.invoice)))];
+        var match = 0, mis = 0, noPortal = 0, noBooks = 0;
+        var rows = keys.map(function (k) {
+          var b = BOOKS.find(x => x.invoice === k), p = PORTAL.find(x => x.invoice === k);
+          var name = (b || p).supplier, gstin = (b || p).gstin;
+          var bi = b ? b.itc : 0, pi = p ? p.itc : 0, diff = +(bi - pi).toFixed(2);
+          var status, cls;
+          if (b && p && Math.abs(diff) < 0.01) { status = 'Matched'; cls = 'p-filed'; match++; }
+          else if (b && p) { status = 'ITC Mismatch'; cls = 'p-pend'; mis++; }
+          else if (b && !p) { status = 'Missing in Portal'; cls = 'p-pend'; noPortal++; }
+          else { status = 'Missing in Books'; cls = 'p-pend'; noBooks++; }
+          return '<tr><td><span class="fw-bold text-gold">' + k + '</span></td><td>' + name + '</td><td class="card-sub">' + gstin + '</td>' +
+            '<td class="num tabular">' + (b ? App.currency(bi, CUR) : '—') + '</td><td class="num tabular">' + (p ? App.currency(pi, CUR) : '—') + '</td>' +
+            '<td class="num tabular ' + (diff ? 'text-danger fw-bold' : '') + '">' + (diff ? App.currency(diff, CUR) : '—') + '</td>' +
+            '<td><span class="po-pill ' + cls + '">' + status + '</span></td></tr>';
+        }).join('');
+        $('#rcRows').html(rows);
+        $('#rcMatch').text(match); $('#rcMis').text(mis); $('#rcNoPortal').text(noPortal); $('#rcNoBooks').text(noBooks);
+      }
+
+      // ---- Quarterly 26Q ----
+      function renderQuarter() {
+        var bySec = {};
+        TDS.filter(t => t.type === 'TDS').forEach(function (t) {
+          var sec = t.section;
+          bySec[sec] = bySec[sec] || { count: 0, base: 0, tds: 0, dep: 0 };
+          bySec[sec].count++; bySec[sec].base += t.base; bySec[sec].tds += t.amount;
+          if (t.status === 'Paid') bySec[sec].dep += t.amount;
+        });
+        var c = 0, base = 0, tds = 0, dep = 0;
+        $('#qRows').html(Object.keys(bySec).map(function (sec) {
+          var r = bySec[sec]; c += r.count; base += r.base; tds += r.tds; dep += r.dep;
+          var done = r.dep >= r.tds - 0.01;
+          return '<tr><td class="fw-bold">' + sec + '</td><td class="num tabular">' + r.count + '</td><td class="num tabular">' + App.currency(r.base, CUR) + '</td><td class="num tabular fw-bold">' + App.currency(r.tds, CUR) + '</td><td class="num tabular">' + App.currency(r.dep, CUR) + '</td><td><span class="po-pill ' + (done ? 'p-filed' : 'p-pend') + '">' + (done ? 'Deposited' : 'Pending') + '</span></td></tr>';
+        }).join('') || '<tr><td colspan="6" class="text-center text-muted-2 py-4">No TDS in this quarter</td></tr>');
+        $('#qCount').text(c); $('#qBase').text(App.currency(base, CUR)); $('#qTds').text(App.currency(tds, CUR)); $('#qDep').text(App.currency(dep, CUR));
+      }
+
+      // ---- TDS rate from PAN 4th letter ----
+      function buildSectionOpts() {
+        if (SECTIONS.length) $('#tSec').html(SECTIONS.map(s => '<option value="' + s.code + '">' + s.code + ' - ' + s.name + '</option>').join(''));
+      }
+      function panRate() {
+        var pan = ($('#tPan').val() || '').toUpperCase(), sec = SECTIONS.find(s => $('#tSec').val().indexOf(s.code) === 0);
+        if (!sec) { $('#panHint').html(''); return null; }
+        if (pan.length !== 10 || !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)) {
+          $('#panHint').html('<span class="text-danger"><i class="bx bx-error-circle"></i> Invalid / no PAN — higher rate ' + NOPAN + '% applies (Sec 206AA).</span>');
+          return NOPAN;
+        }
+        var letter = pan.charAt(3), type = PANTYPES[letter] || 'Unknown';
+        var individual = (letter === 'P' || letter === 'H');
+        var rate = individual ? sec.individual : sec.others;
+        $('#panHint').html('<i class="bx bx-id-card text-gold"></i> PAN 4th letter <b>' + letter + '</b> → <b>' + type + '</b> · ' + sec.code + ' rate <b>' + rate + '%</b>');
+        return rate;
+      }
 
       // ---- tabs ----
       $('.tab-btn').on('click', function () {
@@ -159,11 +260,12 @@
         window.__ret = r;
         $('#listView').addClass('d-none'); $('#detailView').removeClass('d-none'); $('#btnBack').removeClass('d-none');
         var fileBtn = r.status === 'Pending' ? '<button class="btn btn-gold" id="fileRet"><i class="bx bx-check-double"></i> File Return &amp; Generate Challan</button>' : '<button class="btn btn-soft" onclick="window.print()"><i class="bx bx-printer"></i> Print Acknowledgement</button>';
+        var lockNote = r.status === 'Filed' ? '<div class="alert d-flex align-items-center gap-2 mb-3" style="background:var(--danger-soft);border-radius:var(--radius);color:var(--danger)"><i class="bx bx-lock-alt"></i><span class="small"><b>Period locked.</b> ' + r.period + ' has been filed — vouchers dated in this period are read-only and cannot be edited or back-dated.</span></div>' : '';
         var html =
           '<div class="card card-pad mb-3" data-aos="fade-up"><div class="d-flex flex-wrap align-items-start gap-3">' +
             '<div><div class="kpi-label">' + r.type + '</div><h2 class="fw-8 mb-0 text-gold">' + r.period + '</h2><div class="card-sub mt-1">Due ' + App.shortDate(r.due_date) + (r.filed_on ? ' · Filed ' + App.shortDate(r.filed_on) : '') + '</div></div>' +
-            '<div class="ms-auto text-end">' + (r.status === 'Filed' ? '<span class="po-pill p-filed">Filed</span>' : '<span class="po-pill p-pend">Pending</span>') + '<div class="mt-2"><div class="kpi-label">Net Payable</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(r.net_payable, CUR) + '</div></div></div>' +
-          '</div></div>' +
+            '<div class="ms-auto text-end">' + (r.status === 'Filed' ? '<span class="po-pill p-filed"><i class="bx bx-lock-alt"></i> Filed &amp; Locked</span>' : '<span class="po-pill p-pend">Pending</span>') + '<div class="mt-2"><div class="kpi-label">Net Payable</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(r.net_payable, CUR) + '</div></div></div>' +
+          '</div></div>' + lockNote +
           '<div class="row g-3"><div class="col-lg-7"><div class="card" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Tax Computation</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Description</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th></tr></thead><tbody>' +
             '<tr><td>Output Tax (on sales)</td><td class="num tabular">' + App.currency(r.breakup.igst_out, CUR) + '</td><td class="num tabular">' + App.currency(r.breakup.cgst_out, CUR) + '</td><td class="num tabular">' + App.currency(r.breakup.sgst_out, CUR) + '</td></tr>' +
             '<tr><td>Less: Input Tax Credit (on purchases)</td><td class="num tabular text-success">-' + App.currency(r.breakup.igst_in, CUR) + '</td><td class="num tabular text-success">-' + App.currency(r.breakup.cgst_in, CUR) + '</td><td class="num tabular text-success">-' + App.currency(r.breakup.sgst_in, CUR) + '</td></tr>' +
@@ -214,15 +316,18 @@
       });
 
       // TDS form
-      $('#btnNewTds').on('click', function () { $('#tParty').val(''); $('#tBase,#tRate,#tAmt').val(0); $('#tType').val('TDS'); tdsModal.show(); });
-      $('#tBase, #tRate').on('input', function () { $('#tAmt').val(((parseFloat($('#tBase').val()) || 0) * (parseFloat($('#tRate').val()) || 0) / 100).toFixed(2)); });
+      function tdsAmt() { $('#tAmt').val(((parseFloat($('#tBase').val()) || 0) * (parseFloat($('#tRate').val()) || 0) / 100).toFixed(2)); }
+      $('#btnNewTds').on('click', function () { $('#tParty,#tPan').val(''); $('#tBase,#tRate,#tAmt').val(0); $('#tType').val('TDS'); $('#panHint').html(''); buildSectionOpts(); tdsModal.show(); });
+      $('#tBase, #tRate').on('input', tdsAmt);
+      $('#tPan').on('input', function () { var r = panRate(); if (r != null) { $('#tRate').val(r); tdsAmt(); } });
+      $('#tSec').on('change', function () { var r = panRate(); if (r != null) { $('#tRate').val(r); tdsAmt(); } });
       $('#tSave').on('click', function () {
         var party = $('#tParty').val(); if (!party) { App.toast('Enter party name', 'error'); return; }
         var base = parseFloat($('#tBase').val()) || 0, rate = parseFloat($('#tRate').val()) || 0;
         if (base <= 0) { App.toast('Enter base amount', 'error'); return; }
-        var type = $('#tType').val();
-        TDS.unshift({ id: Date.now(), type: type, section: $('#tSec').val(), party: party, date: '2026-06-24', base: base, rate: rate, amount: base * rate / 100, status: type === 'TCS' ? 'Collected' : 'Deducted', challan: '' });
-        tdsModal.hide(); renderTDS(); App.toast(type + ' entry recorded (demo)');
+        var type = $('#tType').val(), secCode = $('#tSec').val(), sec = SECTIONS.find(s => secCode.indexOf(s.code) === 0);
+        TDS.unshift({ id: Date.now(), type: type, section: sec ? sec.code + ' - ' + sec.name : secCode, party: party, pan: ($('#tPan').val() || '').toUpperCase(), date: '2026-06-24', base: base, rate: rate, amount: base * rate / 100, status: type === 'TCS' ? 'Collected' : 'Deducted', challan: '' });
+        tdsModal.hide(); renderTDS(); renderQuarter(); App.toast(type + ' recorded @ ' + rate + '% (rate from PAN) (demo)');
       });
     });
   </script>

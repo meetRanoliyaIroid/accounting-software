@@ -1,0 +1,10 @@
+{
+  "currency": "₹",
+  "company": "Regan Fashion Pvt Ltd",
+  "lcs": [
+    { "id": 1, "no": "LC-2026-001", "party": "Apex Raw Materials", "party_type": "Supplier", "bank": "HDFC Bank — Current", "type": "Import LC (Usance)", "currency": "USD", "amount_fc": 50000.00, "rate": 83.50, "amount": 4175000.00, "issue_date": "2026-05-10", "expiry_date": "2026-08-10", "tenor": "90 days", "goods": "Raw cotton yarn — 40s combed", "linked_invoices": ["PINV-2026-0066"], "utilized": 1500000.00, "status": "Partly Utilized" },
+    { "id": 2, "no": "LC-2026-002", "party": "Orbit Logistics", "party_type": "Supplier", "bank": "ICICI Bank — Current", "type": "Import LC (Sight)", "currency": "USD", "amount_fc": 12000.00, "rate": 83.20, "amount": 998400.00, "issue_date": "2026-06-01", "expiry_date": "2026-09-01", "tenor": "Sight", "goods": "Spare parts & machinery", "linked_invoices": [], "utilized": 0.00, "status": "Open" },
+    { "id": 3, "no": "LC-2026-003", "party": "Zenith Supplies", "party_type": "Supplier", "bank": "HDFC Bank — Current", "type": "Inland LC", "currency": "INR", "amount_fc": 800000.00, "rate": 1, "amount": 800000.00, "issue_date": "2026-04-15", "expiry_date": "2026-06-15", "tenor": "60 days", "goods": "Packing material", "linked_invoices": ["PINV-2026-0072"], "utilized": 800000.00, "status": "Closed" },
+    { "id": 4, "no": "LC-2026-004", "party": "Crystal Packaging", "party_type": "Supplier", "bank": "HDFC Bank — Current", "type": "Import LC (Usance)", "currency": "EUR", "amount_fc": 20000.00, "rate": 90.20, "amount": 1804000.00, "issue_date": "2026-06-20", "expiry_date": "2026-09-20", "tenor": "120 days", "goods": "Specialty dyes", "linked_invoices": [], "utilized": 0.00, "status": "Draft" }
+  ]
+}

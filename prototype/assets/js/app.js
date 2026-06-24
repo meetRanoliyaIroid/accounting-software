@@ -11,10 +11,10 @@
   var BASE = IN_PAGES ? '../' : '';
 
   // ---- Role-based access control ----
-  var ALL_PAGES = ['dashboard', 'coa', 'journal', 'ledger', 'notes', 'customers', 'quotations', 'sales-order', 'dispatch', 'packing', 'sales-invoice',
-    'suppliers', 'indents', 'purchase-order', 'grn', 'purchase-invoice', 'payments', 'bank', 'cheque', 'items', 'stock', 'taxes',
+  var ALL_PAGES = ['dashboard', 'coa', 'journal', 'ledger', 'outstanding', 'adjustments', 'notes', 'customers', 'quotations', 'sales-order', 'dispatch', 'packing', 'sales-invoice',
+    'suppliers', 'indents', 'purchase-order', 'grn', 'purchase-invoice', 'payments', 'bank', 'cheque', 'lc', 'items', 'stock', 'taxes',
     'bom', 'work-order', 'agents', 'statutory', 'trial-balance', 'pnl', 'balance-sheet', 'ageing',
-    'reports', 'loans', 'complaints', 'masters', 'user-rights', 'settings'];
+    'reports', 'loans', 'complaints', 'masters', 'activity-log', 'user-rights', 'settings'];
 
   function except(list) { return ALL_PAGES.filter(function (p) { return list.indexOf(p) === -1; }); }
 
@@ -96,6 +96,72 @@
       };
       var cls = map[status] || 'badge-draft';
       return '<span class="badge-soft ' + cls + '">' + status + '</span>';
+    },
+
+    /* ---------- Accounting helpers (Phase 1: Ledger + Outstanding) ---------- */
+    // Days overdue / ageing bucket for a due date relative to an "as on" date.
+    ageBucket: function (dueStr, asOn) {
+      var as = asOn ? new Date(asOn) : new Date('2026-06-24');
+      var days = Math.floor((as - new Date(dueStr)) / 86400000);
+      if (days <= 0) return { idx: -1, days: days, label: 'Not due' };
+      if (days <= 30) return { idx: 0, days: days, label: '0-30' };
+      if (days <= 60) return { idx: 1, days: days, label: '31-60' };
+      if (days <= 90) return { idx: 2, days: days, label: '61-90' };
+      return { idx: 3, days: days, label: '90+' };
+    },
+
+    // Credit policy defaults (overridable from settings.json by callers).
+    creditPolicy: { grace_days: 0, penalty_pct_per_month: 2 },
+
+    // Credit-control status for a customer (Phase 7).
+    // overdueAmt = sum of bill balances past the credit period (caller computes from Outstanding).
+    creditStatus: function (cust, overdueAmt) {
+      overdueAmt = Number(overdueAmt) || 0;
+      var limit = Number(cust.credit_limit) || 0, bal = Number(cust.balance) || 0;
+      var available = limit - bal;
+      var overLimit = limit > 0 && bal > limit;
+      var overdue = overdueAmt > 0;
+      var blocked = overLimit || overdue;
+      var status = overLimit ? 'Over Credit Limit'
+                 : overdue ? 'Credit Days Exceeded'
+                 : (limit > 0 && available < limit * 0.1 ? 'Near Limit' : 'Within Limit');
+      var cls = blocked ? 'badge-overdue' : (status === 'Near Limit' ? 'badge-partial' : 'badge-paid');
+      return { status: status, cls: cls, available: available, overLimit: overLimit, overdue: overdue, blocked: blocked, limit: limit, balance: bal, overdueAmt: overdueAmt };
+    },
+
+    // Penalty/interest on an overdue amount: pct per month × months overdue.
+    penalty: function (amount, daysOverdue, pctPerMonth) {
+      pctPerMonth = pctPerMonth != null ? pctPerMonth : App.creditPolicy.penalty_pct_per_month;
+      var months = Math.max(1, Math.ceil((Number(daysOverdue) || 0) / 30));
+      return +(((Number(amount) || 0) * pctPerMonth / 100) * months).toFixed(2);
+    },
+
+    // Single posting → BOTH General Ledger lines and Outstanding (bill-wise) effects.
+    // This is the Phase 1 rule: every voucher reflects in Ledger AND Outstanding.
+    // voucher: { no, date, type, unit, lines:[{account, party, debit, credit, bill_ref}] }
+    postVoucher: function (voucher) {
+      var v = voucher || {}, gl = [], outstanding = [];
+      (v.lines || []).forEach(function (l) {
+        var dr = Number(l.debit) || 0, cr = Number(l.credit) || 0;
+        if (!l.account || (!dr && !cr)) return;
+        gl.push({ date: v.date, account: l.account, voucher: v.no, type: v.type,
+          against: l.party || '—', unit: v.unit || l.unit || '', debit: dr, credit: cr });
+        // A line with a party + a receivable/payable account creates/settles outstanding.
+        var isParty = !!l.party && /receivable|payable|debtor|creditor/i.test(l.account || '');
+        if (isParty) {
+          var net = dr - cr;
+          var type = /receivable|debtor/i.test(l.account) ? 'Receivable' : 'Payable';
+          // For receivable: Dr increases balance, Cr settles. For payable: Cr increases, Dr settles.
+          var increases = type === 'Receivable' ? net > 0 : net < 0;
+          outstanding.push({
+            type: type, party: l.party, account: l.account, voucher: l.bill_ref || v.no,
+            voucher_type: v.type, date: v.date, unit: v.unit || l.unit || '',
+            amount: Math.abs(net), effect: l.bill_ref ? 'Close / settle' : (increases ? 'New open item' : 'Reduce balance'),
+            settles: !!l.bill_ref
+          });
+        }
+      });
+      return { gl: gl, outstanding: outstanding };
     },
 
     /* ---------- Confirm dialog (danger actions) ---------- */

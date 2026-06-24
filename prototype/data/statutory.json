@@ -16,8 +16,22 @@
     { "invoice": "SINV-2026-0140", "date": "2026-06-10", "party": "Blue Ocean Ltd", "gstin": "27AABCB3344L1Z7", "taxable": 204067.80, "rate": 18, "igst": 36732.20, "cgst": 0, "sgst": 0, "total": 240800.00 },
     { "invoice": "SINV-2026-0136", "date": "2026-06-05", "party": "Galaxy Enterprises", "gstin": "07AAFCG7788M1Z2", "taxable": 143135.59, "rate": 18, "igst": 25764.41, "cgst": 0, "sgst": 0, "total": 168900.00 }
   ],
+  "hsn_summary": [
+    { "hsn": "5208", "desc": "Cotton woven fabric", "uqc": "MTR", "qty": 12500, "taxable": 980000.00, "rate": 12, "tax": 117600.00 },
+    { "hsn": "5402", "desc": "Synthetic filament yarn", "uqc": "KG", "qty": 3200, "taxable": 620000.00, "rate": 18, "tax": 111600.00 },
+    { "hsn": "3204", "desc": "Synthetic organic dyes", "uqc": "KG", "qty": 450, "taxable": 210000.00, "rate": 18, "tax": 37800.00 }
+  ],
+  "tds_sections": [
+    { "code": "194C", "name": "Contractor / Sub-contractor", "individual": 1, "others": 2 },
+    { "code": "194H", "name": "Commission / Brokerage", "individual": 5, "others": 5 },
+    { "code": "194J", "name": "Professional / Technical", "individual": 10, "others": 10 },
+    { "code": "194Q", "name": "Purchase of Goods", "individual": 0.1, "others": 0.1 },
+    { "code": "194I", "name": "Rent", "individual": 10, "others": 10 }
+  ],
+  "pan_types": { "P": "Individual", "H": "HUF", "F": "Firm / LLP", "C": "Company", "A": "AOP", "T": "Trust", "B": "Body of Individuals", "L": "Local Authority", "J": "Artificial Juridical", "G": "Government" },
+  "no_pan_rate": 20,
   "tds": [
-    { "id": 1, "type": "TDS", "section": "194H - Commission", "party": "R. Mehta", "date": "2026-06-20", "base": 42000.00, "rate": 5, "amount": 2100.00, "status": "Deducted", "challan": "" },
+    { "id": 1, "type": "TDS", "section": "194H - Commission", "party": "R. Mehta", "pan": "ABCPM1234K", "date": "2026-06-20", "base": 42000.00, "rate": 5, "amount": 2100.00, "status": "Deducted", "challan": "" },
     { "id": 2, "type": "TDS", "section": "194C - Contractor", "party": "Stitch Masters (Jobworker)", "date": "2026-06-22", "base": 18000.00, "rate": 2, "amount": 360.00, "status": "Deducted", "challan": "" },
     { "id": 3, "type": "TDS", "section": "194J - Professional", "party": "Orbit Logistics", "date": "2026-06-17", "base": 20847.46, "rate": 10, "amount": 2084.75, "status": "Paid", "challan": "CIN-2026-0061" },
     { "id": 4, "type": "TCS", "section": "206C(1H) - Sale of Goods", "party": "Blue Ocean Ltd", "date": "2026-06-10", "base": 204067.80, "rate": 0.1, "amount": 204.07, "status": "Collected", "challan": "" }

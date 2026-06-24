@@ -57,27 +57,46 @@
           <div class="row g-3">
             <div class="col-lg-7">
               <div class="card card-pad mb-3" data-aos="fade-up">
-                <div class="d-flex gap-2 type-switch mb-3">
-                  <button class="btn btn-gold" id="tReceive" data-type="Receive"><i class="bx bx-down-arrow-circle"></i> Receive</button>
-                  <button class="btn btn-soft" id="tPay" data-type="Pay"><i class="bx bx-up-arrow-circle"></i> Pay</button>
-                </div>
                 <div class="row g-3">
+                  <div class="col-md-8"><label class="form-label">Payment Category *</label><select class="form-select" id="payCat"></select></div>
+                  <div class="col-md-4 d-flex align-items-end"><span class="badge-soft" id="dirBadge" style="font-size:.85rem;padding:.5rem .9rem">—</span></div>
                   <div class="col-md-4"><label class="form-label">Payment No.</label><input class="form-control" id="payNo" readonly></div>
                   <div class="col-md-4"><label class="form-label">Date</label><input class="form-control" type="date" id="payDate"></div>
-                  <div class="col-md-4"><label class="form-label">Mode</label><select class="form-select" id="payMode"><option>Bank Transfer</option><option>UPI</option><option>Cheque</option><option>Cash</option></select></div>
-                  <div class="col-md-6"><label class="form-label" id="partyLabel">Customer *</label><select class="form-select" id="payParty"></select></div>
-                  <div class="col-md-6"><label class="form-label" id="acctLabel">Deposit To</label><input class="form-control" value="1120 · Bank - HDFC Current A/c" readonly></div>
-                  <div class="col-md-6"><label class="form-label">Amount Received / Paid *</label><input class="form-control" id="payAmount" value="0"></div>
-                  <div class="col-md-6"><label class="form-label">Unallocated</label><input class="form-control" id="payUnalloc" readonly value="0"></div>
+                  <div class="col-md-4"><label class="form-label">Mode</label><select class="form-select" id="payMode"><option>Bank Transfer</option><option>UPI</option><option>Cheque</option><option>Cash</option><option>Wire / SWIFT</option></select></div>
+                  <div class="col-md-6" id="partyWrap"><label class="form-label" id="partyLabel">Party *</label><select class="form-select" id="payParty"></select></div>
+                  <div class="col-md-6 d-none" id="payeeWrap"><label class="form-label">Paid To / Description</label><input class="form-control" id="payPayee" placeholder="e.g. Adani Gas / Torrent Power"></div>
+                  <div class="col-md-6"><label class="form-label" id="acctLabel">Account</label><input class="form-control" id="payAcct" readonly></div>
+                </div>
+
+                <!-- Forex block -->
+                <div class="row g-3 mt-1 p-2 d-none" id="fxBlock" style="background:var(--gold-50);border:1px dashed var(--gold-300);border-radius:var(--radius)">
+                  <div class="col-12"><div class="kpi-label"><i class="bx bx-dollar-circle text-gold"></i> Multi-currency / USD exchange</div></div>
+                  <div class="col-md-3"><label class="form-label">Currency</label><select class="form-select" id="payCcy"></select></div>
+                  <div class="col-md-3"><label class="form-label">Exchange Rate</label><input class="form-control num text-end" id="payRate" value="1"></div>
+                  <div class="col-md-3"><label class="form-label">Booked Rate <span class="text-muted-2">(opt)</span></label><input class="form-control num text-end" id="payBooked" placeholder="—"></div>
+                  <div class="col-md-3"><label class="form-label">Base (₹)</label><input class="form-control num text-end" id="payBase" readonly value="0.00"></div>
+                </div>
+
+                <!-- Cheque block -->
+                <div class="row g-3 mt-1 p-2 d-none" id="chqBlock" style="background:#e7f0ff;border:1px dashed #93c5fd;border-radius:var(--radius)">
+                  <div class="col-12"><div class="kpi-label"><i class="bx bx-credit-card-front" style="color:#2563eb"></i> Cheque details (added to cheque register)</div></div>
+                  <div class="col-md-4"><label class="form-label">Cheque No.</label><input class="form-control" id="chqNo" placeholder="000126"></div>
+                  <div class="col-md-4"><label class="form-label">Cheque Date</label><input class="form-control" type="date" id="chqDate"></div>
+                  <div class="col-md-4"><label class="form-label">Bank</label><select class="form-select" id="chqBank"><option>HDFC Bank — Current</option><option>ICICI Bank — Current</option></select></div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                  <div class="col-md-6"><label class="form-label" id="amtLabel">Amount *</label><input class="form-control" id="payAmount" value="0"></div>
+                  <div class="col-md-6"><label class="form-label">Unallocated (Advance)</label><input class="form-control" id="payUnalloc" readonly value="0"></div>
                 </div>
               </div>
               <div class="card card-pad gl-preview" style="background:var(--gold-50);border:1px dashed var(--gold-300)" data-aos="fade-up">
-                <h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> GL Posting Preview</h6>
+                <h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> GL Posting Preview <span class="card-sub" id="glNote"></span></h6>
                 <table class="tbl" style="background:transparent"><tbody id="glRows"></tbody></table>
               </div>
             </div>
             <div class="col-lg-5">
-              <div class="card" data-aos="fade-up">
+              <div class="card" data-aos="fade-up" id="allocCard">
                 <div class="card-pad"><h5 class="card-title">Allocate Against Outstanding</h5><div class="card-sub">Tick invoices and the payment auto-allocates oldest-first</div></div>
                 <div class="table-wrap">
                   <table class="tbl">
@@ -86,9 +105,13 @@
                     <tfoot><tr style="border-top:2px solid var(--line)"><td colspan="3" class="text-end fw-8">Total Allocated</td><td class="num fw-8 tabular text-gold" id="allocTotal">0.00</td></tr></tfoot>
                   </table>
                 </div>
-                <div class="card-pad d-grid gap-2">
-                  <button class="btn btn-gold" id="submitPay"><i class="bx bx-check-double"></i> Submit Payment</button>
-                </div>
+              </div>
+              <div class="card card-pad d-none" id="directCard" data-aos="fade-up">
+                <h5 class="card-title mb-2">Direct Payment</h5>
+                <div class="card-sub">This category posts straight to its expense/asset account — no invoice allocation. It still reflects in the Ledger (and Outstanding when a party is set).</div>
+              </div>
+              <div class="card card-pad mt-3 d-grid gap-2" data-aos="fade-up">
+                <button class="btn btn-gold" id="submitPay"><i class="bx bx-check-double"></i> Submit Payment</button>
               </div>
             </div>
           </div>
@@ -107,11 +130,13 @@
       AOS.init({ duration: 600, once: true });
       App.loadShell('payments');
       var DATA = [], CUR = '₹', OPEN_SI = [], OPEN_PI = [], CUSTOMERS = [], SUPPLIERS = [], TYPE = 'Receive', seq = 92;
+      var CATS = [], CCY = [], CAT = null;
 
       $.when(App.data('payments.json'), App.data('customers.json'), App.data('suppliers.json'))
         .done(function (pa, cu, su) {
           DATA = pa[0].payments; CUR = pa[0].currency;
           OPEN_SI = pa[0].open_sales_invoices; OPEN_PI = pa[0].open_purchase_invoices;
+          CATS = pa[0].categories || []; CCY = pa[0].currencies || [];
           CUSTOMERS = cu[0].customers; SUPPLIERS = su[0].suppliers;
           renderStats(); render();
         }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
@@ -173,14 +198,17 @@
         var isRecv = p.type === 'Receive';
         var allocs = (p.allocations || []).map(a => '<tr><td class="fw-bold text-gold">' + a.invoice + '</td><td class="num tabular fw-bold">' + App.currency(a.allocated, CUR) + '</td></tr>').join('') ||
           '<tr><td colspan="2" class="text-center text-muted-2 py-3">No allocations (advance payment)</td></tr>';
-        var bank = p.account;
-        var gl = isRecv ? [{ a: bank, d: p.amount, c: 0 }, { a: '1130 · Debtors', d: 0, c: p.amount }]
-                        : [{ a: '2110 · Creditors', d: p.amount, c: 0 }, { a: bank, d: 0, c: p.amount }];
+        var realBank = '1120 · Bank - HDFC Current A/c';
+        var isExpense = p.account && !/Bank|Debtors|Creditors|Receivable|Payable/i.test(p.account);
+        var gl;
+        if (isExpense) gl = [{ a: p.account, d: p.amount, c: 0 }, { a: realBank, d: 0, c: p.amount }];
+        else if (isRecv) gl = [{ a: realBank, d: p.amount, c: 0 }, { a: '1130 · Accounts Receivable (Debtors)', d: 0, c: p.amount }];
+        else gl = [{ a: '2110 · Accounts Payable (Creditors)', d: p.amount, c: 0 }, { a: realBank, d: 0, c: p.amount }];
         var html =
           '<div class="card card-pad mb-3" data-aos="fade-up">' +
             '<div class="d-flex flex-wrap align-items-start gap-3">' +
               '<div><div class="kpi-label">Payment ' + (isRecv ? 'Received' : 'Made') + '</div><h2 class="fw-8 mb-0 text-gold">' + p.no + '</h2>' +
-                '<div class="card-sub mt-1">' + App.shortDate(p.date) + ' · ' + p.mode + '</div></div>' +
+                '<div class="card-sub mt-1">' + App.shortDate(p.date) + ' · ' + p.mode + (p.category ? ' · ' + p.category : '') + (p.currency && p.currency !== 'INR' ? ' · ' + p.currency + ' @ ' + p.rate : '') + '</div></div>' +
               '<div class="ms-auto text-end"><span class="badge-soft ' + (isRecv ? 'badge-paid' : 'badge-unpaid') + '">' + p.type + '</span>' +
                 '<div class="mt-2"><div class="kpi-label">Amount</div><div class="fw-8 ' + (isRecv ? 'text-success' : 'text-danger') + '" style="font-size:1.6rem">' + (isRecv ? '+' : '−') + App.currency(p.amount, CUR) + '</div></div></div>' +
             '</div><div class="divider"></div>' +
@@ -203,18 +231,35 @@
         $('#detailView').html(html);
       }
 
-      function setType(t) {
-        TYPE = t;
-        $('#tReceive').toggleClass('btn-gold', t === 'Receive').toggleClass('btn-soft', t !== 'Receive');
-        $('#tPay').toggleClass('btn-gold', t === 'Pay').toggleClass('btn-soft', t !== 'Pay');
-        $('#partyLabel').text(t === 'Receive' ? 'Customer *' : 'Supplier *');
-        $('#acctLabel').text(t === 'Receive' ? 'Deposit To' : 'Pay From');
-        var parties = t === 'Receive' ? CUSTOMERS : SUPPLIERS;
-        $('#payParty').html('<option value="">Select…</option>' + parties.map(p => '<option>' + p.name + '</option>').join(''));
-        $('#allocRows').empty(); buildAlloc();
+      function setCategory(key) {
+        CAT = CATS.find(c => c.key === key) || CATS[0];
+        TYPE = CAT.dir;
+        var isRecv = CAT.dir === 'Receive';
+        $('#dirBadge').removeClass('badge-paid badge-unpaid').addClass(isRecv ? 'badge-paid' : 'badge-unpaid')
+          .html('<i class="bx bx-' + (isRecv ? 'down' : 'up') + '-arrow-circle"></i> ' + CAT.dir);
+        // party vs payee
+        if (CAT.party) {
+          $('#partyWrap').removeClass('d-none'); $('#payeeWrap').addClass('d-none');
+          $('#partyLabel').text(CAT.party + ' *');
+          var parties = CAT.party === 'Customer' ? CUSTOMERS : SUPPLIERS;
+          $('#payParty').html('<option value="">Select…</option>' + parties.map(p => '<option>' + p.name + '</option>').join(''));
+        } else {
+          $('#partyWrap').addClass('d-none'); $('#payeeWrap').removeClass('d-none');
+        }
+        // account shown
+        $('#acctLabel').text(CAT.alloc ? (isRecv ? 'Deposit To' : 'Pay From') : 'Posts To');
+        $('#payAcct').val(CAT.alloc ? CAT.bank : (CAT.expense || CAT.bank));
+        // forex / cheque blocks
+        $('#fxBlock').toggleClass('d-none', !CAT.forex);
+        $('#chqBlock').toggleClass('d-none', !CAT.cheque);
+        // allocation vs direct
+        $('#allocCard').toggleClass('d-none', !CAT.alloc);
+        $('#directCard').toggleClass('d-none', !!CAT.alloc);
+        if (CAT.alloc) { $('#allocRows').empty(); buildAlloc(); }
         recalc();
       }
-      $('#tReceive,#tPay').on('click', function () { setType($(this).data('type')); });
+      $('#payCat').on('change', function () { setCategory($(this).val()); });
+      $('#payCcy,#payRate,#payBooked,#payMode').on('input change', recalc);
 
       function buildAlloc() {
         var party = $('#payParty').val();
@@ -231,9 +276,8 @@
       }
       $(document).on('change', '#payParty', function () { buildAlloc(); recalc(); });
 
-      // Auto-allocate oldest-first up to amount
-      function autoAllocate() {
-        var amount = parseFloat($('#payAmount').val()) || 0;
+      // Auto-allocate oldest-first up to the (base ₹) amount
+      function autoAllocate(amount) {
         var remaining = amount;
         $('.alloc-chk').each(function () {
           var $tr = $(this).closest('tr');
@@ -251,18 +295,42 @@
       $(document).on('change', '.alloc-chk', recalc);
       $('#payAmount').on('input', recalc);
 
-      function recalc() {
-        var amount = parseFloat($('#payAmount').val()) || 0;
-        var allocated = autoAllocate();
-        $('#allocTotal').text(App.number(allocated));
-        $('#payUnalloc').val(App.number(amount - allocated));
-        // GL preview
-        var bank = '1120 · Bank - HDFC Current A/c';
-        var gl;
-        if (TYPE === 'Receive') gl = [{ a: bank, d: amount, c: 0 }, { a: '1130 · Debtors', d: 0, c: amount }];
-        else gl = [{ a: '2110 · Creditors', d: amount, c: 0 }, { a: bank, d: 0, c: amount }];
+      function renderGl(gl) {
+        var dr = gl.reduce((s, g) => s + g.d, 0), cr = gl.reduce((s, g) => s + g.c, 0);
         $('#glRows').html(gl.map(g => '<tr><td class="small">' + g.a + '</td><td class="num tabular small">' + (g.d ? App.number(g.d) : '—') + '</td><td class="num tabular small">' + (g.c ? App.number(g.c) : '—') + '</td></tr>').join('') +
-          '<tr style="border-top:1px solid var(--gold-300)"><td class="fw-8 small">Total</td><td class="num fw-8 tabular small">' + App.number(amount) + '</td><td class="num fw-8 tabular small">' + App.number(amount) + '</td></tr>');
+          '<tr style="border-top:1px solid var(--gold-300)"><td class="fw-8 small">Total</td><td class="num fw-8 tabular small">' + App.number(dr) + '</td><td class="num fw-8 tabular small">' + App.number(cr) + '</td></tr>');
+      }
+
+      function recalc() {
+        if (!CAT) return;
+        var amt = parseFloat($('#payAmount').val()) || 0;
+        var fxOn = !!CAT.forex;
+        var rate = fxOn ? (parseFloat($('#payRate').val()) || 1) : 1;
+        var base = +(amt * rate).toFixed(2);
+        var ccy = fxOn ? $('#payCcy').val() : 'INR';
+        $('#payBase').val(App.number(base));
+        $('#amtLabel').text('Amount' + (ccy !== 'INR' ? ' (' + ccy + ')' : '') + ' *');
+        $('#glNote').text(ccy !== 'INR' ? '· 1 ' + ccy + ' = ₹' + rate + ' → ₹' + App.number(base) : '');
+        var booked = parseFloat($('#payBooked').val());
+        var fx = (fxOn && booked) ? +((rate - booked) * amt).toFixed(2) : 0;  // +ve = paid more ₹ = forex loss
+        var bank = CAT.bank, gl = [];
+        if (CAT.alloc) {
+          var allocated = autoAllocate(base);
+          $('#allocTotal').text(App.number(allocated));
+          $('#payUnalloc').val(App.number(base - allocated));
+          if (TYPE === 'Receive') {
+            gl = [{ a: bank, d: base, c: 0 }, { a: CAT.control, d: 0, c: base }];
+          } else {
+            gl = [{ a: CAT.control, d: +(base - fx).toFixed(2), c: 0 }];
+            if (fx > 0) gl.push({ a: '5600 · Forex Gain / Loss', d: fx, c: 0 });
+            else if (fx < 0) gl.push({ a: '5600 · Forex Gain / Loss', d: 0, c: -fx });
+            gl.push({ a: bank, d: 0, c: base });
+          }
+        } else {
+          $('#payUnalloc').val('0.00');
+          gl = [{ a: CAT.expense || bank, d: base, c: 0 }, { a: bank, d: 0, c: base }];
+        }
+        renderGl(gl);
       }
 
       function showForm() {
@@ -270,7 +338,11 @@
         $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
         $('#payNo').val('PAY-2026-' + String(seq).padStart(4, '0'));
         $('#payDate').val('2026-06-24'); $('#payAmount').val('0');
-        setType('Receive');
+        $('#payCat').html(CATS.map(c => '<option value="' + c.key + '">' + c.label + '</option>').join(''));
+        $('#payCcy').html(CCY.map(c => '<option value="' + c.code + '" data-rate="' + c.rate + '">' + c.code + '</option>').join(''));
+        $('#payCcy').off('change.fx').on('change.fx', function () { $('#payRate').val($(this).find(':selected').data('rate')); recalc(); });
+        $('#payBooked').val(''); $('#chqNo').val(''); $('#chqDate').val('2026-06-24'); $('#payPayee').val('');
+        setCategory(CATS[0] ? CATS[0].key : 'receipt');
       }
       function showList() {
         $('#formView,#detailView').addClass('d-none'); $('#listView').removeClass('d-none');
@@ -280,19 +352,26 @@
       $('#btnBack').on('click', showList);
 
       $('#submitPay').on('click', function () {
-        var party = $('#payParty').val(), amount = parseFloat($('#payAmount').val()) || 0;
-        if (!party) { App.toast('Please select a party', 'error'); return; }
-        if (amount <= 0) { App.toast('Enter a payment amount', 'error'); return; }
+        var amt = parseFloat($('#payAmount').val()) || 0;
+        if (amt <= 0) { App.toast('Enter a payment amount', 'error'); return; }
+        var party = CAT.party ? $('#payParty').val() : ($('#payPayee').val().trim() || CAT.label);
+        if (CAT.party && !$('#payParty').val()) { App.toast('Please select a ' + CAT.party.toLowerCase(), 'error'); return; }
+        if (CAT.cheque && !$('#chqNo').val().trim()) { App.toast('Enter the cheque number', 'error'); return; }
+        var rate = CAT.forex ? (parseFloat($('#payRate').val()) || 1) : 1;
+        var base = +(amt * rate).toFixed(2);
         var allocs = [];
-        $('.alloc-chk:checked').each(function () {
+        if (CAT.alloc) $('.alloc-chk:checked').each(function () {
           var $tr = $(this).closest('tr');
           allocs.push({ invoice: $tr.find('.fw-bold').text(), allocated: parseFloat($tr.find('.alloc-amt').text().replace(/,/g, '')) });
         });
-        DATA.unshift({ id: Date.now(), no: $('#payNo').val(), type: TYPE, party: party, date: $('#payDate').val(),
-          mode: $('#payMode').val(), account: '1120 · Bank - HDFC Current A/c', amount: amount,
-          unallocated: amount - allocs.reduce((s, a) => s + a.allocated, 0), allocations: allocs });
+        DATA.unshift({ id: Date.now(), no: $('#payNo').val(), type: TYPE, category: CAT.label, party: party, date: $('#payDate').val(),
+          mode: CAT.cheque ? 'Cheque' : $('#payMode').val(), account: CAT.alloc ? CAT.bank : (CAT.expense || CAT.bank),
+          currency: CAT.forex ? $('#payCcy').val() : 'INR', rate: rate, amount: base,
+          unallocated: base - allocs.reduce((s, a) => s + a.allocated, 0), allocations: allocs });
         seq++;
-        App.toast('Payment submitted — GL posted (demo)');
+        var extra = (CAT.forex && $('#payCcy').val() !== 'INR') ? ' · ' + amt + ' ' + $('#payCcy').val() + ' @ ' + rate : '';
+        var chq = CAT.cheque ? ' · cheque ' + $('#chqNo').val() + ' added to register' : '';
+        App.toast(CAT.label + ' submitted — GL' + (CAT.alloc && allocs.length ? ' + Outstanding' : '') + ' posted' + extra + chq + ' (demo)');
         renderStats(); render(); showList();
       });
     });

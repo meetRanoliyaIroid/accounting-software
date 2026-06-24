@@ -68,7 +68,8 @@
                   <div class="col-md-4"><label class="form-label">Invoice No.</label><input class="form-control" id="invNo" readonly></div>
                   <div class="col-md-4"><label class="form-label">Invoice Date</label><input class="form-control" type="date" id="invDate"></div>
                   <div class="col-md-4"><label class="form-label">Due Date</label><input class="form-control" type="date" id="invDue"></div>
-                  <div class="col-md-8"><label class="form-label">Customer *</label><select class="form-select" id="invCust"></select></div>
+                  <div class="col-md-5"><label class="form-label">Customer *</label><select class="form-select" id="invCust"></select></div>
+                  <div class="col-md-3"><label class="form-label">Invoice Type</label><select class="form-select" id="invType"></select></div>
                   <div class="col-md-4"><label class="form-label">Receivable A/c</label><input class="form-control" value="1130 · Debtors" readonly></div>
                 </div>
               </div>
@@ -117,13 +118,14 @@
     $(function () {
       AOS.init({ duration: 600, once: true });
       App.loadShell('sales-invoice');
-      var DATA = [], CUR = '₹', ITEMS = [], CUSTOMERS = [], TAXES = [], seq = 149;
+      var DATA = [], CUR = '₹', ITEMS = [], CUSTOMERS = [], TAXES = [], STYPES = [], seq = 149;
 
-      $.when(App.data('sales-invoices.json'), App.data('items.json'), App.data('customers.json'), App.data('taxes.json'))
-        .done(function (si, it, cu, tx) {
+      $.when(App.data('sales-invoices.json'), App.data('items.json'), App.data('customers.json'), App.data('taxes.json'), App.data('masters.json'))
+        .done(function (si, it, cu, tx, ms) {
           DATA = si[0].invoices; CUR = si[0].currency;
           ITEMS = it[0].items; CUSTOMERS = cu[0].customers;
           TAXES = tx[0].taxes.filter(t => t.scope !== 'Purchase');
+          STYPES = (ms[0].voucher_types || []).filter(t => t.category === 'Sales' && t.status !== 'Inactive');
           renderStats(); render();
           if (new URLSearchParams(location.search).get('new')) { showForm(); history.replaceState(null, '', 'sales-invoice.html'); }
         }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
@@ -285,6 +287,7 @@
         $('#invNo').val('SINV-2026-' + String(seq).padStart(4, '0'));
         $('#invDate').val('2026-06-24'); $('#invDue').val('2026-07-09');
         $('#invCust').html('<option value="">Select customer…</option>' + CUSTOMERS.map(c => '<option>' + c.name + '</option>').join(''));
+        $('#invType').html(STYPES.map(t => '<option>' + t.name + '</option>').join(''));
         $('#lnRows').empty(); addLine(); recalc();
       }
       function showList() {
@@ -299,11 +302,11 @@
         if (!cust) { App.toast('Please select a customer', 'error'); return; }
         var t = recalc();
         if (t.grand <= 0) { App.toast('Add at least one item line', 'error'); return; }
-        DATA.unshift({ id: Date.now(), no: $('#invNo').val(), customer: cust, date: $('#invDate').val(), due_date: $('#invDue').val(),
+        DATA.unshift({ id: Date.now(), no: $('#invNo').val(), customer: cust, doc_type: $('#invType').val(), date: $('#invDate').val(), due_date: $('#invDue').val(),
           status: status === 'Draft' ? 'Draft' : 'Unpaid', net_total: t.net, tax_total: t.tax, grand_total: t.grand,
           outstanding: status === 'Draft' ? 0 : t.grand, lines: [] });
         seq++;
-        App.toast('Invoice ' + (status === 'Draft' ? 'saved as draft' : 'submitted — GL posted') + ' (demo)');
+        App.toast('Invoice ' + (status === 'Draft' ? 'saved as draft' : 'submitted — GL + Outstanding posted') + ' (demo)');
         renderStats(); render(); showList();
       }
       $('#saveDraft').on('click', function () { save('Draft'); });

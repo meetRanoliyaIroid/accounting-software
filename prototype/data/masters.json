@@ -59,6 +59,33 @@
     { "id": 3, "code": "N03", "text": "Being purchase of raw material", "module": "Purchase" },
     { "id": 4, "code": "N04", "text": "Being amount paid to supplier", "module": "Payment" }
   ],
+  "units": [
+    { "id": 1, "code": "U1", "name": "Unit 1 — Surat Mill", "company": "Regan Fashion", "status": "Active" },
+    { "id": 2, "code": "U2", "name": "Unit 2 — Ahmedabad", "company": "Regan Fashion", "status": "Active" },
+    { "id": 3, "code": "HO", "name": "Head Office", "company": "Regan Fashion", "status": "Active" }
+  ],
+  "voucher_types": [
+    { "id": 1, "category": "Sales", "code": "SAL-TAX", "name": "Tax Invoice", "requires_grn": "Yes", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 2, "category": "Sales", "code": "SAL-CASH", "name": "Cash Sale", "requires_grn": "Yes", "affects": "Ledger", "status": "Active" },
+    { "id": 3, "category": "Sales", "code": "SAL-EXP", "name": "Export Invoice", "requires_grn": "Yes", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 4, "category": "Sales", "code": "SAL-SRV", "name": "Service Invoice", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 5, "category": "Sales", "code": "SAL-RENT", "name": "Rent Invoice", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 6, "category": "Purchase", "code": "PUR-GOODS", "name": "Goods Purchase", "requires_grn": "Yes", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 7, "category": "Purchase", "code": "PUR-IMP", "name": "Import Purchase", "requires_grn": "Yes", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 8, "category": "Purchase", "code": "PUR-SRV", "name": "Service Bill", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 9, "category": "Purchase", "code": "PUR-RENT", "name": "Rent Bill", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 10, "category": "Purchase", "code": "PUR-EXP", "name": "Expense Bill", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 11, "category": "Journal", "code": "JV-GEN", "name": "Journal Entry", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 12, "category": "Journal", "code": "JV-DEP", "name": "Depreciation Entry", "requires_grn": "No", "affects": "Ledger", "status": "Active" },
+    { "id": 13, "category": "Journal", "code": "JV-PROV", "name": "Provision Entry", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 14, "category": "Journal", "code": "JV-OPEN", "name": "Opening Entry", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 15, "category": "Journal", "code": "JV-FX", "name": "Forex Revaluation", "requires_grn": "No", "affects": "Ledger", "status": "Active" },
+    { "id": 16, "category": "Journal", "code": "JV-WO", "name": "Write-off", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 17, "category": "Cashbook", "code": "CB-RCT", "name": "Cash Receipt", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 18, "category": "Cashbook", "code": "CB-PAY", "name": "Cash Payment", "requires_grn": "No", "affects": "Ledger + Outstanding", "status": "Active" },
+    { "id": 19, "category": "Cashbook", "code": "CB-PETTY", "name": "Petty Expense", "requires_grn": "No", "affects": "Ledger", "status": "Active" },
+    { "id": 20, "category": "Cashbook", "code": "CB-CONTRA", "name": "Contra (Cash/Bank)", "requires_grn": "No", "affects": "Ledger", "status": "Active" }
+  ],
   "departments": [
     { "id": 1, "code": "PUR", "name": "Purchase", "email": "purchase@regan.in", "status": "Active" },
     { "id": 2, "code": "STR", "name": "Stores", "email": "stores@regan.in", "status": "Active" },

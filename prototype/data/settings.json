@@ -35,6 +35,18 @@
     { "user": "Rahul Mehta", "email": "rahul@goldbooks.demo", "role": "Accounts Manager", "status": "Active" },
     { "user": "Auditor (External)", "email": "audit@ca-firm.demo", "role": "Auditor (Read-only)", "status": "Invited" }
   ],
+  "gst_locked_until": "2026-05-31",
+  "credit_policy": {
+    "default_credit_days": 30,
+    "block_orders_over_limit": true,
+    "block_orders_when_overdue": true,
+    "penalty_pct_per_month": 2.0,
+    "penalty_income_account": "4200 · Other Income"
+  },
+  "gr_policy": {
+    "salesman_gr_limit": 50000,
+    "require_reason": true
+  },
   "period_closes": [
     { "period": "Q1 FY2026-27 (Apr-Jun)", "closed_on": "—", "closing_account": "3200 · Retained Earnings", "status": "Open" },
     { "period": "FY 2025-2026", "closed_on": "2026-04-15", "closing_account": "3200 · Retained Earnings", "status": "Closed" }

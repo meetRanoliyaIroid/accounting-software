@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adjustments · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .alloc td { padding: .45rem .5rem; }
+    .alloc .form-control { padding: .35rem .55rem; font-size: .84rem; }
+    .side-dr { border-left: 3px solid var(--gold-500); }
+    .side-cr { border-left: 3px solid #2563eb; }
+    .balance-pill { padding:.5rem 1rem; border-radius:999px; font-weight:700; display:inline-flex; align-items:center; gap:.4rem; }
+    .balance-pill.ok { background: var(--success-soft); color: var(--success); }
+    .balance-pill.bad { background: var(--danger-soft); color: var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Adjustments</h1>
+            <div class="crumb">Accounting · <b>Bill-to-Bill / Payable-Debitable Adjustment</b></div>
+          </div>
+        </div>
+
+        <div class="alert d-flex align-items-center gap-2 mb-3" style="background:var(--gold-50);border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-700)" data-aos="fade-up">
+          <i class="bx bx-transfer text-gold" style="font-size:1.2rem"></i>
+          <span class="small">Knock off a <b>debit-nature</b> open item (invoice / debit note / advance paid) against a <b>credit-nature</b> one (advance received / credit note / bill) for the same party. Allocated total must match on both sides. The adjustment closes specific bills in <b>Outstanding</b> and posts a net-zero contra in the <b>Ledger</b>.</span>
+        </div>
+
+        <div class="card card-pad mb-3" data-aos="fade-up">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5"><label class="form-label">Party</label><select id="party" class="form-select"><option value="">Select party…</option></select></div>
+            <div class="col-md-3"><label class="form-label">Adjustment No.</label><input id="adjNo" class="form-control" readonly></div>
+            <div class="col-md-2"><label class="form-label">Date</label><input id="adjDate" class="form-control" type="date" value="2026-06-24"></div>
+            <div class="col-md-2"><label class="form-label">Unit</label><input id="adjUnit" class="form-control" value="—" readonly></div>
+          </div>
+        </div>
+
+        <div id="workArea" class="d-none">
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="card side-dr" data-aos="fade-up">
+                <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto"><i class="bx bx-down-arrow-circle text-gold"></i> Debit-side items</h5><span class="badge-soft" style="background:var(--gold-50);color:var(--gold-700)">they owe us / advance paid</span></div>
+                <div class="table-wrap"><table class="tbl alloc">
+                  <thead><tr><th>Document</th><th class="num">Balance</th><th class="num" style="width:32%">Allocate</th></tr></thead>
+                  <tbody id="drRows"></tbody>
+                </table></div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card side-cr" data-aos="fade-up">
+                <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto"><i class="bx bx-up-arrow-circle" style="color:#2563eb"></i> Credit-side items</h5><span class="badge-soft" style="background:#e7f0ff;color:#2563eb">we owe / advance received</span></div>
+                <div class="table-wrap"><table class="tbl alloc">
+                  <thead><tr><th>Document</th><th class="num">Balance</th><th class="num" style="width:32%">Allocate</th></tr></thead>
+                  <tbody id="crRows"></tbody>
+                </table></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-pad mt-3" data-aos="fade-up">
+            <div class="row g-3 align-items-center">
+              <div class="col-md-3"><div class="kpi-label">Debit Allocated</div><div class="fw-8 text-gold" id="sumDr" style="font-size:1.25rem">₹0.00</div></div>
+              <div class="col-md-3"><div class="kpi-label">Credit Allocated</div><div class="fw-8" id="sumCr" style="font-size:1.25rem;color:#2563eb">₹0.00</div></div>
+              <div class="col-md-3"><span class="balance-pill bad" id="diffPill"><i class="bx bx-error-circle"></i> <span id="diffText">Nothing allocated</span></span></div>
+              <div class="col-md-3 text-end"><button class="btn btn-gold" id="postBtn" disabled style="opacity:.55"><i class="bx bx-check-double"></i> Post Adjustment</button></div>
+            </div>
+            <div id="effect" class="mt-3 small text-muted-2"></div>
+          </div>
+        </div>
+
+        <div class="card mt-3" data-aos="fade-up">
+          <div class="card-pad"><h5 class="card-title">Recent Adjustments</h5></div>
+          <div class="table-wrap"><table class="tbl">
+            <thead><tr><th>Adj. No.</th><th>Date</th><th>Party</th><th>Debit Doc</th><th>Credit Doc</th><th class="num">Amount</th><th>Remark</th></tr></thead>
+            <tbody id="recentRows"><tr><td colspan="7" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+          </table></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('adjustments');
+      var CUR = '₹', ITEMS = [], RECENT = [], seq = 8;
+
+      App.data('adjustments.json').done(function (d) {
+        CUR = d.currency; ITEMS = d.open_items; RECENT = d.recent || [];
+        var parties = [...new Set(ITEMS.filter(i => i.balance > 0).map(i => i.party))];
+        $('#party').append(parties.map(p => '<option>' + p + '</option>').join(''));
+        $('#adjNo').val('ADJ-2026-' + String(seq).padStart(4, '0'));
+        renderRecent();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function renderRecent() {
+        $('#recentRows').html(RECENT.length ? RECENT.map(function (r) {
+          return '<tr><td><span class="fw-bold text-gold">' + r.no + '</span></td><td class="text-muted-2">' + App.shortDate(r.date) + '</td>' +
+            '<td class="fw-bold" style="color:var(--ink-900)">' + r.party + '</td><td>' + r.dr_ref + '</td><td>' + r.cr_ref + '</td>' +
+            '<td class="num tabular fw-bold">' + App.currency(r.amount, CUR) + '</td><td class="text-muted-2 small">' + r.remark + '</td></tr>';
+        }).join('') : '<tr><td colspan="7" class="text-center text-muted-2 py-4">No adjustments yet</td></tr>');
+      }
+
+      function allocRow(it) {
+        return '<tr data-id="' + it.id + '">' +
+          '<td><span class="fw-bold text-gold">' + it.ref + '</span><div class="card-sub">' + it.doc_type + ' · ' + App.shortDate(it.date) + '</div></td>' +
+          '<td class="num tabular fw-bold">' + App.number(it.balance) + '</td>' +
+          '<td><input class="form-control num text-end alloc-in" data-max="' + it.balance + '" value="0"></td>' +
+        '</tr>';
+      }
+
+      function loadParty() {
+        var p = $('#party').val();
+        if (!p) { $('#workArea').addClass('d-none'); return; }
+        $('#workArea').removeClass('d-none');
+        var mine = ITEMS.filter(i => i.party === p && i.balance > 0);
+        $('#adjUnit').val(mine[0] ? mine[0].unit : '—');
+        var dr = mine.filter(i => i.nature === 'Dr'), cr = mine.filter(i => i.nature === 'Cr');
+        $('#drRows').html(dr.length ? dr.map(allocRow).join('') : '<tr><td colspan="3" class="text-center text-muted-2 py-3">No debit-side items</td></tr>');
+        $('#crRows').html(cr.length ? cr.map(allocRow).join('') : '<tr><td colspan="3" class="text-center text-muted-2 py-3">No credit-side items</td></tr>');
+        recompute();
+      }
+      $('#party').on('change', loadParty);
+
+      function recompute() {
+        var dr = 0, cr = 0;
+        $('#drRows .alloc-in').each(function () { dr += clamp(this); });
+        $('#crRows .alloc-in').each(function () { cr += clamp(this); });
+        $('#sumDr').text(App.currency(dr, CUR)); $('#sumCr').text(App.currency(cr, CUR));
+        var diff = +(dr - cr).toFixed(2);
+        var $pill = $('#diffPill');
+        if (dr > 0 && diff === 0) {
+          $pill.removeClass('bad').addClass('ok').html('<i class="bx bx-check-circle"></i> Balanced — ' + App.currency(dr, CUR) + ' each side');
+          $('#postBtn').prop('disabled', false).css('opacity', 1);
+          $('#effect').html('<i class="bx bx-info-circle text-gold"></i> On post: bills above reduce by the allocated amounts in <b>Outstanding</b>; a net-zero contra (Dr & Cr on the party control account) is written to the <b>Ledger</b>.');
+        } else {
+          var msg = dr === 0 ? 'Nothing allocated' : 'Out of balance by ' + App.currency(Math.abs(diff), CUR);
+          $pill.removeClass('ok').addClass('bad').html('<i class="bx bx-error-circle"></i> ' + msg);
+          $('#postBtn').prop('disabled', true).css('opacity', .55);
+          $('#effect').html('');
+        }
+      }
+      function clamp(el) {
+        var max = parseFloat($(el).data('max')) || 0;
+        var v = parseFloat($(el).val()) || 0;
+        if (v < 0) { v = 0; $(el).val('0'); }
+        if (v > max) { v = max; $(el).val(max.toFixed(2)); }
+        return v;
+      }
+      $(document).on('input', '.alloc-in', recompute);
+
+      $('#postBtn').on('click', function () {
+        var p = $('#party').val(), total = 0, drRef = [], crRef = [];
+        $('#drRows tr').each(function () {
+          var amt = parseFloat($(this).find('.alloc-in').val()) || 0; if (amt <= 0) return;
+          var it = ITEMS.find(x => x.id == $(this).data('id')); it.balance = +(it.balance - amt).toFixed(2); total += amt; drRef.push(it.ref);
+        });
+        $('#crRows tr').each(function () {
+          var amt = parseFloat($(this).find('.alloc-in').val()) || 0; if (amt <= 0) return;
+          var it = ITEMS.find(x => x.id == $(this).data('id')); it.balance = +(it.balance - amt).toFixed(2); crRef.push(it.ref);
+        });
+        RECENT.unshift({ id: Date.now(), no: $('#adjNo').val(), date: $('#adjDate').val(), party: p,
+          dr_ref: drRef.join(', '), cr_ref: crRef.join(', '), amount: total, remark: 'Bill-to-bill adjustment (demo)' });
+        seq++; $('#adjNo').val('ADJ-2026-' + String(seq).padStart(4, '0'));
+        App.toast('Adjustment posted — ' + App.currency(total, CUR) + ' knocked off; Outstanding + Ledger updated (demo)');
+        renderRecent(); loadParty();
+      });
+    });
+  </script>
+</body>
+</html>

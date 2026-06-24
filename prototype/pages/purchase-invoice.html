@@ -65,8 +65,11 @@
                   <div class="col-md-4"><label class="form-label">Bill No.</label><input class="form-control" id="invNo" readonly></div>
                   <div class="col-md-4"><label class="form-label">Bill Date</label><input class="form-control" type="date" id="invDate"></div>
                   <div class="col-md-4"><label class="form-label">Due Date</label><input class="form-control" type="date" id="invDue"></div>
-                  <div class="col-md-8"><label class="form-label">Supplier *</label><select class="form-select" id="invSupp"></select></div>
-                  <div class="col-md-4"><label class="form-label">Payable A/c</label><input class="form-control" value="2110 · Creditors" readonly></div>
+                  <div class="col-md-6"><label class="form-label">Supplier *</label><select class="form-select" id="invSupp"></select></div>
+                  <div class="col-md-3"><label class="form-label">Bill Type</label><select class="form-select" id="invType"></select></div>
+                  <div class="col-md-3"><label class="form-label">Payable A/c</label><input class="form-control" value="2110 · Creditors" readonly></div>
+                  <div class="col-md-6"><label class="form-label">GRN Reference <span id="grnReq" class="text-danger"></span></label><input class="form-control" id="invGrn" placeholder="GRN-2026-…"></div>
+                  <div class="col-md-6 d-flex align-items-end"><div id="grnHint" class="small text-muted-2 pb-2"></div></div>
                 </div>
               </div>
               <div class="card" data-aos="fade-up">
@@ -114,15 +117,28 @@
     $(function () {
       AOS.init({ duration: 600, once: true });
       App.loadShell('purchase-invoice');
-      var DATA = [], CUR = '₹', ITEMS = [], SUPPLIERS = [], TAXES = [], seq = 73;
+      var DATA = [], CUR = '₹', ITEMS = [], SUPPLIERS = [], TAXES = [], PTYPES = [], seq = 73;
 
-      $.when(App.data('purchase-invoices.json'), App.data('items.json'), App.data('suppliers.json'), App.data('taxes.json'))
-        .done(function (pi, it, su, tx) {
+      $.when(App.data('purchase-invoices.json'), App.data('items.json'), App.data('suppliers.json'), App.data('taxes.json'), App.data('masters.json'))
+        .done(function (pi, it, su, tx, ms) {
           DATA = pi[0].invoices; CUR = pi[0].currency;
           ITEMS = it[0].items; SUPPLIERS = su[0].suppliers;
           TAXES = tx[0].taxes.filter(t => t.scope !== 'Sales');
+          PTYPES = (ms[0].voucher_types || []).filter(t => t.category === 'Purchase' && t.status !== 'Inactive');
           renderStats(); render();
         }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function currentType() { return PTYPES.find(t => t.name === $('#invType').val()); }
+      function applyGrnRule() {
+        var t = currentType(), need = t && t.requires_grn === 'Yes';
+        $('#grnReq').text(need ? '*' : '');
+        $('#invGrn').prop('disabled', !need).toggleClass('bg-soft', !need);
+        if (!need) { $('#invGrn').val(''); }
+        $('#grnHint').html(need
+          ? '<i class="bx bx-down-arrow-circle text-gold"></i> Goods bill — GRN is required before the bill can be submitted.'
+          : '<i class="bx bx-info-circle"></i> ' + (t ? t.name : 'This type') + ' — no GRN required (e.g. rent, service, expense).');
+      }
+      $(document).on('change', '#invType', applyGrnRule);
 
       function renderStats() {
         App.countUp($('#stTotal'), DATA.reduce((s, i) => s + i.grand_total, 0), { prefix: CUR, decimals: 0 });
@@ -187,7 +203,9 @@
           '<div class="card card-pad mb-3" data-aos="fade-up">' +
             '<div class="d-flex flex-wrap align-items-start gap-3">' +
               '<div><div class="kpi-label">Vendor Bill</div><h2 class="fw-8 mb-0 text-gold">' + inv.no + '</h2>' +
-                '<div class="card-sub mt-1">Billed ' + App.shortDate(inv.date) + ' · Due ' + App.shortDate(inv.due_date) + '</div></div>' +
+                '<div class="card-sub mt-1">Billed ' + App.shortDate(inv.date) + ' · Due ' + App.shortDate(inv.due_date) +
+                  (inv.bill_type ? ' · ' + inv.bill_type : '') +
+                  ' · ' + (inv.grn ? '<span class="badge-soft badge-paid">GRN ' + inv.grn + '</span>' : '<span class="badge-soft badge-draft">No GRN</span>') + '</div></div>' +
               '<div class="ms-auto text-end">' + App.statusBadge(inv.status) +
                 '<div class="mt-2"><div class="kpi-label">Grand Total</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(inv.grand_total, CUR) + '</div></div></div>' +
             '</div>' +
@@ -282,6 +300,8 @@
         $('#invNo').val('PINV-2026-' + String(seq).padStart(4, '0'));
         $('#invDate').val('2026-06-24'); $('#invDue').val('2026-07-24');
         $('#invSupp').html('<option value="">Select supplier…</option>' + SUPPLIERS.map(c => '<option>' + c.name + '</option>').join(''));
+        $('#invType').html(PTYPES.map(t => '<option>' + t.name + '</option>').join(''));
+        applyGrnRule();
         $('#lnRows').empty(); addLine(); recalc();
       }
       function showList() {
@@ -294,13 +314,18 @@
       function save(status) {
         var supp = $('#invSupp').val();
         if (!supp) { App.toast('Please select a supplier', 'error'); return; }
+        var vt = currentType();
+        if (status !== 'Draft' && vt && vt.requires_grn === 'Yes' && !$('#invGrn').val().trim()) {
+          App.toast('GRN reference is required for a ' + vt.name + ' before submitting', 'error'); return;
+        }
         var t = recalc();
         if (t.grand <= 0) { App.toast('Add at least one item line', 'error'); return; }
-        DATA.unshift({ id: Date.now(), no: $('#invNo').val(), supplier: supp, date: $('#invDate').val(), due_date: $('#invDue').val(),
+        DATA.unshift({ id: Date.now(), no: $('#invNo').val(), supplier: supp, bill_type: $('#invType').val(), grn: $('#invGrn').val() || null,
+          date: $('#invDate').val(), due_date: $('#invDue').val(),
           status: status === 'Draft' ? 'Draft' : 'Submitted', net_total: t.net, tax_total: t.tax, grand_total: t.grand,
           outstanding: status === 'Draft' ? 0 : t.grand, lines: [] });
         seq++;
-        App.toast('Bill ' + (status === 'Draft' ? 'saved as draft' : 'submitted — GL posted') + ' (demo)');
+        App.toast('Bill ' + (status === 'Draft' ? 'saved as draft' : 'submitted — GL + Outstanding posted' + (vt && vt.requires_grn === 'No' ? ' (no GRN)' : '')) + ' (demo)');
         renderStats(); render(); showList();
       }
       $('#saveDraft').on('click', function () { save('Draft'); });

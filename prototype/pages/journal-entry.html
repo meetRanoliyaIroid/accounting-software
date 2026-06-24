@@ -60,7 +60,8 @@
               <div class="col-md-3"><label class="form-label">Voucher No.</label><input class="form-control" id="jeNo" readonly></div>
               <div class="col-md-3"><label class="form-label">Posting Date</label><input class="form-control" id="jeDate" type="date"></div>
               <div class="col-md-3"><label class="form-label">Entry Type</label><select class="form-select" id="jeType"><option>Journal Entry</option><option>Opening Entry</option><option>Depreciation Entry</option><option>Bank Entry</option><option>Cash Entry</option></select></div>
-              <div class="col-md-3"><label class="form-label">Reference</label><input class="form-control" id="jeRef" placeholder="Narration / reference"></div>
+              <div class="col-md-3"><label class="form-label">Unit</label><select class="form-select" id="jeUnit"></select></div>
+              <div class="col-12"><label class="form-label">Reference</label><input class="form-control" id="jeRef" placeholder="Narration / reference"></div>
             </div>
           </div>
 
@@ -70,11 +71,11 @@
             </div>
             <div class="table-wrap">
               <table class="tbl je-grid">
-                <thead><tr><th style="width:38%">Account</th><th style="width:24%">Party (optional)</th><th class="num" style="width:16%">Debit</th><th class="num" style="width:16%">Credit</th><th></th></tr></thead>
+                <thead><tr><th style="width:28%">Account</th><th style="width:20%">Party (optional)</th><th style="width:18%">Against Bill (close)</th><th class="num" style="width:14%">Debit</th><th class="num" style="width:14%">Credit</th><th></th></tr></thead>
                 <tbody id="jeRows"></tbody>
                 <tfoot>
                   <tr style="border-top:2px solid var(--line)">
-                    <td colspan="2" class="text-end fw-8" style="color:var(--ink-900)">Totals</td>
+                    <td colspan="3" class="text-end fw-8" style="color:var(--ink-900)">Totals</td>
                     <td class="num fw-8 tabular" id="totDr" style="color:var(--ink-900)">0.00</td>
                     <td class="num fw-8 tabular" id="totCr" style="color:var(--ink-900)">0.00</td>
                     <td></td>
@@ -87,6 +88,24 @@
               <div class="ms-auto d-flex gap-2">
                 <button class="btn btn-soft" id="saveDraft"><i class="bx bx-save"></i> Save as Draft</button>
                 <button class="btn btn-gold" id="submitJe"><i class="bx bx-check-double"></i> Submit Entry</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Posting effect preview: this entry reflects in BOTH Ledger and Outstanding -->
+          <div class="row g-3" data-aos="fade-up">
+            <div class="col-lg-6">
+              <div class="card card-pad h-100">
+                <h6 class="fw-8 mb-2" style="color:var(--ink-900)"><i class="bx bx-book-open text-gold"></i> General Ledger Effect</h6>
+                <div class="card-sub mb-2">Balanced Dr/Cr lines posted to the ledger.</div>
+                <div id="glEffect" class="small text-muted-2">Add lines to preview…</div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card card-pad h-100">
+                <h6 class="fw-8 mb-2" style="color:var(--ink-900)"><i class="bx bx-wallet text-gold"></i> Outstanding Effect</h6>
+                <div class="card-sub mb-2">Lines with a party + receivable/payable account create or close bill-wise outstanding.</div>
+                <div id="osEffect" class="small text-muted-2">No party lines — nothing will hit Outstanding.</div>
               </div>
             </div>
           </div>
@@ -104,11 +123,17 @@
     $(function () {
       AOS.init({ duration: 600, once: true });
       App.loadShell('journal');
-      var DATA = [], CUR = '₹', ACCOUNTS = [], seq = 211;
+      var DATA = [], CUR = '₹', ACCOUNTS = [], UNITS = [], OPEN_BILLS = [], LOCKED_UNTIL = '', seq = 211;
 
-      $.when(App.data('journal-entries.json'), App.data('accounts.json')).done(function (je, ac) {
+      $.when(App.data('journal-entries.json'), App.data('accounts.json'), App.data('masters.json'), App.data('outstanding.json'), App.data('settings.json')).done(function (je, ac, ms, os, st) {
+        LOCKED_UNTIL = (st[0] || {}).gst_locked_until || '';
         DATA = je[0].entries; CUR = je[0].currency;
         ACCOUNTS = ac[0].accounts.filter(a => !a.is_group).map(a => a.code + ' · ' + a.name);
+        UNITS = ms[0].units || [];
+        OPEN_BILLS = (os[0].items || []).filter(i => i.balance > 0).map(i => i.voucher);
+        var jtypes = (ms[0].voucher_types || []).filter(t => t.category === 'Journal' && t.status !== 'Inactive');
+        if (jtypes.length) $('#jeType').html(jtypes.map(t => '<option>' + t.name + '</option>').join(''));
+        $('#jeUnit').html(UNITS.map(u => '<option value="' + u.code + '">' + u.code + ' · ' + u.name + '</option>').join(''));
         render();
       }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
 
@@ -168,7 +193,7 @@
           '<div class="card card-pad mb-3" data-aos="fade-up">' +
             '<div class="d-flex flex-wrap align-items-start gap-3">' +
               '<div><div class="kpi-label">' + e.type + '</div><h2 class="fw-8 mb-0 text-gold">' + e.no + '</h2>' +
-                '<div class="card-sub mt-1">Posted ' + App.shortDate(e.date) + ' · ' + e.reference + '</div></div>' +
+                '<div class="card-sub mt-1">Posted ' + App.shortDate(e.date) + (e.unit ? ' · Unit ' + e.unit : '') + ' · ' + e.reference + '</div></div>' +
               '<div class="ms-auto text-end">' + App.statusBadge(e.status) +
                 '<div class="mt-2"><div class="kpi-label">Amount</div><div class="fw-8 text-gold" style="font-size:1.5rem">' + App.currency(e.total_debit, CUR) + '</div></div></div>' +
             '</div></div>' +
@@ -194,11 +219,15 @@
         var tr = '<tr>' +
           '<td><select class="form-select acct">' + acctOptions(line.account) + '</select></td>' +
           '<td><input class="form-control party" placeholder="—" value="' + (line.party || '') + '"></td>' +
+          '<td><input class="form-control billref" list="openBills" placeholder="(new item)" value="' + (line.bill_ref || '') + '" title="Pick an open bill to close it; leave blank to create a new outstanding item"></td>' +
           '<td><input class="form-control num dr text-end" value="' + (line.debit || '') + '" placeholder="0.00"></td>' +
           '<td><input class="form-control num cr text-end" value="' + (line.credit || '') + '" placeholder="0.00"></td>' +
           '<td class="text-center"><button class="icon-btn delRow" style="width:30px;height:30px;font-size:1rem;color:var(--danger)"><i class="bx bx-trash"></i></button></td>' +
         '</tr>';
         $('#jeRows').append(tr);
+        if (!document.getElementById('openBills')) {
+          $('body').append('<datalist id="openBills">' + OPEN_BILLS.map(b => '<option value="' + b + '">').join('') + '</datalist>');
+        }
       }
 
       function recalc() {
@@ -217,11 +246,35 @@
           $pill.removeClass('ok').addClass('bad').html('<i class="bx bx-error-circle"></i> Out of balance by ' + App.currency(Math.abs(diff), CUR));
           $('#submitJe').prop('disabled', true).css('opacity', .55);
         }
+        previewEffect();
+      }
+
+      // Live preview: this entry posts to BOTH General Ledger and Outstanding.
+      function previewEffect() {
+        var c = collect();
+        var posted = App.postVoucher({ no: $('#jeNo').val(), date: $('#jeDate').val(), type: $('#jeType').val(), unit: $('#jeUnit').val(), lines: c.lines });
+        if (!posted.gl.length) { $('#glEffect').html('Add lines to preview…'); }
+        else {
+          $('#glEffect').html(posted.gl.map(function (g) {
+            return '<div class="d-flex justify-content-between border-bottom py-1" style="border-color:var(--line-soft)!important"><span>' + g.account + '</span><span class="tabular">' + (g.debit ? 'Dr ' + App.number(g.debit) : 'Cr ' + App.number(g.credit)) + '</span></div>';
+          }).join(''));
+        }
+        if (!posted.outstanding.length) { $('#osEffect').html('<span class="text-muted-2">No party lines — nothing will hit Outstanding.</span>'); }
+        else {
+          $('#osEffect').html(posted.outstanding.map(function (o) {
+            var tone = o.settles ? 'text-success' : (o.type === 'Receivable' ? 'text-gold' : 'text-gold');
+            return '<div class="d-flex justify-content-between border-bottom py-1" style="border-color:var(--line-soft)!important">' +
+              '<span><b>' + o.party + '</b> <span class="badge-soft badge-draft" style="font-size:.66rem">' + o.type + '</span><div class="card-sub">' + o.effect + (o.settles ? ' · ' + o.voucher : '') + '</div></span>' +
+              '<span class="tabular ' + tone + '">' + App.currency(o.amount, CUR) + '</span></div>';
+          }).join(''));
+        }
       }
 
       // typing debit clears credit (mutually exclusive, like ERPNext)
       $(document).on('input', '.dr', function () { if ($(this).val()) $(this).closest('tr').find('.cr').val(''); recalc(); });
       $(document).on('input', '.cr', function () { if ($(this).val()) $(this).closest('tr').find('.dr').val(''); recalc(); });
+      $(document).on('input change', '.party, .billref, .acct', recalc);
+      $('#jeUnit').on('change', previewEffect);
       $(document).on('click', '.delRow', function () { $(this).closest('tr').remove(); recalc(); });
       $('#addRow').on('click', function () { addRow(); });
 
@@ -230,6 +283,7 @@
         $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
         $('#jeNo').val('JV-2026-' + String(seq).padStart(4, '0'));
         $('#jeDate').val('2026-06-24'); $('#jeRef').val(''); $('#jeType').val('Journal Entry');
+        if (UNITS.length) $('#jeUnit').val(UNITS[0].code);
         $('#jeRows').empty(); addRow(); addRow(); recalc();
       }
       function showList() {
@@ -245,7 +299,7 @@
           var acct = $(this).find('.acct').val();
           var d = parseFloat($(this).find('.dr').val()) || 0;
           var c = parseFloat($(this).find('.cr').val()) || 0;
-          if (acct && (d || c)) { lines.push({ account: acct, party: $(this).find('.party').val(), debit: d, credit: c }); dr += d; cr += c; }
+          if (acct && (d || c)) { lines.push({ account: acct, party: $(this).find('.party').val(), bill_ref: $(this).find('.billref').val(), debit: d, credit: c }); dr += d; cr += c; }
         });
         return { lines: lines, dr: dr, cr: cr };
       }
@@ -254,10 +308,15 @@
         var c = collect();
         if (c.lines.length < 2) { App.toast('At least two accounting lines are required', 'error'); return; }
         if (status === 'Submitted' && +(c.dr - c.cr).toFixed(2) !== 0) { App.toast('Entry must balance before submitting', 'error'); return; }
-        DATA.unshift({ id: Date.now(), no: $('#jeNo').val(), date: $('#jeDate').val(), type: $('#jeType').val(),
+        if (status === 'Submitted' && LOCKED_UNTIL && $('#jeDate').val() <= LOCKED_UNTIL) {
+          App.toast('Period locked — GST filed up to ' + App.shortDate(LOCKED_UNTIL) + '. Cannot post on a locked date.', 'error'); return;
+        }
+        DATA.unshift({ id: Date.now(), no: $('#jeNo').val(), date: $('#jeDate').val(), type: $('#jeType').val(), unit: $('#jeUnit').val(),
           reference: $('#jeRef').val() || '—', status: status, total_debit: c.dr, total_credit: c.cr, lines: c.lines });
         seq++;
-        App.toast('Journal Entry ' + (status === 'Draft' ? 'saved as draft' : 'submitted') + ' (demo — not persisted)');
+        var osCount = App.postVoucher({ no: $('#jeNo').val(), date: $('#jeDate').val(), type: $('#jeType').val(), unit: $('#jeUnit').val(), lines: c.lines }).outstanding.length;
+        var msg = status === 'Draft' ? 'saved as draft' : ('submitted — posted to Ledger' + (osCount ? ' + Outstanding (' + osCount + ' bill effect' + (osCount > 1 ? 's' : '') + ')' : ''));
+        App.toast('Journal Entry ' + msg + ' (demo — not persisted)');
         render(); showList();
       }
       $('#saveDraft').on('click', function () { save('Draft'); });

@@ -99,7 +99,11 @@
         narrations:   { key: 'narrations',   label: 'Narrations',    icon: 'bx-message-alt-detail', fas: 'NARRMAST',
           fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'text', l: 'Narration Text', req: 1, full: 1 }, { k: 'module', l: 'Module', type: 'select', opts: ['Sales', 'Purchase', 'Receipt', 'Payment', 'Journal', 'Contra'] }] },
         departments:  { key: 'departments',  label: 'Departments',   icon: 'bx-been-here', fas: 'DEPT_MST',
-          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Department', req: 1 }, { k: 'email', l: 'Email' }, { k: 'status', l: 'Status', type: 'select', opts: ['Active', 'Inactive'] }] }
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Department', req: 1 }, { k: 'email', l: 'Email' }, { k: 'status', l: 'Status', type: 'select', opts: ['Active', 'Inactive'] }] },
+        units:        { key: 'units',        label: 'Company Units',  icon: 'bx-buildings', fas: 'UNIT',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Unit Name', req: 1 }, { k: 'company', l: 'Company' }, { k: 'status', l: 'Status', type: 'select', opts: ['Active', 'Inactive'] }] },
+        voucher_types: { key: 'voucher_types', label: 'Voucher Types', icon: 'bx-category', fas: 'VCHTYPMST',
+          fields: [{ k: 'category', l: 'Category', type: 'select', opts: ['Sales', 'Purchase', 'Journal', 'Cashbook'], req: 1 }, { k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Type Name', req: 1 }, { k: 'requires_grn', l: 'Requires GRN', type: 'select', opts: ['Yes', 'No'] }, { k: 'affects', l: 'Effect', type: 'select', opts: ['Ledger + Outstanding', 'Ledger'] }, { k: 'status', l: 'Status', type: 'select', opts: ['Active', 'Inactive'] }] }
       };
 
       App.data('masters.json').done(function (d) {
