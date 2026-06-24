@@ -328,7 +328,7 @@ table.tbl td.num, table.tbl th.num { text-align: right; font-variant-numeric: ta
   padding: .35rem; font-size: .85rem; min-width: 200px;
 }
 .gb-menu .dropdown-item, .topbar .dropdown-item {
-  border-radius: 6px; padding: .5rem .7rem; font-weight: 500; color: var(--ink-700); display: flex; align-items: center;
+  border-radius: 6px; padding: .5rem .7rem; font-weight: 500; color: var(--ink-700); display: flex; align-items: center; gap: .6rem;
 }
 .gb-menu .dropdown-item:hover, .topbar .dropdown-item:hover { background: var(--gold-50); color: var(--gold-700); }
 .gb-menu .dropdown-item.text-danger:hover { background: var(--danger-soft); color: var(--danger); }

@@ -1,0 +1,18 @@
+{
+  "currency": "₹",
+  "agents": [
+    { "id": 1, "code": "AG-001", "name": "R. Mehta", "phone": "+91 98250 11223", "email": "rmehta@agents.in", "area": "Gujarat", "commission_pct": 2.5, "tds_pct": 5, "status": "Active",
+      "sales": [
+        { "voucher": "SINV-2026-0148", "customer": "Aarav Textiles", "date": "2026-06-22", "amount": 145200.00 },
+        { "voucher": "SINV-2026-0136", "customer": "Galaxy Enterprises", "date": "2026-06-05", "amount": 168900.00 },
+        { "voucher": "SINV-2026-0131", "customer": "Meridian Corp", "date": "2026-05-12", "amount": 250000.00 }
+      ] },
+    { "id": 2, "code": "AG-002", "name": "S. Kapoor", "phone": "+91 99090 44556", "email": "skapoor@agents.in", "area": "Maharashtra", "commission_pct": 2.0, "tds_pct": 5, "status": "Active",
+      "sales": [
+        { "voucher": "SINV-2026-0140", "customer": "Blue Ocean Ltd", "date": "2026-06-10", "amount": 240800.00 },
+        { "voucher": "SINV-2026-0146", "customer": "Sunrise Traders", "date": "2026-06-18", "amount": 78900.00 }
+      ] },
+    { "id": 3, "code": "AG-003", "name": "V. Nair", "phone": "+91 94440 55667", "email": "vnair@agents.in", "area": "South", "commission_pct": 3.0, "tds_pct": 5, "status": "Inactive",
+      "sales": [] }
+  ]
+}

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enquiries &amp; Quotations · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .ln td { padding: .4rem .5rem; } .ln .form-control, .ln .form-select { padding: .4rem .6rem; font-size: .84rem; }
+    .tot-line { display:flex; justify-content:space-between; padding:.35rem 0; }
+    .tot-line.grand { border-top:2px solid var(--line); margin-top:.3rem; padding-top:.6rem; font-size:1.15rem; font-weight:800; color:var(--ink-900); }
+    .po-pill { font-size:.7rem; font-weight:700; padding:.18rem .55rem; border-radius:999px; white-space:nowrap; }
+    .p-open { background:var(--warning-soft); color:var(--warning); } .p-quoted { background:var(--info-soft); color:var(--info); }
+    .p-conv { background:var(--success-soft); color:var(--success); } .p-lost { background:var(--danger-soft); color:var(--danger); } .p-closed { background:var(--bg-soft); color:var(--ink-700); }
+    .seg { display:inline-flex; background:var(--bg-soft); border-radius:999px; padding:.25rem; gap:.25rem; }
+    .seg button { border:none; background:transparent; padding:.4rem .9rem; border-radius:999px; font-weight:700; font-size:.85rem; color:var(--ink-700); }
+    .seg button.active { background:#fff; color:var(--gold-700); box-shadow:var(--shadow-sm); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div><h1>Enquiries &amp; Quotations</h1><div class="crumb">Sales · <b>Pre-Sales</b></div></div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New</button>
+          </div>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up"><div class="seg">
+          <button class="tab-btn active" data-tab="enq">Enquiries</button>
+          <button class="tab-btn" data-tab="qtn">Quotations</button>
+        </div></div>
+
+        <div id="listView">
+          <div class="tab-pane" data-pane="enq">
+            <div class="card"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Enquiry Register <span class="card-sub">· FAS: ENQ_MST</span></h5>
+              <div style="max-width:220px;width:100%"><input id="searchE" class="form-control form-control-sm" placeholder="Search…"></div></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Enquiry No.</th><th>Customer</th><th>Date</th><th>Close By</th><th class="num">Items</th><th>Status</th><th></th></tr></thead><tbody id="eRows"></tbody></table></div>
+            </div>
+          </div>
+          <div class="tab-pane d-none" data-pane="qtn">
+            <div class="card"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Quotation Register <span class="card-sub">· FAS: QUOTATION</span></h5>
+              <div style="max-width:220px;width:100%"><input id="searchQ" class="form-control form-control-sm" placeholder="Search…"></div></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Quotation No.</th><th>Customer</th><th>Date</th><th>Enquiry Ref</th><th class="num">Grand Total</th><th>Status</th><th></th></tr></thead><tbody id="qRows"></tbody></table></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="detailView" class="d-none"></div>
+
+        <!-- FORM (shared) -->
+        <div id="formView" class="d-none">
+          <div class="row g-3"><div class="col-lg-8">
+            <div class="card card-pad mb-3" data-aos="fade-up"><div class="row g-3" id="formHead"></div></div>
+            <div class="card" data-aos="fade-up"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Items</h5><button class="btn btn-outline-gold btn-sm" id="addLine"><i class="bx bx-plus"></i> Add Item</button></div>
+              <div class="table-wrap"><table class="tbl ln"><thead id="lnHead"></thead><tbody id="lnRows"></tbody></table></div>
+            </div>
+          </div><div class="col-lg-4">
+            <div class="card card-pad mb-3" data-aos="fade-up"><h5 class="card-title mb-3">Summary</h5><div id="sumBox"></div>
+              <div class="d-grid gap-2 mt-3"><button class="btn btn-gold" id="saveBtn"><i class="bx bx-check"></i> Save</button></div></div>
+          </div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('quotations');
+      var ENQ = [], QTN = [], CUR = '₹', CUSTOMERS = [], ITEMS = [], TAXES = [], GRADES = [], TAB = 'enq', eseq = 24, qseq = 16, FORMMODE = 'enq';
+
+      $.when(App.data('quotations.json'), App.data('customers.json'), App.data('items.json'), App.data('taxes.json'), App.data('masters.json'))
+        .done(function (q, cu, it, tx, ms) {
+          ENQ = q[0].enquiries; QTN = q[0].quotations; CUR = q[0].currency;
+          CUSTOMERS = cu[0].customers; ITEMS = it[0].items; TAXES = tx[0].taxes.filter(t => t.scope !== 'Purchase'); GRADES = ms[0].grades.map(g => g.name);
+          renderE(); renderQ();
+        }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function taxRate(n) { var t = TAXES.find(x => x.name === n); return t ? t.rate : 0; }
+      function qTotals(q) { var net = q.lines.reduce((s, l) => s + l.qty * l.rate * (1 - (l.discount || 0) / 100), 0); var tax = q.lines.reduce((s, l) => s + l.qty * l.rate * (1 - (l.discount || 0) / 100) * taxRate(l.tax) / 100, 0); return { net: net, tax: tax, grand: net + tax + (q.freight || 0) }; }
+      function eBadge(s) { return '<span class="po-pill ' + (s === 'Open' ? 'p-open' : s === 'Quoted' ? 'p-quoted' : 'p-closed') + '">' + s + '</span>'; }
+      function qBadge(s) { return '<span class="po-pill ' + (s === 'Open' ? 'p-open' : s === 'Converted' ? 'p-conv' : s === 'Lost' ? 'p-lost' : 'p-closed') + '">' + s + '</span>'; }
+
+      function renderE() {
+        var q = ($('#searchE').val() || '').toLowerCase();
+        var list = ENQ.filter(e => e.no.toLowerCase().includes(q) || e.customer.toLowerCase().includes(q));
+        $('#eRows').html(list.length ? list.map(e => '<tr class="row-click" style="cursor:pointer" data-t="enq" data-id="' + e.id + '"><td><span class="fw-bold text-gold">' + e.no + '</span></td><td>' + e.customer + '</td><td class="text-muted-2">' + App.shortDate(e.date) + '</td><td class="text-muted-2">' + App.shortDate(e.close_date) + '</td><td class="num tabular">' + e.lines.length + '</td><td>' + eBadge(e.status) + '</td><td class="text-end">' + App.kebab(e.id, [{ act: 'e-view', icon: 'bx-show', label: 'View' }, { act: 'e-quote', icon: 'bx-file', label: 'Create Quotation' }]) + '</td></tr>').join('') : '<tr><td colspan="7" class="text-center text-muted-2 py-4">No enquiries</td></tr>');
+      }
+      function renderQ() {
+        var q = ($('#searchQ').val() || '').toLowerCase();
+        var list = QTN.filter(x => x.no.toLowerCase().includes(q) || x.customer.toLowerCase().includes(q));
+        $('#qRows').html(list.length ? list.map(x => '<tr class="row-click" style="cursor:pointer" data-t="qtn" data-id="' + x.id + '"><td><span class="fw-bold text-gold">' + x.no + '</span></td><td>' + x.customer + '</td><td class="text-muted-2">' + App.shortDate(x.date) + '</td><td class="text-muted-2">' + (x.enquiry_ref || '—') + '</td><td class="num tabular fw-bold">' + App.currency(qTotals(x).grand, CUR) + '</td><td>' + qBadge(x.status) + '</td><td class="text-end">' + App.kebab(x.id, [{ act: 'q-view', icon: 'bx-show', label: 'View' }, { act: 'q-conv', icon: 'bx-transfer', label: 'Convert to Sales Order' }]) + '</td></tr>').join('') : '<tr><td colspan="7" class="text-center text-muted-2 py-4">No quotations</td></tr>');
+      }
+      $('#searchE').on('input', renderE); $('#searchQ').on('input', renderQ);
+
+      // tabs
+      $('.tab-btn').on('click', function () { $('.tab-btn').removeClass('active'); $(this).addClass('active'); TAB = $(this).data('tab'); showList(); });
+      function showList() { $('#formView,#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none'); $('.tab-pane').addClass('d-none'); $('.tab-pane[data-pane="' + TAB + '"]').removeClass('d-none'); }
+      $('#btnBack').on('click', showList);
+
+      // detail
+      $(document).on('click', '.row-click', function (e) { if ($(e.target).closest('.dropdown').length) return; var t = $(this).data('t'); t === 'enq' ? showEnq(ENQ.find(x => x.id == $(this).data('id'))) : showQtn(QTN.find(x => x.id == $(this).data('id'))); });
+      $(document).on('click', '[data-act="e-view"]', function () { showEnq(ENQ.find(x => x.id == $(this).data('id'))); });
+      $(document).on('click', '[data-act="q-view"]', function () { showQtn(QTN.find(x => x.id == $(this).data('id'))); });
+      $(document).on('click', '[data-act="e-quote"]', function () { var en = ENQ.find(x => x.id == $(this).data('id')); openForm('qtn', en); });
+      $(document).on('click', '[data-act="q-conv"]', function () { convert(QTN.find(x => x.id == $(this).data('id'))); });
+
+      function detailShell() { $('#listView,#formView').addClass('d-none'); $('#detailView').removeClass('d-none'); $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none'); }
+      function showEnq(e) {
+        if (!e) return; detailShell();
+        var lines = e.lines.map(l => '<tr><td>' + l.item + '</td><td class="num tabular">' + App.number(l.qty) + '</td><td class="num tabular">' + App.number(l.pcs) + '</td><td>' + (l.grade || '—') + '</td><td class="card-sub">' + (l.remark || '') + '</td></tr>').join('');
+        $('#detailView').html('<div class="card card-pad mb-3"><div class="d-flex flex-wrap align-items-start gap-3"><div><div class="kpi-label">Enquiry</div><h2 class="fw-8 mb-0 text-gold">' + e.no + '</h2><div class="card-sub mt-1">' + e.customer + ' · raised ' + App.shortDate(e.date) + ' · close by ' + App.shortDate(e.close_date) + '</div></div><div class="ms-auto text-end">' + eBadge(e.status) + '</div></div>' + (e.remark ? '<div class="card-sub mt-2"><i class="bx bx-note"></i> ' + e.remark + '</div>' : '') + '<div class="mt-3"><button class="btn btn-gold" id="toQuote"><i class="bx bx-file"></i> Create Quotation</button></div></div>' +
+          '<div class="card"><div class="card-pad"><h5 class="card-title">Enquiry Items</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Pcs</th><th>Grade</th><th>Remark</th></tr></thead><tbody>' + lines + '</tbody></table></div></div>');
+        $('#toQuote').on('click', function () { openForm('qtn', e); });
+      }
+      function showQtn(x) {
+        if (!x) return; detailShell();
+        var t = qTotals(x);
+        var lines = x.lines.map(l => { var amt = l.qty * l.rate * (1 - (l.discount || 0) / 100); return '<tr><td>' + l.item + '</td><td class="num tabular">' + App.number(l.qty) + '</td><td class="num tabular">' + App.currency(l.rate, CUR) + '</td><td class="num tabular">' + (l.discount || 0) + '%</td><td><span class="badge-soft" style="background:var(--gold-50);color:var(--gold-700)">' + (l.tax || '—') + '</span></td><td class="num tabular fw-bold">' + App.currency(amt, CUR) + '</td></tr>'; }).join('');
+        var conv = x.status === 'Open' ? '<button class="btn btn-gold" id="convBtn"><i class="bx bx-transfer"></i> Convert to Sales Order</button>' : '<span class="po-pill p-conv">' + x.status + '</span>';
+        $('#detailView').html('<div class="card card-pad mb-3"><div class="d-flex flex-wrap align-items-start gap-3"><div><div class="kpi-label">Quotation</div><h2 class="fw-8 mb-0 text-gold">' + x.no + '</h2><div class="card-sub mt-1">' + x.customer + ' · ' + App.shortDate(x.date) + ' · Offer ' + x.offer_no + (x.enquiry_ref ? ' · Enq ' + x.enquiry_ref : '') + ' · valid till ' + App.shortDate(x.valid_till) + '</div></div><div class="ms-auto text-end">' + qBadge(x.status) + '<div class="mt-2"><div class="kpi-label">Grand Total</div><div class="fw-8 text-gold" style="font-size:1.5rem">' + App.currency(t.grand, CUR) + '</div></div></div></div><div class="mt-3">' + conv + '</div></div>' +
+          '<div class="row g-3"><div class="col-lg-8"><div class="card"><div class="card-pad"><h5 class="card-title">Quotation Items</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Disc</th><th>Tax</th><th class="num">Amount</th></tr></thead><tbody>' + lines + '</tbody></table></div></div></div>' +
+          '<div class="col-lg-4"><div class="card card-pad"><h5 class="card-title mb-3">Summary</h5><div class="tot-line"><span class="text-muted-2">Net</span><span class="tabular fw-bold">' + App.currency(t.net, CUR) + '</span></div><div class="tot-line"><span class="text-muted-2">Tax</span><span class="tabular fw-bold">' + App.currency(t.tax, CUR) + '</span></div><div class="tot-line"><span class="text-muted-2">Freight</span><span class="tabular fw-bold">' + App.currency(x.freight || 0, CUR) + '</span></div><div class="tot-line grand"><span>Grand Total</span><span class="tabular text-gold">' + App.currency(t.grand, CUR) + '</span></div></div></div></div>');
+        $('#convBtn').on('click', function () { convert(x); });
+      }
+      function convert(x) {
+        if (!x || x.status !== 'Open') return;
+        App.confirm({ danger: false, title: 'Convert to Sales Order?', message: 'Quotation ' + x.no + ' will be marked Converted and a Sales Order drafted (open Sales Orders to continue).', confirmText: 'Convert',
+          onConfirm: function () { x.status = 'Converted'; renderQ(); App.toast('Quotation ' + x.no + ' converted to Sales Order (demo)'); showQtn(x); } });
+      }
+
+      // ---- form (enquiry or quotation) ----
+      function custOptions(sel) { return '<option value="">Select customer…</option>' + CUSTOMERS.map(c => '<option' + (c.name === sel ? ' selected' : '') + '>' + c.name + '</option>').join(''); }
+      function itemOptions() { return '<option value="">Select item…</option>' + ITEMS.map(i => '<option value="' + i.id + '">' + i.name + '</option>').join(''); }
+      function taxOptions(sel) { return '<option value="">No Tax</option>' + TAXES.map(t => '<option' + (t.name === sel ? ' selected' : '') + '>' + t.name + '</option>').join(''); }
+      function gradeOptions(sel) { return '<option value="">—</option>' + GRADES.map(g => '<option' + (g === sel ? ' selected' : '') + '>' + g + '</option>').join(''); }
+
+      function openForm(mode, fromEnq) {
+        FORMMODE = mode;
+        $('#listView,#detailView').addClass('d-none'); $('#formView').removeClass('d-none'); $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        var cust = fromEnq ? fromEnq.customer : '';
+        if (mode === 'enq') {
+          $('#formHead').html(
+            '<div class="col-md-4"><label class="form-label">Enquiry No.</label><input class="form-control" id="fNo" value="ENQ-2026-' + String(eseq).padStart(4, '0') + '" readonly></div>' +
+            '<div class="col-md-4"><label class="form-label">Date</label><input class="form-control" type="date" id="fDate" value="2026-06-24"></div>' +
+            '<div class="col-md-4"><label class="form-label">Close By</label><input class="form-control" type="date" id="fClose" value="2026-07-04"></div>' +
+            '<div class="col-md-8"><label class="form-label">Customer *</label><select class="form-select" id="fCust">' + custOptions(cust) + '</select></div>' +
+            '<div class="col-md-12"><label class="form-label">Remark</label><input class="form-control" id="fRemark"></div>');
+          $('#lnHead').html('<tr><th style="width:40%">Item</th><th class="num">Qty</th><th class="num">Pcs</th><th>Grade</th><th></th></tr>');
+        } else {
+          $('#formHead').html(
+            '<div class="col-md-3"><label class="form-label">Quotation No.</label><input class="form-control" id="fNo" value="QTN-2026-' + String(qseq).padStart(4, '0') + '" readonly></div>' +
+            '<div class="col-md-3"><label class="form-label">Date</label><input class="form-control" type="date" id="fDate" value="2026-06-24"></div>' +
+            '<div class="col-md-3"><label class="form-label">Offer No.</label><input class="form-control" id="fOffer" value="OFF-' + String(qseq).padStart(3, '0') + '"></div>' +
+            '<div class="col-md-3"><label class="form-label">Valid Till</label><input class="form-control" type="date" id="fValid" value="2026-07-04"></div>' +
+            '<div class="col-md-6"><label class="form-label">Customer *</label><select class="form-select" id="fCust">' + custOptions(cust) + '</select></div>' +
+            '<div class="col-md-3"><label class="form-label">Enquiry Ref</label><input class="form-control" id="fEnqRef" value="' + (fromEnq ? fromEnq.no : '') + '"></div>' +
+            '<div class="col-md-3"><label class="form-label">Freight</label><input class="form-control num text-end" id="fFreight" value="0"></div>');
+          $('#lnHead').html('<tr><th style="width:32%">Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Disc%</th><th>Tax</th><th></th></tr>');
+        }
+        $('#lnRows').empty();
+        if (fromEnq) fromEnq.lines.forEach(l => addLine(l)); else addLine();
+        recalc();
+      }
+      function addLine(src) {
+        if (FORMMODE === 'enq') {
+          $('#lnRows').append('<tr><td><select class="form-select li-item">' + itemOptions() + '</select></td><td><input class="form-control num li-qty text-end" value="' + (src ? src.qty : 1) + '"></td><td><input class="form-control num li-pcs text-end" value="' + (src ? (src.pcs || 0) : 0) + '"></td><td><select class="form-select li-grade">' + gradeOptions(src ? src.grade : '') + '</select></td><td class="text-center"><button class="icon-btn li-del" style="width:30px;height:30px;color:var(--danger)"><i class="bx bx-trash"></i></button></td></tr>');
+        } else {
+          $('#lnRows').append('<tr><td><select class="form-select li-item">' + itemOptions() + '</select></td><td><input class="form-control num li-qty text-end" value="' + (src ? src.qty : 1) + '"></td><td><input class="form-control num li-rate text-end" value="' + (src ? (src.rate || 0) : 0) + '"></td><td><input class="form-control num li-disc text-end" value="' + (src ? (src.discount || 0) : 0) + '"></td><td><select class="form-select li-tax">' + taxOptions(src ? src.tax : '') + '</select></td><td class="text-center"><button class="icon-btn li-del" style="width:30px;height:30px;color:var(--danger)"><i class="bx bx-trash"></i></button></td></tr>');
+        }
+        if (src) { var $tr = $('#lnRows tr').last(); $tr.find('.li-item option').filter((i, o) => o.text === src.item).prop('selected', true); }
+      }
+      $(document).on('change', '.li-item', function () { if (FORMMODE === 'qtn') { var it = ITEMS.find(x => x.id == $(this).val()); var $tr = $(this).closest('tr'); if (it) { $tr.find('.li-rate').val(it.sales_rate); $tr.find('.li-tax').val(it.tax); } } recalc(); });
+      $(document).on('input', '.li-qty, .li-rate, .li-disc, #fFreight', recalc);
+      $(document).on('change', '.li-tax', recalc);
+      $(document).on('click', '.li-del', function () { $(this).closest('tr').remove(); recalc(); });
+      $('#addLine').on('click', function () { addLine(); });
+
+      function recalc() {
+        if (FORMMODE === 'enq') { var q = 0, p = 0; $('#lnRows tr').each(function () { q += parseFloat($(this).find('.li-qty').val()) || 0; p += parseFloat($(this).find('.li-pcs').val()) || 0; }); $('#sumBox').html('<div class="tot-line"><span class="text-muted-2">Total Qty</span><span class="tabular fw-bold">' + App.number(q) + '</span></div><div class="tot-line grand"><span>Total Pcs</span><span class="tabular text-gold">' + App.number(p) + '</span></div>'); return; }
+        var net = 0, tax = 0;
+        $('#lnRows tr').each(function () { var qty = parseFloat($(this).find('.li-qty').val()) || 0, rate = parseFloat($(this).find('.li-rate').val()) || 0, disc = parseFloat($(this).find('.li-disc').val()) || 0; var amt = qty * rate * (1 - disc / 100); net += amt; var tn = $(this).find('.li-tax').val(); if (tn) tax += amt * taxRate(tn) / 100; });
+        var freight = parseFloat($('#fFreight').val()) || 0;
+        $('#sumBox').html('<div class="tot-line"><span class="text-muted-2">Net</span><span class="tabular fw-bold">' + App.currency(net, CUR) + '</span></div><div class="tot-line"><span class="text-muted-2">Tax</span><span class="tabular fw-bold">' + App.currency(tax, CUR) + '</span></div><div class="tot-line"><span class="text-muted-2">Freight</span><span class="tabular fw-bold">' + App.currency(freight, CUR) + '</span></div><div class="tot-line grand"><span>Grand Total</span><span class="tabular text-gold">' + App.currency(net + tax + freight, CUR) + '</span></div>');
+      }
+
+      $('#btnNew').on('click', function () { openForm(TAB === 'qtn' ? 'qtn' : 'enq'); });
+
+      $('#saveBtn').on('click', function () {
+        var cust = $('#fCust').val(); if (!cust) { App.toast('Select a customer', 'error'); return; }
+        var lines = [];
+        $('#lnRows tr').each(function () {
+          var it = ITEMS.find(x => x.id == $(this).find('.li-item').val()); var qty = parseFloat($(this).find('.li-qty').val()) || 0;
+          if (!it || qty <= 0) return;
+          if (FORMMODE === 'enq') lines.push({ item: it.name, qty: qty, pcs: parseFloat($(this).find('.li-pcs').val()) || 0, grade: $(this).find('.li-grade').val(), remark: '' });
+          else lines.push({ item: it.name, qty: qty, rate: parseFloat($(this).find('.li-rate').val()) || 0, discount: parseFloat($(this).find('.li-disc').val()) || 0, tax: $(this).find('.li-tax').val() });
+        });
+        if (!lines.length) { App.toast('Add at least one item', 'error'); return; }
+        if (FORMMODE === 'enq') { ENQ.unshift({ id: Date.now(), no: $('#fNo').val(), date: $('#fDate').val(), customer: cust, close_date: $('#fClose').val(), status: 'Open', remark: $('#fRemark').val(), lines: lines }); eseq++; renderE(); TAB = 'enq'; }
+        else { QTN.unshift({ id: Date.now(), no: $('#fNo').val(), date: $('#fDate').val(), offer_no: $('#fOffer').val(), enquiry_ref: $('#fEnqRef').val(), customer: cust, status: 'Open', freight: parseFloat($('#fFreight').val()) || 0, valid_till: $('#fValid').val(), remark: '', lines: lines }); qseq++; renderQ(); TAB = 'qtn'; }
+        $('.tab-btn').removeClass('active'); $('.tab-btn[data-tab="' + TAB + '"]').addClass('active');
+        showList(); App.toast((FORMMODE === 'enq' ? 'Enquiry' : 'Quotation') + ' saved (demo)');
+      });
+    });
+  </script>
+</body>
+</html>

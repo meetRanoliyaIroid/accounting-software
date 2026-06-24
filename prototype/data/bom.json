@@ -1,0 +1,25 @@
+{
+  "currency": "₹",
+  "boms": [
+    { "id": 1, "code": "BOM-001", "fg_item": "Finished Shirt", "fg_uom": "Nos", "output_qty": 1, "status": "Active",
+      "components": [
+        { "item": "Cotton Fabric (per metre)", "qty": 1.5, "uom": "Metre", "rate": 210.00 },
+        { "item": "Polyester Yarn (kg)", "qty": 0.20, "uom": "Kg", "rate": 120.00 },
+        { "item": "Dye Chemical (litre)", "qty": 0.05, "uom": "Litre", "rate": 295.00 },
+        { "item": "Packaging Box (Large)", "qty": 1, "uom": "Nos", "rate": 28.00 }
+      ],
+      "operations": [
+        { "process": "Cutting", "cost": 15.00 },
+        { "process": "Stitching", "cost": 45.00 },
+        { "process": "Finishing & Packing", "cost": 20.00 }
+      ] },
+    { "id": 2, "code": "BOM-002", "fg_item": "Packaging Box (Large)", "fg_uom": "Nos", "output_qty": 1, "status": "Active",
+      "components": [
+        { "item": "Cotton Fabric (per metre)", "qty": 0.10, "uom": "Metre", "rate": 210.00 }
+      ],
+      "operations": [
+        { "process": "Die Cutting", "cost": 6.00 },
+        { "process": "Gluing", "cost": 4.00 }
+      ] }
+  ]
+}

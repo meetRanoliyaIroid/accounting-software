@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Rights &amp; Audit · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .seg { display:inline-flex; background:var(--bg-soft); border-radius:999px; padding:.25rem; gap:.25rem; }
+    .seg button { border:none; background:transparent; padding:.4rem .9rem; border-radius:999px; font-weight:700; font-size:.85rem; color:var(--ink-700); }
+    .seg button.active { background:#fff; color:var(--gold-700); box-shadow:var(--shadow-sm); }
+    .rt-chk { width:18px; height:18px; cursor:pointer; accent-color:var(--gold-600); }
+    .audit-act { font-size:.7rem; font-weight:700; padding:.18rem .55rem; border-radius:999px; }
+    .a-created { background:var(--success-soft); color:var(--success); } .a-updated { background:var(--info-soft); color:var(--info); }
+    .a-deleted { background:var(--danger-soft); color:var(--danger); } .a-approved { background:var(--gold-50); color:var(--gold-700); } .a-other { background:var(--bg-soft); color:var(--ink-700); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div><h1>User Rights &amp; Audit</h1><div class="crumb">System · <b>Security</b></div></div>
+          <div class="head-actions"><button class="btn btn-gold d-none" id="btnNewUser"><i class="bx bx-user-plus"></i> New User</button></div>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up"><div class="seg">
+          <button class="tab-btn active" data-tab="users">Users</button>
+          <button class="tab-btn" data-tab="rights">Rights Matrix</button>
+          <button class="tab-btn" data-tab="audit">Audit Trail</button>
+        </div></div>
+
+        <!-- Users -->
+        <div class="tab-pane" data-pane="users">
+          <div class="card"><div class="card-pad"><h5 class="card-title">Users <span class="card-sub">· FAS: USER_MST</span></h5></div>
+            <div class="table-wrap"><table class="tbl"><thead><tr><th>User ID</th><th>Name</th><th>Role</th><th>Department</th><th>Status</th><th></th></tr></thead><tbody id="uRows"></tbody></table></div>
+          </div>
+        </div>
+
+        <!-- Rights -->
+        <div class="tab-pane d-none" data-pane="rights">
+          <div class="card card-pad mb-3"><div class="d-flex flex-wrap align-items-end gap-2">
+            <div><label class="form-label mb-1">User</label><select class="form-select form-select-sm" id="rUser" style="min-width:220px"></select></div>
+            <div class="ms-auto d-flex gap-2">
+              <button class="btn btn-soft btn-sm" id="applyRole"><i class="bx bx-reset"></i> Reset to Role Default</button>
+              <button class="btn btn-gold btn-sm" id="saveRights"><i class="bx bx-save"></i> Save Rights</button>
+            </div>
+          </div></div>
+          <div class="card"><div class="card-pad"><h5 class="card-title">Per-Form Permissions <span class="card-sub">· FAS: USERRIGHTS (ADDNEW · CHANGE · REMOVE · VIEWING · PRINTING)</span></h5></div>
+            <div class="table-wrap"><table class="tbl"><thead><tr><th>Module / Form</th><th class="text-center">Add</th><th class="text-center">Edit</th><th class="text-center">Delete</th><th class="text-center">View</th><th class="text-center">Print</th></tr></thead><tbody id="rRows"></tbody></table></div>
+          </div>
+        </div>
+
+        <!-- Audit -->
+        <div class="tab-pane d-none" data-pane="audit">
+          <div class="card"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Audit Trail <span class="card-sub">· FAS: AUDITTRIL</span></h5><div style="max-width:220px;width:100%"><input id="searchA" class="form-control form-control-sm" placeholder="Search…"></div></div>
+            <div class="table-wrap"><table class="tbl"><thead><tr><th>Date / Time</th><th>User</th><th>Action</th><th>Module</th><th>Record</th><th>Detail</th></tr></thead><tbody id="aRows"></tbody></table></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('user-rights');
+      var USERS = [], MODULES = [], DEF = {}, AUDIT = [], RIGHTS = {}, CURUSER = null;
+
+      App.data('admin.json').done(function (d) {
+        USERS = d.users; MODULES = d.modules; DEF = d.roleDefaults; AUDIT = d.audit;
+        USERS.forEach(function (u) { RIGHTS[u.uid] = {}; MODULES.forEach(function (m) { RIGHTS[u.uid][m] = Object.assign({}, DEF[u.role] || DEF['Auditor']); }); });
+        renderUsers(); fillUserSelect(); renderAudit();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function renderUsers() {
+        $('#uRows').html(USERS.map(u => '<tr><td><span class="fw-bold text-gold">' + u.uid + '</span></td><td>' + u.name + '</td><td>' + u.role + '</td><td class="text-muted-2">' + u.department + '</td><td>' + App.statusBadge(u.status === 'Active' ? 'Paid' : 'Draft').replace('Paid', 'Active').replace('Draft', 'Inactive') + '</td><td class="text-end">' + App.kebab(u.id, [{ act: 'rights', icon: 'bx-shield', label: 'Edit Rights' }]) + '</td></tr>').join(''));
+      }
+      $(document).on('click', '[data-act="rights"]', function () { var u = USERS.find(x => x.id == $(this).data('id')); $('.tab-btn[data-tab="rights"]').click(); $('#rUser').val(u.uid).trigger('change'); });
+
+      function fillUserSelect() { $('#rUser').html(USERS.map(u => '<option value="' + u.uid + '">' + u.name + ' (' + u.role + ')</option>').join('')); CURUSER = USERS[0].uid; renderRights(); }
+      $('#rUser').on('change', function () { CURUSER = $(this).val(); renderRights(); });
+
+      function chk(on, mod, key) { return '<input type="checkbox" class="rt-chk" data-mod="' + mod + '" data-key="' + key + '"' + (on ? ' checked' : '') + '>'; }
+      function renderRights() {
+        var r = RIGHTS[CURUSER];
+        $('#rRows').html(MODULES.map(m => '<tr><td class="fw-bold" style="color:var(--ink-900)">' + m + '</td><td class="text-center">' + chk(r[m].a, m, 'a') + '</td><td class="text-center">' + chk(r[m].e, m, 'e') + '</td><td class="text-center">' + chk(r[m].d, m, 'd') + '</td><td class="text-center">' + chk(r[m].v, m, 'v') + '</td><td class="text-center">' + chk(r[m].p, m, 'p') + '</td></tr>').join(''));
+      }
+      $(document).on('change', '.rt-chk', function () { RIGHTS[CURUSER][$(this).data('mod')][$(this).data('key')] = $(this).is(':checked') ? 1 : 0; });
+      $('#applyRole').on('click', function () { var u = USERS.find(x => x.uid === CURUSER); MODULES.forEach(m => RIGHTS[CURUSER][m] = Object.assign({}, DEF[u.role])); renderRights(); App.toast('Reset to ' + u.role + ' defaults (demo)'); });
+      $('#saveRights').on('click', function () {
+        var u = USERS.find(x => x.uid === CURUSER);
+        AUDIT.unshift({ id: Date.now(), datetime: '2026-06-24 ' + new Date().getHours() + ':' + String(new Date().getMinutes()).padStart(2, '0'), user: App.getRole() ? 'admin' : 'admin', action: 'Updated', module: 'User Rights', record: u.name, detail: 'Permissions modified' });
+        renderAudit(); App.toast('Rights saved for ' + u.name + ' (demo)');
+      });
+
+      function actBadge(a) { var m = { Created: 'a-created', Updated: 'a-updated', Deleted: 'a-deleted', Approved: 'a-approved', Filed: 'a-approved' }; return '<span class="audit-act ' + (m[a] || 'a-other') + '">' + a + '</span>'; }
+      function renderAudit() {
+        var q = ($('#searchA').val() || '').toLowerCase();
+        $('#aRows').html(AUDIT.filter(a => (a.user + a.module + a.record + a.action).toLowerCase().includes(q)).map(a => '<tr><td class="text-muted-2">' + a.datetime + '</td><td><span class="fw-bold">' + a.user + '</span></td><td>' + actBadge(a.action) + '</td><td>' + a.module + '</td><td class="text-muted-2">' + a.record + '</td><td class="card-sub">' + a.detail + '</td></tr>').join(''));
+      }
+      $('#searchA').on('input', renderAudit);
+
+      // tabs
+      $('.tab-btn').on('click', function () { $('.tab-btn').removeClass('active'); $(this).addClass('active'); var t = $(this).data('tab'); $('.tab-pane').addClass('d-none'); $('.tab-pane[data-pane="' + t + '"]').removeClass('d-none'); $('#btnNewUser').toggleClass('d-none', t !== 'users'); });
+    });
+  </script>
+</body>
+</html>

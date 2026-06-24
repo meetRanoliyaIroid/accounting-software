@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indents &amp; Requisitions · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .ln td { padding: .4rem .5rem; } .ln .form-control, .ln .form-select { padding: .4rem .6rem; font-size: .84rem; }
+    .tot-line { display:flex; justify-content:space-between; padding:.35rem 0; }
+    .tot-line.grand { border-top:2px solid var(--line); margin-top:.3rem; padding-top:.6rem; font-size:1.1rem; font-weight:800; color:var(--ink-900); }
+    .po-pill { font-size:.7rem; font-weight:700; padding:.18rem .55rem; border-radius:999px; white-space:nowrap; }
+    .p-pend { background:var(--warning-soft); color:var(--warning); } .p-appr { background:var(--info-soft); color:var(--info); }
+    .p-po { background:var(--success-soft); color:var(--success); } .p-closed { background:var(--bg-soft); color:var(--ink-700); }
+    .seg { display:inline-flex; background:var(--bg-soft); border-radius:999px; padding:.25rem; gap:.25rem; }
+    .seg button { border:none; background:transparent; padding:.4rem .9rem; border-radius:999px; font-weight:700; font-size:.85rem; color:var(--ink-700); }
+    .seg button.active { background:#fff; color:var(--gold-700); box-shadow:var(--shadow-sm); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div><h1>Indents &amp; Requisitions</h1><div class="crumb">Purchases · <b>Pre-Purchase</b></div></div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New</button>
+          </div>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up"><div class="seg">
+          <button class="tab-btn active" data-tab="ind">Purchase Indents</button>
+          <button class="tab-btn" data-tab="req">Stores Requisitions</button>
+        </div></div>
+
+        <div id="listView">
+          <div class="tab-pane" data-pane="ind">
+            <div class="card"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Purchase Indent Register <span class="card-sub">· FAS: IDT_MST</span></h5>
+              <div style="max-width:220px;width:100%"><input id="searchI" class="form-control form-control-sm" placeholder="Search…"></div></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Indent No.</th><th>Department</th><th>Date</th><th class="num">Qty</th><th class="num">Est. Value</th><th>Status</th><th></th></tr></thead><tbody id="iRows"></tbody></table></div>
+            </div>
+          </div>
+          <div class="tab-pane d-none" data-pane="req">
+            <div class="card"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Stores Requisition Register <span class="card-sub">· FAS: REQ_MST</span></h5>
+              <div style="max-width:220px;width:100%"><input id="searchR" class="form-control form-control-sm" placeholder="Search…"></div></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Req. No.</th><th>Store</th><th>Department</th><th>Date</th><th class="num">Items</th><th>Status</th><th></th></tr></thead><tbody id="rRows"></tbody></table></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="detailView" class="d-none"></div>
+
+        <div id="formView" class="d-none">
+          <div class="row g-3"><div class="col-lg-8">
+            <div class="card card-pad mb-3" data-aos="fade-up"><div class="row g-3" id="formHead"></div></div>
+            <div class="card" data-aos="fade-up"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Items</h5><button class="btn btn-outline-gold btn-sm" id="addLine"><i class="bx bx-plus"></i> Add Item</button></div>
+              <div class="table-wrap"><table class="tbl ln"><thead id="lnHead"></thead><tbody id="lnRows"></tbody></table></div>
+            </div>
+          </div><div class="col-lg-4">
+            <div class="card card-pad mb-3" data-aos="fade-up"><h5 class="card-title mb-3">Summary</h5><div id="sumBox"></div>
+              <div class="d-grid gap-2 mt-3"><button class="btn btn-gold" id="saveBtn"><i class="bx bx-check"></i> Save</button></div></div>
+          </div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('indents');
+      var IND = [], REQ = [], CUR = '₹', ITEMS = [], DEPTS = [], STORES = ['Raw Material Store', 'Main Store', 'Finished Goods Godown'], TAB = 'ind', iseq = 11, rseq = 14, MODE = 'ind';
+
+      $.when(App.data('indents.json'), App.data('items.json'), App.data('masters.json')).done(function (d, it, ms) {
+        IND = d[0].indents; REQ = d[0].requisitions; CUR = d[0].currency; ITEMS = it[0].items; DEPTS = ms[0].departments.map(x => x.name);
+        renderI(); renderR();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function indQty(x) { return x.lines.reduce((s, l) => s + l.qty, 0); }
+      function indVal(x) { return x.lines.reduce((s, l) => s + l.qty * l.rate, 0); }
+      function iBadge(s) { return '<span class="po-pill ' + (s === 'Pending' ? 'p-pend' : s === 'Approved' ? 'p-appr' : s === 'PO Created' ? 'p-po' : 'p-closed') + '">' + s + '</span>'; }
+      function rBadge(s) { return '<span class="po-pill ' + (s === 'Pending' ? 'p-pend' : s === 'Issued' ? 'p-po' : 'p-closed') + '">' + s + '</span>'; }
+
+      function renderI() {
+        var q = ($('#searchI').val() || '').toLowerCase();
+        var list = IND.filter(x => x.no.toLowerCase().includes(q) || x.department.toLowerCase().includes(q));
+        $('#iRows').html(list.length ? list.map(x => '<tr class="row-click" style="cursor:pointer" data-t="ind" data-id="' + x.id + '"><td><span class="fw-bold text-gold">' + x.no + '</span></td><td>' + x.department + '</td><td class="text-muted-2">' + App.shortDate(x.date) + '</td><td class="num tabular">' + App.number(indQty(x)) + '</td><td class="num tabular">' + App.currency(indVal(x), CUR) + '</td><td>' + iBadge(x.status) + '</td><td class="text-end">' + App.kebab(x.id, [{ act: 'i-view', icon: 'bx-show', label: 'View' }, { act: 'i-po', icon: 'bx-cart-add', label: 'Convert to PO' }]) + '</td></tr>').join('') : '<tr><td colspan="7" class="text-center text-muted-2 py-4">No indents</td></tr>');
+      }
+      function renderR() {
+        var q = ($('#searchR').val() || '').toLowerCase();
+        var list = REQ.filter(x => x.no.toLowerCase().includes(q) || x.department.toLowerCase().includes(q));
+        $('#rRows').html(list.length ? list.map(x => '<tr class="row-click" style="cursor:pointer" data-t="req" data-id="' + x.id + '"><td><span class="fw-bold text-gold">' + x.no + '</span></td><td>' + x.store + '</td><td>' + x.department + '</td><td class="text-muted-2">' + App.shortDate(x.date) + '</td><td class="num tabular">' + x.lines.length + '</td><td>' + rBadge(x.status) + '</td><td class="text-end">' + App.kebab(x.id, [{ act: 'r-view', icon: 'bx-show', label: 'View' }, { act: 'r-issue', icon: 'bx-up-arrow-alt', label: 'Issue Materials' }]) + '</td></tr>').join('') : '<tr><td colspan="7" class="text-center text-muted-2 py-4">No requisitions</td></tr>');
+      }
+      $('#searchI').on('input', renderI); $('#searchR').on('input', renderR);
+
+      $('.tab-btn').on('click', function () { $('.tab-btn').removeClass('active'); $(this).addClass('active'); TAB = $(this).data('tab'); showList(); });
+      function showList() { $('#formView,#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none'); $('.tab-pane').addClass('d-none'); $('.tab-pane[data-pane="' + TAB + '"]').removeClass('d-none'); }
+      $('#btnBack').on('click', showList);
+
+      $(document).on('click', '.row-click', function (e) { if ($(e.target).closest('.dropdown').length) return; $(this).data('t') === 'ind' ? showInd(IND.find(x => x.id == $(this).data('id'))) : showReq(REQ.find(x => x.id == $(this).data('id'))); });
+      $(document).on('click', '[data-act="i-view"]', function () { showInd(IND.find(x => x.id == $(this).data('id'))); });
+      $(document).on('click', '[data-act="r-view"]', function () { showReq(REQ.find(x => x.id == $(this).data('id'))); });
+      $(document).on('click', '[data-act="i-po"]', function () { toPO(IND.find(x => x.id == $(this).data('id'))); });
+      $(document).on('click', '[data-act="r-issue"]', function () { issueReq(REQ.find(x => x.id == $(this).data('id'))); });
+
+      function detailShell() { $('#listView,#formView').addClass('d-none'); $('#detailView').removeClass('d-none'); $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none'); }
+
+      function showInd(x) {
+        if (!x) return; window.__i = x; detailShell();
+        var lines = x.lines.map(l => '<tr><td>' + l.item + '</td><td class="num tabular">' + App.number(l.qty) + '</td><td class="num tabular">' + App.currency(l.rate, CUR) + '</td><td class="num tabular fw-bold ' + (l.approved_qty ? 'text-success' : 'text-muted-2') + '">' + App.number(l.approved_qty) + '</td><td class="text-muted-2">' + App.shortDate(l.required_date) + '</td><td>' + (l.po_no ? '<span class="fw-bold text-gold">' + l.po_no + '</span>' : '—') + '</td></tr>').join('');
+        var actions = x.status === 'Pending' ? '<button class="btn btn-soft text-danger" id="rejI"><i class="bx bx-x"></i> Reject</button><button class="btn btn-gold" id="appI"><i class="bx bx-check-double"></i> Approve Indent</button>'
+          : (x.status === 'Approved' ? '<a class="btn btn-gold" href="purchase-orders.html"><i class="bx bx-cart-add"></i> Convert to Purchase Order</a>' : '');
+        var banner = x.status === 'Pending' ? '<div class="card card-pad mb-3" style="border-left:4px solid var(--warning)"><div class="fw-8" style="color:var(--ink-900)"><i class="bx bx-time-five text-warning"></i> Awaiting Approval</div><div class="card-sub">Approve to set approved quantities, then convert to a Purchase Order.</div></div>' : '';
+        $('#detailView').html(banner + '<div class="card card-pad mb-3"><div class="d-flex flex-wrap align-items-start gap-3"><div><div class="kpi-label">Purchase Indent</div><h2 class="fw-8 mb-0 text-gold">' + x.no + '</h2><div class="card-sub mt-1">' + x.department + ' Dept · raised ' + App.shortDate(x.date) + '</div></div><div class="ms-auto text-end">' + iBadge(x.status) + '<div class="mt-2"><div class="kpi-label">Est. Value</div><div class="fw-8 text-gold" style="font-size:1.4rem">' + App.currency(indVal(x), CUR) + '</div></div></div></div>' + (x.remark ? '<div class="card-sub mt-2"><i class="bx bx-note"></i> ' + x.remark + '</div>' : '') + (actions ? '<div class="mt-3 d-flex gap-2">' + actions + '</div>' : '') + '</div>' +
+          '<div class="card"><div class="card-pad"><h5 class="card-title">Indent Items</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Approved</th><th>Required By</th><th>PO</th></tr></thead><tbody>' + lines + '</tbody></table></div></div>');
+        $('#appI').on('click', function () { App.confirm({ danger: false, title: 'Approve indent?', message: x.no + ' will be approved (approved qty = requested qty).', confirmText: 'Approve', onConfirm: function () { x.status = 'Approved'; x.lines.forEach(l => l.approved_qty = l.qty); renderI(); showInd(x); App.toast('Indent approved (demo)'); } }); });
+        $('#rejI').on('click', function () { App.confirm({ title: 'Reject indent?', message: x.no + ' will be closed.', confirmText: 'Reject', onConfirm: function () { x.status = 'Closed'; renderI(); showList(); App.toast('Indent rejected (demo)'); } }); });
+      }
+      function toPO(x) { if (!x) return; if (x.status === 'Pending') { App.toast('Approve the indent first', 'error'); return; } x.status = 'PO Created'; x.lines.forEach(l => { if (!l.po_no) l.po_no = 'PO-(draft)'; }); renderI(); App.toast('Purchase Order drafted from ' + x.no + ' — open Purchase Orders to continue (demo)'); }
+
+      function showReq(x) {
+        if (!x) return; window.__r = x; detailShell();
+        var lines = x.lines.map(l => '<tr><td>' + l.item + '</td><td class="num tabular">' + App.number(l.req_qty) + '</td><td class="num tabular fw-bold ' + (l.rec_qty ? 'text-success' : 'text-muted-2') + '">' + App.number(l.rec_qty) + '</td><td class="num tabular">' + App.number(l.req_qty - l.rec_qty) + '</td></tr>').join('');
+        var actions = x.status === 'Pending' ? '<button class="btn btn-gold" id="issR"><i class="bx bx-up-arrow-alt"></i> Issue Materials</button>' : '<span class="po-pill p-po">Issued</span>';
+        $('#detailView').html('<div class="card card-pad mb-3"><div class="d-flex flex-wrap align-items-start gap-3"><div><div class="kpi-label">Stores Requisition</div><h2 class="fw-8 mb-0 text-gold">' + x.no + '</h2><div class="card-sub mt-1">' + x.store + ' → ' + x.department + ' Dept · ' + App.shortDate(x.date) + '</div></div><div class="ms-auto text-end">' + rBadge(x.status) + '</div></div>' + (x.remark ? '<div class="card-sub mt-2"><i class="bx bx-note"></i> ' + x.remark + '</div>' : '') + '<div class="mt-3">' + actions + '</div></div>' +
+          '<div class="card"><div class="card-pad"><h5 class="card-title">Requisition Items</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Item</th><th class="num">Req. Qty</th><th class="num">Issued</th><th class="num">Pending</th></tr></thead><tbody>' + lines + '</tbody></table></div></div>');
+        $('#issR').on('click', function () { App.confirm({ danger: false, title: 'Issue materials?', message: 'Materials for ' + x.no + ' will be issued from ' + x.store + ' (stock out).', confirmText: 'Issue', onConfirm: function () { x.status = 'Issued'; x.lines.forEach(l => l.rec_qty = l.req_qty); renderR(); showReq(x); App.toast('Materials issued for ' + x.no + ' (demo)'); } }); });
+      }
+      function issueReq(x) { if (!x) return; if (x.status !== 'Pending') { App.toast('Already issued', 'info'); return; } showReq(x); }
+
+      // ---- form ----
+      function itemOptions() { return '<option value="">Select item…</option>' + ITEMS.map(i => '<option value="' + i.id + '">' + i.name + '</option>').join(''); }
+      function deptOptions() { return DEPTS.map(d => '<option>' + d + '</option>').join(''); }
+      function storeOptions() { return STORES.map(s => '<option>' + s + '</option>').join(''); }
+
+      $('#btnNew').on('click', function () { openForm(TAB); });
+      function openForm(mode) {
+        MODE = mode;
+        $('#listView,#detailView').addClass('d-none'); $('#formView').removeClass('d-none'); $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        if (mode === 'ind') {
+          $('#formHead').html('<div class="col-md-4"><label class="form-label">Indent No.</label><input class="form-control" id="fNo" value="IND-2026-' + String(iseq).padStart(4, '0') + '" readonly></div><div class="col-md-4"><label class="form-label">Date</label><input class="form-control" type="date" id="fDate" value="2026-06-24"></div><div class="col-md-4"><label class="form-label">Department *</label><select class="form-select" id="fDept">' + deptOptions() + '</select></div><div class="col-md-12"><label class="form-label">Remark</label><input class="form-control" id="fRemark"></div>');
+          $('#lnHead').html('<tr><th style="width:40%">Item</th><th class="num">Qty</th><th class="num">Est. Rate</th><th>Required By</th><th></th></tr>');
+        } else {
+          $('#formHead').html('<div class="col-md-3"><label class="form-label">Req. No.</label><input class="form-control" id="fNo" value="REQ-2026-' + String(rseq).padStart(4, '0') + '" readonly></div><div class="col-md-3"><label class="form-label">Date</label><input class="form-control" type="date" id="fDate" value="2026-06-24"></div><div class="col-md-3"><label class="form-label">Store *</label><select class="form-select" id="fStore">' + storeOptions() + '</select></div><div class="col-md-3"><label class="form-label">Department *</label><select class="form-select" id="fDept">' + deptOptions() + '</select></div><div class="col-md-12"><label class="form-label">Remark</label><input class="form-control" id="fRemark"></div>');
+          $('#lnHead').html('<tr><th style="width:60%">Item</th><th class="num">Req. Qty</th><th></th></tr>');
+        }
+        $('#lnRows').empty(); addLine(); recalc();
+      }
+      function addLine() {
+        if (MODE === 'ind') $('#lnRows').append('<tr><td><select class="form-select li-item">' + itemOptions() + '</select></td><td><input class="form-control num li-qty text-end" value="1"></td><td><input class="form-control num li-rate text-end" value="0"></td><td><input class="form-control li-req" type="date" value="2026-07-04"></td><td class="text-center"><button class="icon-btn li-del" style="width:30px;height:30px;color:var(--danger)"><i class="bx bx-trash"></i></button></td></tr>');
+        else $('#lnRows').append('<tr><td><select class="form-select li-item">' + itemOptions() + '</select></td><td><input class="form-control num li-qty text-end" value="1"></td><td class="text-center"><button class="icon-btn li-del" style="width:30px;height:30px;color:var(--danger)"><i class="bx bx-trash"></i></button></td></tr>');
+      }
+      $(document).on('change', '.li-item', function () { if (MODE === 'ind') { var it = ITEMS.find(x => x.id == $(this).val()); if (it) $(this).closest('tr').find('.li-rate').val(it.purchase_rate); } recalc(); });
+      $(document).on('input', '.li-qty, .li-rate', recalc);
+      $(document).on('click', '.li-del', function () { $(this).closest('tr').remove(); recalc(); });
+      $('#addLine').on('click', addLine);
+
+      function recalc() {
+        var qty = 0, val = 0;
+        $('#lnRows tr').each(function () { var q = parseFloat($(this).find('.li-qty').val()) || 0, r = parseFloat($(this).find('.li-rate').val()) || 0; qty += q; val += q * r; });
+        $('#sumBox').html('<div class="tot-line"><span class="text-muted-2">Total Qty</span><span class="tabular fw-bold">' + App.number(qty) + '</span></div>' + (MODE === 'ind' ? '<div class="tot-line grand"><span>Est. Value</span><span class="tabular text-gold">' + App.currency(val, CUR) + '</span></div>' : ''));
+      }
+
+      $('#saveBtn').on('click', function () {
+        var lines = [];
+        $('#lnRows tr').each(function () { var it = ITEMS.find(x => x.id == $(this).find('.li-item').val()); var q = parseFloat($(this).find('.li-qty').val()) || 0; if (!it || q <= 0) return;
+          if (MODE === 'ind') lines.push({ item: it.name, qty: q, rate: parseFloat($(this).find('.li-rate').val()) || 0, required_date: $(this).find('.li-req').val(), approved_qty: 0, po_no: '' });
+          else lines.push({ item: it.name, req_qty: q, rec_qty: 0 }); });
+        if (!lines.length) { App.toast('Add at least one item', 'error'); return; }
+        if (MODE === 'ind') { IND.unshift({ id: Date.now(), no: $('#fNo').val(), date: $('#fDate').val(), department: $('#fDept').val(), status: 'Pending', remark: $('#fRemark').val(), lines: lines }); iseq++; renderI(); TAB = 'ind'; }
+        else { REQ.unshift({ id: Date.now(), no: $('#fNo').val(), date: $('#fDate').val(), store: $('#fStore').val(), department: $('#fDept').val(), status: 'Pending', remark: $('#fRemark').val(), lines: lines }); rseq++; renderR(); TAB = 'req'; }
+        $('.tab-btn').removeClass('active'); $('.tab-btn[data-tab="' + TAB + '"]').addClass('active');
+        showList(); App.toast((MODE === 'ind' ? 'Indent' : 'Requisition') + ' saved (demo)');
+      });
+    });
+  </script>
+</body>
+</html>

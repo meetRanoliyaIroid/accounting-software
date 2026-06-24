@@ -1,0 +1,17 @@
+{
+  "currency": "₹",
+  "packing_slips": [
+    { "id": 1, "no": "PS-2026-0021", "date": "2026-06-16", "dispatch_ref": "DC-2026-0031", "customer": "Aarav Textiles", "item": "Finished Shirt", "boxes": 12, "cops": 144, "gross_wt": 320.500, "net_wt": 300.000, "status": "Dispatched" },
+    { "id": 2, "no": "PS-2026-0020", "date": "2026-06-05", "dispatch_ref": "DC-2026-0030", "customer": "Galaxy Enterprises", "item": "Dye Chemical (litre)", "boxes": 21, "cops": 412, "gross_wt": 445.000, "net_wt": 412.000, "status": "Dispatched" },
+    { "id": 3, "no": "PS-2026-0022", "date": "2026-06-24", "dispatch_ref": "", "customer": "Blue Ocean Ltd", "item": "Cotton Fabric (per metre)", "boxes": 14, "cops": 0, "gross_wt": 728.000, "net_wt": 700.000, "status": "Packed" }
+  ],
+  "gate_passes": [
+    { "id": 1, "no": "GP-2026-0034", "date": "2026-06-20", "party": "Stitch Masters (Jobworker)", "vehicle_no": "GJ05CD4521", "type": "Returnable", "value": 162000.00, "purpose": "Jobwork — fabric issued for stitching", "status": "Open", "remark": "WO-2026-0008" },
+    { "id": 2, "no": "GP-2026-0033", "date": "2026-06-18", "party": "Sharp Tools Pvt Ltd", "vehicle_no": "GJ05AB1188", "type": "Returnable", "value": 45000.00, "purpose": "Machine sent for repair", "status": "Returned", "remark": "Returned 22 Jun" },
+    { "id": 3, "no": "GP-2026-0032", "date": "2026-06-16", "party": "Aarav Textiles", "vehicle_no": "GJ05AB1234", "type": "Non-Returnable", "value": 145200.00, "purpose": "Finished goods dispatch — DC-2026-0031", "status": "Closed", "remark": "" }
+  ],
+  "vehicle_entries": [
+    { "id": 1, "no": "VE-2026-0051", "date": "2026-06-24", "vehicle_no": "GJ05XY9090", "transporter": "Gati Express", "in_time": "09:40", "out_time": "10:25", "driver": "Ramesh Bhai", "licence": "GJ0520190012345", "purpose": "Goods pickup", "status": "Out" },
+    { "id": 2, "no": "VE-2026-0052", "date": "2026-06-24", "vehicle_no": "MH12KL3344", "transporter": "VRL Logistics", "in_time": "11:15", "out_time": "", "driver": "Suresh Patil", "licence": "MH1220180054321", "purpose": "Raw material delivery", "status": "In" }
+  ]
+}

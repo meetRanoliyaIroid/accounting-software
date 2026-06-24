@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loans &amp; Budget · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .tot-line { display:flex; justify-content:space-between; padding:.35rem 0; }
+    .tot-line.grand { border-top:2px solid var(--line); margin-top:.3rem; padding-top:.6rem; font-size:1.15rem; font-weight:800; color:var(--ink-900); }
+    .cost-card { background:var(--gold-50); border:1px dashed var(--gold-300); border-radius:var(--radius); }
+    .po-pill { font-size:.7rem; font-weight:700; padding:.18rem .55rem; border-radius:999px; }
+    .p-active { background:var(--success-soft); color:var(--success); }
+    .p-closed { background:var(--bg-soft); color:var(--ink-700); }
+    .seg { display:inline-flex; background:var(--bg-soft); border-radius:999px; padding:.25rem; gap:.25rem; }
+    .seg button { border:none; background:transparent; padding:.4rem .9rem; border-radius:999px; font-weight:700; font-size:.85rem; color:var(--ink-700); }
+    .seg button.active { background:#fff; color:var(--gold-700); box-shadow:var(--shadow-sm); }
+    .bbar { height:8px;border-radius:999px;background:var(--bg-soft);overflow:hidden }
+    .bbar > div { height:100% }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Loans &amp; Budget</h1>
+            <div class="crumb">Finance · <b>Loans &amp; Budget</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Loan</button>
+          </div>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up"><div class="seg">
+          <button class="tab-btn active" data-tab="loans">Loans</button>
+          <button class="tab-btn" data-tab="budget">Budget vs Actual</button>
+        </div></div>
+
+        <div id="listView">
+          <!-- LOANS -->
+          <div class="tab-pane" data-pane="loans">
+            <div class="row g-3 mb-3">
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bxs-bank"></i></div><div><div class="kpi-label">Loans Outstanding</div><div class="kpi-value" id="kOut">₹0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-credit-card"></i></div><div><div class="kpi-label">Monthly EMI</div><div class="kpi-value" id="kEmi">₹0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-check-circle"></i></div><div><div class="kpi-label">Active Loans</div><div class="kpi-value" id="kActive">0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-line-chart"></i></div><div><div class="kpi-label">Avg. Interest</div><div class="kpi-value" id="kRate">0%</div></div></div></div>
+            </div>
+            <div class="card">
+              <div class="card-pad"><h5 class="card-title">Loan Accounts</h5></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Loan</th><th>Lender</th><th>Type</th><th class="num">Principal</th><th class="num">Rate</th><th class="num">EMI</th><th class="num">Outstanding</th><th>Status</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+            </div>
+          </div>
+          <!-- BUDGET -->
+          <div class="tab-pane d-none" data-pane="budget">
+            <div class="card">
+              <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Budget vs Actual (FY 2026-27)</h5><button class="btn btn-outline-gold btn-sm" onclick="window.print()"><i class="bx bx-export"></i> Export</button></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Account</th><th>Type</th><th class="num">Budget</th><th class="num">Actual</th><th class="num">Variance</th><th style="width:200px">Utilisation</th></tr></thead><tbody id="budRows"></tbody></table></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL (amortization) -->
+        <div id="detailView" class="d-none"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Loan modal -->
+  <div class="modal fade" id="loanModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none;border-radius:var(--radius)">
+    <div class="modal-header" style="border-bottom:1px solid var(--line)"><h5 class="modal-title fw-8">New Loan</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Loan No.</label><input class="form-control" id="lNo" readonly></div>
+      <div class="col-md-6"><label class="form-label">Lender *</label><input class="form-control" id="lLender"></div>
+      <div class="col-md-6"><label class="form-label">Type</label><select class="form-select" id="lType"><option>Term Loan</option><option>Working Capital</option><option>Equipment Loan</option><option>Unsecured Loan</option></select></div>
+      <div class="col-md-6"><label class="form-label">Start Date</label><input class="form-control" type="date" id="lStart"></div>
+      <div class="col-md-4"><label class="form-label">Principal</label><input class="form-control num text-end" id="lPrin" value="0"></div>
+      <div class="col-md-4"><label class="form-label">Interest % p.a.</label><input class="form-control num text-end" id="lRate" value="11"></div>
+      <div class="col-md-4"><label class="form-label">Tenure (months)</label><input class="form-control num text-end" id="lTenure" value="60"></div>
+      <div class="col-12"><div class="card card-pad cost-card"><div class="tot-line grand"><span>Computed EMI</span><span class="tabular text-gold" id="lEmi">₹0.00</span></div></div></div>
+    </div></div>
+    <div class="modal-footer" style="border-top:1px solid var(--line)"><button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button><button class="btn btn-gold" id="lSave"><i class="bx bx-check"></i> Save Loan</button></div>
+  </div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('loans');
+      var LOANS = [], BUDGET = [], CUR = '₹', seq = 4;
+      var loanModal = new bootstrap.Modal('#loanModal');
+
+      App.data('loans.json').done(function (d) {
+        LOANS = d.loans; BUDGET = d.budget; CUR = d.currency;
+        renderStats(); render(); renderBudget();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function emiCalc(p, ratePa, n) { var r = ratePa / 12 / 100; if (!r) return p / n; var f = Math.pow(1 + r, n); return p * r * f / (f - 1); }
+
+      function renderStats() {
+        App.countUp($('#kOut'), LOANS.reduce((s, l) => s + l.outstanding, 0), { prefix: CUR, decimals: 0 });
+        App.countUp($('#kEmi'), LOANS.filter(l => l.status === 'Active').reduce((s, l) => s + l.emi, 0), { prefix: CUR, decimals: 0 });
+        $('#kActive').text(LOANS.filter(l => l.status === 'Active').length);
+        var act = LOANS.filter(l => l.status === 'Active');
+        $('#kRate').text((act.reduce((s, l) => s + l.rate, 0) / (act.length || 1)).toFixed(1) + '%');
+      }
+
+      function render() {
+        $('#rows').html(LOANS.map(function (l) {
+          return '<tr class="row-click" style="cursor:pointer" data-id="' + l.id + '" title="View amortization schedule">' +
+            '<td><span class="fw-bold text-gold">' + l.no + '</span></td><td>' + l.lender + '</td><td class="text-muted-2">' + l.type + '</td>' +
+            '<td class="num tabular">' + App.currency(l.principal, CUR) + '</td><td class="num tabular">' + l.rate + '%</td>' +
+            '<td class="num tabular">' + App.currency(l.emi, CUR) + '</td><td class="num tabular fw-bold">' + App.currency(l.outstanding, CUR) + '</td>' +
+            '<td><span class="po-pill ' + (l.status === 'Active' ? 'p-active' : 'p-closed') + '">' + l.status + '</span></td>' +
+            '<td class="text-end">' + App.kebab(l.id, [{ act: 'view', icon: 'bx-list-ol', label: 'Amortization Schedule' }]) + '</td></tr>';
+        }).join(''));
+      }
+      function byId(el) { return LOANS.find(x => x.id == $(el).data('id')); }
+      $(document).on('click', '.row-click', function (e) { if ($(e.target).closest('.dropdown').length) return; showDetail(byId(this)); });
+      $(document).on('click', '[data-act="view"]', function () { showDetail(byId(this)); });
+
+      function showDetail(l) {
+        if (!l) return;
+        $('#listView').addClass('d-none'); $('#detailView').removeClass('d-none'); $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        // build amortization schedule
+        var r = l.rate / 12 / 100, bal = l.principal, rows = '', totInt = 0, n = Math.min(l.tenure, 360);
+        for (var i = 1; i <= n; i++) {
+          var interest = bal * r, principal = l.emi - interest;
+          if (principal > bal) principal = bal;
+          bal -= principal; totInt += interest;
+          rows += '<tr><td class="text-muted-2">' + i + '</td><td class="num tabular">' + App.currency(bal + principal, CUR) + '</td><td class="num tabular">' + App.currency(l.emi, CUR) + '</td><td class="num tabular text-danger">' + App.currency(interest, CUR) + '</td><td class="num tabular">' + App.currency(principal, CUR) + '</td><td class="num tabular fw-bold">' + App.currency(bal, CUR) + '</td></tr>';
+          if (bal <= 0) break;
+        }
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up"><div class="d-flex flex-wrap align-items-start gap-3">' +
+            '<div><div class="kpi-label">Loan Account</div><h2 class="fw-8 mb-0 text-gold">' + l.no + '</h2><div class="card-sub mt-1">' + l.lender + ' · ' + l.type + ' · ' + l.rate + '% p.a. · ' + l.tenure + ' months</div></div>' +
+            '<div class="ms-auto text-end"><span class="po-pill ' + (l.status === 'Active' ? 'p-active' : 'p-closed') + '">' + l.status + '</span><div class="mt-2"><div class="kpi-label">Outstanding</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(l.outstanding, CUR) + '</div></div></div>' +
+          '</div><div class="divider"></div><div class="row g-3">' +
+            '<div class="col-md-3"><div class="kpi-label">Principal</div><div class="fw-bold">' + App.currency(l.principal, CUR) + '</div></div>' +
+            '<div class="col-md-3"><div class="kpi-label">EMI</div><div class="fw-bold">' + App.currency(l.emi, CUR) + '</div></div>' +
+            '<div class="col-md-3"><div class="kpi-label">Total Interest</div><div class="fw-bold text-danger">' + App.currency(totInt, CUR) + '</div></div>' +
+            '<div class="col-md-3"><div class="kpi-label">Total Repayment</div><div class="fw-bold">' + App.currency(l.principal + totInt, CUR) + '</div></div>' +
+          '</div></div>' +
+          '<div class="card" data-aos="fade-up"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Amortization Schedule</h5><button class="btn btn-outline-gold btn-sm" onclick="window.print()"><i class="bx bx-printer"></i> Print</button></div><div class="table-wrap" style="max-height:60vh;overflow:auto"><table class="tbl"><thead><tr><th>#</th><th class="num">Opening</th><th class="num">EMI</th><th class="num">Interest</th><th class="num">Principal</th><th class="num">Closing</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+        $('#detailView').html(html);
+      }
+
+      function renderBudget() {
+        $('#budRows').html(BUDGET.map(function (b) {
+          var variance = b.type === 'Income' ? b.actual - b.budget : b.budget - b.actual;
+          var pct = b.budget ? Math.round(b.actual / b.budget * 100) : 0;
+          var over = pct > 100;
+          var color = b.type === 'Income' ? 'var(--success)' : (over ? 'var(--danger)' : 'var(--gold-600)');
+          return '<tr><td class="fw-bold" style="color:var(--ink-900)">' + b.account + '</td><td><span class="card-sub">' + b.type + '</span></td>' +
+            '<td class="num tabular">' + App.currency(b.budget, CUR) + '</td><td class="num tabular">' + App.currency(b.actual, CUR) + '</td>' +
+            '<td class="num tabular fw-bold ' + (variance < 0 ? 'text-danger' : 'text-success') + '">' + App.currency(variance, CUR) + '</td>' +
+            '<td><div class="bbar"><div style="width:' + Math.min(pct, 100) + '%;background:' + color + '"></div></div><div class="card-sub mt-1">' + pct + '% ' + (over ? 'over' : 'used') + '</div></td></tr>';
+        }).join(''));
+      }
+
+      // tabs
+      $('.tab-btn').on('click', function () {
+        $('.tab-btn').removeClass('active'); $(this).addClass('active');
+        var t = $(this).data('tab');
+        $('#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none');
+        $('.tab-pane').addClass('d-none'); $('.tab-pane[data-pane="' + t + '"]').removeClass('d-none');
+        $('#btnNew').toggleClass('d-none', t !== 'loans');
+      });
+      $('#btnBack').on('click', function () { $('#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none'); });
+
+      // new loan
+      function calcEmi() { var p = parseFloat($('#lPrin').val()) || 0, r = parseFloat($('#lRate').val()) || 0, n = parseFloat($('#lTenure').val()) || 1; $('#lEmi').text(App.currency(emiCalc(p, r, n), CUR)); }
+      $('#lPrin, #lRate, #lTenure').on('input', calcEmi);
+      $('#btnNew').on('click', function () { $('#lNo').val('LN-' + String(seq).padStart(3, '0')); $('#lLender').val(''); $('#lPrin').val(0); $('#lRate').val(11); $('#lTenure').val(60); $('#lStart').val('2026-06-24'); calcEmi(); loanModal.show(); });
+      $('#lSave').on('click', function () {
+        var lender = $('#lLender').val(); if (!lender) { App.toast('Enter lender', 'error'); return; }
+        var p = parseFloat($('#lPrin').val()) || 0, r = parseFloat($('#lRate').val()) || 0, n = parseFloat($('#lTenure').val()) || 1;
+        if (p <= 0) { App.toast('Enter principal', 'error'); return; }
+        LOANS.unshift({ id: Date.now(), no: $('#lNo').val(), lender: lender, type: $('#lType').val(), principal: p, rate: r, tenure: n, start: $('#lStart').val(), emi: Math.round(emiCalc(p, r, n)), outstanding: p, status: 'Active', account: '22xx · ' + lender });
+        seq++; loanModal.hide(); renderStats(); render(); App.toast('Loan added (demo)');
+      });
+    });
+  </script>
+</body>
+</html>

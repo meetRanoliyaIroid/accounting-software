@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agents &amp; Commission · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .tot-line { display:flex; justify-content:space-between; padding:.35rem 0; }
+    .tot-line.grand { border-top:2px solid var(--line); margin-top:.3rem; padding-top:.6rem; font-size:1.15rem; font-weight:800; color:var(--ink-900); }
+    .comm-card { background:var(--gold-50); border:1px dashed var(--gold-300); border-radius:var(--radius); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Agents &amp; Commission</h1>
+            <div class="crumb">Sales · <b>Agents &amp; Commission</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back to List</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Agent</button>
+          </div>
+        </div>
+
+        <!-- LIST -->
+        <div id="listView">
+          <div class="row g-3 mb-3" data-aos="fade-up">
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-group"></i></div><div><div class="kpi-label">Active Agents</div><div class="kpi-value" id="stAgents">0</div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-rupee"></i></div><div><div class="kpi-label">Sales via Agents</div><div class="kpi-value" id="stSales">₹0</div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-money"></i></div><div><div class="kpi-label">Commission</div><div class="kpi-value" id="stComm">₹0</div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-wallet"></i></div><div><div class="kpi-label">Net Payable</div><div class="kpi-value" id="stNet">₹0</div></div></div></div>
+          </div>
+          <div class="card" data-aos="fade-up">
+            <div class="card-pad d-flex flex-wrap align-items-center gap-2">
+              <h5 class="card-title me-auto">Agent / Broker Master</h5>
+              <div style="max-width:240px;width:100%"><input id="search" class="form-control form-control-sm" placeholder="Search agent name or area…"></div>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead><tr><th>Code</th><th>Agent</th><th>Area</th><th class="num">Comm %</th><th class="num">Sales</th><th class="num">Commission</th><th class="num">TDS</th><th class="num">Net Payable</th><th>Status</th><th></th></tr></thead>
+                <tbody id="rows"><tr><td colspan="10" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL -->
+        <div id="detailView" class="d-none"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Agent modal -->
+  <div class="modal fade" id="agentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none;border-radius:var(--radius)">
+    <div class="modal-header" style="border-bottom:1px solid var(--line)"><h5 class="modal-title fw-8">New Agent / Broker</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Code</label><input class="form-control" id="aCode" readonly></div>
+      <div class="col-md-6"><label class="form-label">Name *</label><input class="form-control" id="aName"></div>
+      <div class="col-md-6"><label class="form-label">Area</label><input class="form-control" id="aArea"></div>
+      <div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" id="aPhone"></div>
+      <div class="col-md-6"><label class="form-label">Commission %</label><input class="form-control num text-end" id="aComm" value="2.5"></div>
+      <div class="col-md-6"><label class="form-label">TDS % (194H)</label><input class="form-control num text-end" id="aTds" value="5"></div>
+    </div></div>
+    <div class="modal-footer" style="border-top:1px solid var(--line)"><button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button><button class="btn btn-gold" id="aSave"><i class="bx bx-check"></i> Save Agent</button></div>
+  </div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('agents');
+      var DATA = [], CUR = '₹', seq = 4;
+      var agentModal = new bootstrap.Modal('#agentModal');
+
+      App.data('agents.json').done(function (d) {
+        DATA = d.agents; CUR = d.currency; renderStats(); render();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function salesOf(a) { return a.sales.reduce((s, x) => s + x.amount, 0); }
+      function commOf(a) { return salesOf(a) * a.commission_pct / 100; }
+      function tdsOf(a) { return commOf(a) * a.tds_pct / 100; }
+      function netOf(a) { return commOf(a) - tdsOf(a); }
+
+      function renderStats() {
+        $('#stAgents').text(DATA.filter(a => a.status === 'Active').length);
+        App.countUp($('#stSales'), DATA.reduce((s, a) => s + salesOf(a), 0), { prefix: CUR, decimals: 0 });
+        App.countUp($('#stComm'), DATA.reduce((s, a) => s + commOf(a), 0), { prefix: CUR, decimals: 0 });
+        App.countUp($('#stNet'), DATA.reduce((s, a) => s + netOf(a), 0), { prefix: CUR, decimals: 0 });
+      }
+
+      function render() {
+        var q = ($('#search').val() || '').toLowerCase();
+        var list = DATA.filter(a => a.name.toLowerCase().includes(q) || (a.area || '').toLowerCase().includes(q));
+        if (!list.length) { $('#rows').html('<tr><td colspan="10" class="text-center text-muted-2 py-4">No agents</td></tr>'); return; }
+        $('#rows').html(list.map(function (a) {
+          return '<tr class="row-click" style="cursor:pointer" data-id="' + a.id + '" title="View commission statement">' +
+            '<td><span class="fw-bold text-gold">' + a.code + '</span></td><td>' + a.name + '</td><td class="text-muted-2">' + (a.area || '—') + '</td>' +
+            '<td class="num tabular">' + a.commission_pct + '%</td><td class="num tabular">' + App.currency(salesOf(a), CUR) + '</td>' +
+            '<td class="num tabular fw-bold">' + App.currency(commOf(a), CUR) + '</td><td class="num tabular text-muted-2">' + App.currency(tdsOf(a), CUR) + '</td>' +
+            '<td class="num tabular fw-bold text-gold">' + App.currency(netOf(a), CUR) + '</td>' +
+            '<td>' + App.statusBadge(a.status === 'Active' ? 'Paid' : 'Draft').replace('Paid', 'Active').replace('Draft', 'Inactive') + '</td>' +
+            '<td class="text-end">' + App.kebab(a.id, [{ act: 'view', icon: 'bx-show', label: 'Commission Statement' }]) + '</td></tr>';
+        }).join(''));
+      }
+      $('#search').on('input', render);
+
+      function byId(el) { return DATA.find(x => x.id == $(el).data('id')); }
+      $(document).on('click', '.row-click', function (e) { if ($(e.target).closest('.dropdown').length) return; showDetail(byId(this)); });
+      $(document).on('click', '[data-act="view"]', function () { showDetail(byId(this)); });
+
+      function showDetail(a) {
+        if (!a) return;
+        $('#listView').addClass('d-none'); $('#detailView').removeClass('d-none'); $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        var rows = a.sales.map(function (s) {
+          var c = s.amount * a.commission_pct / 100;
+          return '<tr><td class="text-muted-2">' + App.shortDate(s.date) + '</td><td><span class="fw-bold text-gold">' + s.voucher + '</span></td><td>' + s.customer + '</td><td class="num tabular">' + App.currency(s.amount, CUR) + '</td><td class="num tabular fw-bold">' + App.currency(c, CUR) + '</td></tr>';
+        }).join('') || '<tr><td colspan="5" class="text-center text-muted-2 py-3">No sales booked for this agent</td></tr>';
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up"><div class="d-flex flex-wrap align-items-start gap-3">' +
+            '<div><div class="kpi-label">Agent</div><h2 class="fw-8 mb-0 text-gold">' + a.name + '</h2><div class="card-sub mt-1">' + a.code + ' · ' + (a.area || '—') + ' · ' + a.commission_pct + '% commission</div></div>' +
+            '<div class="ms-auto text-end"><div class="kpi-label">Net Commission Payable</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(netOf(a), CUR) + '</div></div>' +
+          '</div></div>' +
+          '<div class="row g-3"><div class="col-lg-8"><div class="card" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Commission Statement</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th class="num">Sale Amount</th><th class="num">Commission</th></tr></thead><tbody>' + rows + '</tbody>' +
+            '<tfoot><tr style="border-top:2px solid var(--line)"><td colspan="3" class="fw-8">Total</td><td class="num fw-8 tabular">' + App.currency(salesOf(a), CUR) + '</td><td class="num fw-8 tabular text-gold">' + App.currency(commOf(a), CUR) + '</td></tr></tfoot></table></div></div></div>' +
+          '<div class="col-lg-4"><div class="card card-pad comm-card mb-3" data-aos="fade-up"><h5 class="card-title mb-3">Payable Computation</h5>' +
+            '<div class="tot-line"><span class="text-muted-2">Gross Commission</span><span class="tabular fw-bold">' + App.currency(commOf(a), CUR) + '</span></div>' +
+            '<div class="tot-line"><span class="text-muted-2">Less: TDS 194H @ ' + a.tds_pct + '%</span><span class="tabular fw-bold text-danger">-' + App.currency(tdsOf(a), CUR) + '</span></div>' +
+            '<div class="tot-line grand"><span>Net Payable</span><span class="tabular text-gold">' + App.currency(netOf(a), CUR) + '</span></div>' +
+            '<div class="d-grid gap-2 mt-3"><button class="btn btn-gold" id="payComm"><i class="bx bx-money"></i> Pay Commission</button></div></div>' +
+            '<div class="card card-pad" style="background:var(--gold-50);border:1px dashed var(--gold-300)" data-aos="fade-up"><h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> GL on Payment</h6><table class="tbl" style="background:transparent"><tbody>' +
+              '<tr><td class="small">5300 · Commission Expense</td><td class="num tabular small">' + App.number(commOf(a)) + '</td><td class="num tabular small">—</td></tr>' +
+              '<tr><td class="small">2140 · TDS Payable (194H)</td><td class="num tabular small">—</td><td class="num tabular small">' + App.number(tdsOf(a)) + '</td></tr>' +
+              '<tr><td class="small">1010 · Bank</td><td class="num tabular small">—</td><td class="num tabular small">' + App.number(netOf(a)) + '</td></tr>' +
+            '</tbody></table></div></div></div>';
+        $('#detailView').html(html);
+      }
+      $(document).on('click', '#payComm', function () { App.toast('Commission payment voucher created — TDS deducted (demo)'); });
+
+      function showList() { $('#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none'); }
+      $('#btnBack').on('click', showList);
+
+      $('#btnNew').on('click', function () {
+        $('#aCode').val('AG-' + String(seq).padStart(3, '0'));
+        $('#aName,#aArea,#aPhone').val(''); $('#aComm').val('2.5'); $('#aTds').val('5');
+        agentModal.show();
+      });
+      $('#aSave').on('click', function () {
+        var name = $('#aName').val(); if (!name) { App.toast('Enter agent name', 'error'); return; }
+        DATA.unshift({ id: Date.now(), code: $('#aCode').val(), name: name, area: $('#aArea').val(), phone: $('#aPhone').val(), email: '', commission_pct: parseFloat($('#aComm').val()) || 0, tds_pct: parseFloat($('#aTds').val()) || 0, status: 'Active', sales: [] });
+        seq++; agentModal.hide(); renderStats(); render(); App.toast('Agent saved (demo)');
+      });
+    });
+  </script>
+</body>
+</html>

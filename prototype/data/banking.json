@@ -1,0 +1,19 @@
+{
+  "currency": "₹",
+  "company": "Regan Fashion Pvt Ltd",
+  "banks": [
+    { "name": "HDFC Bank — Current", "book_balance": 1865000.00 },
+    { "name": "ICICI Bank — Current", "book_balance": 642000.00 }
+  ],
+  "cheques": [
+    { "id": 1, "no": "000124", "date": "2026-06-21", "bank": "HDFC Bank — Current", "payee": "Zenith Supplies", "amount": 86000.00, "type": "Payment", "status": "Issued", "against": "PINV-2026-0072" },
+    { "id": 2, "no": "000123", "date": "2026-06-18", "bank": "HDFC Bank — Current", "payee": "Apex Raw Materials", "amount": 150000.00, "type": "Payment", "status": "Cleared", "against": "PINV-2026-0066" },
+    { "id": 3, "no": "000122", "date": "2026-06-15", "bank": "ICICI Bank — Current", "payee": "Crystal Packaging", "amount": 88750.00, "type": "Payment", "status": "Issued", "against": "PINV-2026-0061" },
+    { "id": 4, "no": "551203", "date": "2026-06-19", "bank": "HDFC Bank — Current", "payee": "Sunrise Traders (Receipt)", "amount": 78900.00, "type": "Receipt", "status": "Cleared", "against": "SINV-2026-0146" },
+    { "id": 5, "no": "000125", "date": "2026-06-24", "bank": "HDFC Bank — Current", "payee": "Orbit Logistics", "amount": 24600.00, "type": "Payment", "status": "Printed", "against": "PINV-2026-0071" }
+  ],
+  "advices": [
+    { "id": 1, "no": "PA-2026-0012", "date": "2026-06-21", "party": "Zenith Supplies", "bank": "HDFC Bank — Current", "cheque_no": "000124", "amount": 86000.00, "against": "PINV-2026-0072", "status": "Sent" },
+    { "id": 2, "no": "PA-2026-0011", "date": "2026-06-15", "party": "Crystal Packaging", "bank": "ICICI Bank — Current", "cheque_no": "000122", "amount": 88750.00, "against": "PINV-2026-0061", "status": "Sent" }
+  ]
+}

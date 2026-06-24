@@ -11,9 +11,10 @@
   var BASE = IN_PAGES ? '../' : '';
 
   // ---- Role-based access control ----
-  var ALL_PAGES = ['dashboard', 'coa', 'journal', 'ledger', 'customers', 'sales-invoice',
-    'suppliers', 'purchase-invoice', 'payments', 'bank', 'items', 'taxes',
-    'trial-balance', 'pnl', 'balance-sheet', 'ageing', 'settings'];
+  var ALL_PAGES = ['dashboard', 'coa', 'journal', 'ledger', 'notes', 'customers', 'quotations', 'sales-order', 'dispatch', 'packing', 'sales-invoice',
+    'suppliers', 'indents', 'purchase-order', 'grn', 'purchase-invoice', 'payments', 'bank', 'cheque', 'items', 'stock', 'taxes',
+    'bom', 'work-order', 'agents', 'statutory', 'trial-balance', 'pnl', 'balance-sheet', 'ageing',
+    'reports', 'loans', 'complaints', 'masters', 'user-rights', 'settings'];
 
   function except(list) { return ALL_PAGES.filter(function (p) { return list.indexOf(p) === -1; }); }
 

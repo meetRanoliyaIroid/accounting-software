@@ -1,0 +1,12 @@
+{
+  "currency": "₹",
+  "reasons": ["Sales Return", "Purchase Return", "Rate Difference", "Trade Discount", "Damaged / Defective", "Short Quantity", "Other"],
+  "credit_notes": [
+    { "id": 1, "no": "CN-2026-003", "date": "2026-06-14", "customer": "Blue Ocean Ltd", "against": "SINV-2026-0140", "reason": "Rate Difference", "net": 3190.00, "tax_name": "GST 18%", "tax": 574.20, "total": 3764.20, "status": "Issued", "remark": "Billed at ₹320 vs agreed ₹315 — 638 mtr difference" },
+    { "id": 2, "no": "CN-2026-002", "date": "2026-06-08", "customer": "Galaxy Enterprises", "against": "SINV-2026-0136", "reason": "Damaged / Defective", "net": 4100.00, "tax_name": "GST 18%", "tax": 738.00, "total": 4838.00, "status": "Issued", "remark": "10 litre dye returned — leakage" }
+  ],
+  "debit_notes": [
+    { "id": 1, "no": "DN-2026-002", "date": "2026-06-12", "supplier": "Apex Raw Materials", "against": "PINV-2026-0066", "reason": "Purchase Return", "net": 6240.00, "tax_name": "Input GST 18%", "tax": 1123.20, "total": 7363.20, "status": "Issued", "remark": "30 mtr cotton returned — quality issue" },
+    { "id": 2, "no": "DN-2026-001", "date": "2026-06-03", "supplier": "Zenith Supplies", "against": "PINV-2026-0072", "reason": "Rate Difference", "net": 2080.00, "tax_name": "Input GST 18%", "tax": 374.40, "total": 2454.40, "status": "Issued", "remark": "Rate revised post-PO" }
+  ]
+}

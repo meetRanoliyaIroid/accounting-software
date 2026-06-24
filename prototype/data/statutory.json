@@ -1,0 +1,25 @@
+{
+  "currency": "₹",
+  "gstin": "24AABCG1234D1ZP",
+  "gst_returns": [
+    { "id": 1, "period": "May 2026", "type": "GSTR-3B", "due_date": "2026-06-20", "status": "Filed", "filed_on": "2026-06-18",
+      "output_tax": 184500.00, "input_tax": 96400.00, "net_payable": 88100.00,
+      "breakup": { "cgst_out": 0, "sgst_out": 0, "igst_out": 184500.00, "cgst_in": 0, "sgst_in": 0, "igst_in": 96400.00 } },
+    { "id": 2, "period": "Jun 2026", "type": "GSTR-3B", "due_date": "2026-07-20", "status": "Pending", "filed_on": "",
+      "output_tax": 83257.26, "input_tax": 66356.27, "net_payable": 16900.99,
+      "breakup": { "cgst_out": 0, "sgst_out": 0, "igst_out": 83257.26, "cgst_in": 0, "sgst_in": 0, "igst_in": 66356.27 } }
+  ],
+  "gstr1": [
+    { "invoice": "SINV-2026-0148", "date": "2026-06-22", "party": "Aarav Textiles", "gstin": "24AAACA5678F1Z5", "taxable": 129642.86, "rate": 12, "igst": 15557.14, "cgst": 0, "sgst": 0, "total": 145200.00 },
+    { "invoice": "SINV-2026-0147", "date": "2026-06-20", "party": "Meridian Corp", "gstin": "27AABCM1234D1ZP", "taxable": 279017.86, "rate": 18, "igst": 33482.14, "cgst": 0, "sgst": 0, "total": 312500.00 },
+    { "invoice": "SINV-2026-0146", "date": "2026-06-18", "party": "Sunrise Traders", "gstin": "29AAGCS9012K1Z9", "taxable": 70446.43, "rate": 18, "igst": 8453.57, "cgst": 0, "sgst": 0, "total": 78900.00 },
+    { "invoice": "SINV-2026-0140", "date": "2026-06-10", "party": "Blue Ocean Ltd", "gstin": "27AABCB3344L1Z7", "taxable": 204067.80, "rate": 18, "igst": 36732.20, "cgst": 0, "sgst": 0, "total": 240800.00 },
+    { "invoice": "SINV-2026-0136", "date": "2026-06-05", "party": "Galaxy Enterprises", "gstin": "07AAFCG7788M1Z2", "taxable": 143135.59, "rate": 18, "igst": 25764.41, "cgst": 0, "sgst": 0, "total": 168900.00 }
+  ],
+  "tds": [
+    { "id": 1, "type": "TDS", "section": "194H - Commission", "party": "R. Mehta", "date": "2026-06-20", "base": 42000.00, "rate": 5, "amount": 2100.00, "status": "Deducted", "challan": "" },
+    { "id": 2, "type": "TDS", "section": "194C - Contractor", "party": "Stitch Masters (Jobworker)", "date": "2026-06-22", "base": 18000.00, "rate": 2, "amount": 360.00, "status": "Deducted", "challan": "" },
+    { "id": 3, "type": "TDS", "section": "194J - Professional", "party": "Orbit Logistics", "date": "2026-06-17", "base": 20847.46, "rate": 10, "amount": 2084.75, "status": "Paid", "challan": "CIN-2026-0061" },
+    { "id": 4, "type": "TCS", "section": "206C(1H) - Sale of Goods", "party": "Blue Ocean Ltd", "date": "2026-06-10", "base": 204067.80, "rate": 0.1, "amount": 204.07, "status": "Collected", "challan": "" }
+  ]
+}

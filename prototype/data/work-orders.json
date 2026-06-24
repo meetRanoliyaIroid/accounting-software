@@ -1,0 +1,48 @@
+{
+  "currency": "₹",
+  "warehouses": [
+    { "code": "WH-RM", "name": "Raw Material Store" },
+    { "code": "WH-MAIN", "name": "Main Store" },
+    { "code": "WH-FG", "name": "Finished Goods Godown" }
+  ],
+  "orders": [
+    { "id": 1, "no": "WO-2026-0006", "bom": "BOM-001", "fg_item": "Finished Shirt", "qty": 1200, "date": "2026-06-09", "due": "2026-06-12",
+      "type": "In-House", "jobworker": "", "jobcharge": 0,
+      "status": "Completed", "produced": 1200, "material_issued": true, "fg_warehouse": "WH-FG",
+      "components": [
+        { "item": "Cotton Fabric (per metre)", "reqd": 1800, "issued": 1800, "rate": 210.00 },
+        { "item": "Polyester Yarn (kg)", "reqd": 240, "issued": 240, "rate": 120.00 },
+        { "item": "Dye Chemical (litre)", "reqd": 60, "issued": 60, "rate": 295.00 },
+        { "item": "Packaging Box (Large)", "reqd": 1200, "issued": 1200, "rate": 28.00 }
+      ],
+      "operations": [
+        { "process": "Cutting", "cost": 15.00 },
+        { "process": "Stitching", "cost": 45.00 },
+        { "process": "Finishing & Packing", "cost": 20.00 }
+      ] },
+    { "id": 2, "no": "WO-2026-0007", "bom": "BOM-001", "fg_item": "Finished Shirt", "qty": 500, "date": "2026-06-20", "due": "2026-06-26",
+      "type": "In-House", "jobworker": "", "jobcharge": 0,
+      "status": "In Process", "produced": 0, "material_issued": true, "fg_warehouse": "WH-FG",
+      "components": [
+        { "item": "Cotton Fabric (per metre)", "reqd": 750, "issued": 750, "rate": 210.00 },
+        { "item": "Polyester Yarn (kg)", "reqd": 100, "issued": 100, "rate": 120.00 },
+        { "item": "Dye Chemical (litre)", "reqd": 25, "issued": 25, "rate": 295.00 },
+        { "item": "Packaging Box (Large)", "reqd": 500, "issued": 500, "rate": 28.00 }
+      ],
+      "operations": [
+        { "process": "Cutting", "cost": 15.00 },
+        { "process": "Stitching", "cost": 45.00 },
+        { "process": "Finishing & Packing", "cost": 20.00 }
+      ] },
+    { "id": 3, "no": "WO-2026-0008", "bom": "BOM-001", "fg_item": "Finished Shirt", "qty": 300, "date": "2026-06-23", "due": "2026-06-30",
+      "type": "Jobwork", "jobworker": "Stitch Masters (Jobworker)", "jobcharge": 60.00,
+      "status": "Draft", "produced": 0, "material_issued": false, "fg_warehouse": "WH-FG",
+      "components": [
+        { "item": "Cotton Fabric (per metre)", "reqd": 450, "issued": 0, "rate": 210.00 },
+        { "item": "Polyester Yarn (kg)", "reqd": 60, "issued": 0, "rate": 120.00 },
+        { "item": "Dye Chemical (litre)", "reqd": 15, "issued": 0, "rate": 295.00 },
+        { "item": "Packaging Box (Large)", "reqd": 300, "issued": 0, "rate": 28.00 }
+      ],
+      "operations": [] }
+  ]
+}

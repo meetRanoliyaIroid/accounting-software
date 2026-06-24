@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cheque &amp; Bank · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .po-pill { font-size:.7rem; font-weight:700; padding:.18rem .55rem; border-radius:999px; white-space:nowrap; }
+    .p-printed { background:var(--bg-soft); color:var(--ink-700); } .p-issued { background:var(--warning-soft); color:var(--warning); }
+    .p-cleared { background:var(--success-soft); color:var(--success); } .p-bounced { background:var(--danger-soft); color:var(--danger); } .p-sent { background:var(--info-soft); color:var(--info); }
+    .seg { display:inline-flex; background:var(--bg-soft); border-radius:999px; padding:.25rem; gap:.25rem; }
+    .seg button { border:none; background:transparent; padding:.4rem .9rem; border-radius:999px; font-weight:700; font-size:.85rem; color:var(--ink-700); }
+    .seg button.active { background:#fff; color:var(--gold-700); box-shadow:var(--shadow-sm); }
+    .cheque { background:linear-gradient(135deg,#f4f7fb,#eef2f7); border:1px solid #cdd7e3; border-radius:12px; padding:1.2rem 1.4rem; font-family:'Courier New',monospace; position:relative; }
+    .cheque .ml { position:absolute; left:0; right:0; bottom:8px; text-align:center; letter-spacing:3px; color:#5566; font-size:.8rem }
+    .cheque .lbl { font-size:.62rem; color:#889; text-transform:uppercase; letter-spacing:.05em }
+    .cheque .val { font-weight:700; color:#223; }
+    .amtbox { border:2px solid #334; border-radius:6px; padding:.2rem .6rem; font-weight:800; font-size:1.1rem }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div><h1>Cheque &amp; Bank</h1><div class="crumb">Banking · <b>Cheque Printing / Advice / Position</b></div></div>
+          <div class="head-actions"><button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Cheque</button></div>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up"><div class="seg">
+          <button class="tab-btn active" data-tab="chq">Cheque Register</button>
+          <button class="tab-btn" data-tab="adv">Payment Advice</button>
+          <button class="tab-btn" data-tab="pos">Bank Position</button>
+        </div></div>
+
+        <!-- Cheque -->
+        <div class="tab-pane" data-pane="chq">
+          <div class="card"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Cheque Register <span class="card-sub">· FAS: CHQFORMAT</span></h5><div style="max-width:220px;width:100%"><input id="searchC" class="form-control form-control-sm" placeholder="Search…"></div></div>
+            <div class="table-wrap"><table class="tbl"><thead><tr><th>Cheque No.</th><th>Date</th><th>Bank</th><th>Payee</th><th>Type</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead><tbody id="cRows"></tbody></table></div>
+          </div>
+        </div>
+        <!-- Advice -->
+        <div class="tab-pane d-none" data-pane="adv">
+          <div class="card"><div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Payment Advice <span class="card-sub">· FAS: PAYADV</span></h5></div>
+            <div class="table-wrap"><table class="tbl"><thead><tr><th>Advice No.</th><th>Date</th><th>Party</th><th>Bank</th><th>Cheque No.</th><th class="num">Amount</th><th>Against</th><th>Status</th><th></th></tr></thead><tbody id="aRows"></tbody></table></div>
+          </div>
+        </div>
+        <!-- Position -->
+        <div class="tab-pane d-none" data-pane="pos">
+          <div class="card"><div class="card-pad"><h5 class="card-title">Bank Position</h5></div>
+            <div class="table-wrap"><table class="tbl"><thead><tr><th>Bank</th><th class="num">Book Balance</th><th class="num">Unpresented Cheques</th><th class="num">Uncleared Deposits</th><th class="num">Cleared / Available</th></tr></thead><tbody id="pRows"></tbody>
+              <tfoot id="pFoot"></tfoot></table></div>
+          </div>
+        </div>
+
+        <!-- Cheque print preview -->
+        <div id="printView" class="d-none mt-3"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- new cheque modal -->
+  <div class="modal fade" id="chqModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none;border-radius:var(--radius)">
+    <div class="modal-header" style="border-bottom:1px solid var(--line)"><h5 class="modal-title fw-8">New Cheque</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Cheque No.</label><input class="form-control" id="fNo"></div>
+      <div class="col-md-6"><label class="form-label">Date</label><input class="form-control" type="date" id="fDate" value="2026-06-24"></div>
+      <div class="col-md-6"><label class="form-label">Bank *</label><select class="form-select" id="fBank"></select></div>
+      <div class="col-md-6"><label class="form-label">Type</label><select class="form-select" id="fType"><option>Payment</option><option>Receipt</option></select></div>
+      <div class="col-md-8"><label class="form-label">Payee *</label><input class="form-control" id="fPayee"></div>
+      <div class="col-md-4"><label class="form-label">Amount *</label><input class="form-control num text-end" id="fAmt" value="0"></div>
+      <div class="col-md-12"><label class="form-label">Against (Invoice/Bill)</label><input class="form-control" id="fAgainst"></div>
+    </div></div>
+    <div class="modal-footer" style="border-top:1px solid var(--line)"><button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button><button class="btn btn-gold" id="chqSave"><i class="bx bx-printer"></i> Save &amp; Print</button></div>
+  </div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('cheque');
+      var CHQ = [], ADV = [], BANKS = [], CUR = '₹', COMPANY = '', seq = 126;
+      var chqModal = new bootstrap.Modal('#chqModal');
+
+      App.data('banking.json').done(function (d) {
+        CHQ = d.cheques; ADV = d.advices; BANKS = d.banks; CUR = d.currency; COMPANY = d.company;
+        renderC(); renderA(); renderPos();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      // amount in words (Indian)
+      function inWords(num) {
+        num = Math.round(num); if (num === 0) return 'Zero';
+        var a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        var b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        function two(n) { return n < 20 ? a[n] : b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : ''); }
+        function three(n) { return (n >= 100 ? a[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' : '') : '') + (n % 100 ? two(n % 100) : ''); }
+        var out = '', crore = Math.floor(num / 10000000); num %= 10000000;
+        var lakh = Math.floor(num / 100000); num %= 100000;
+        var thou = Math.floor(num / 1000); num %= 1000;
+        if (crore) out += three(crore) + ' Crore ';
+        if (lakh) out += two(lakh) + ' Lakh ';
+        if (thou) out += two(thou) + ' Thousand ';
+        if (num) out += three(num);
+        return out.trim();
+      }
+
+      function cBadge(s) { var m = { Printed: 'p-printed', Issued: 'p-issued', Cleared: 'p-cleared', Bounced: 'p-bounced' }; return '<span class="po-pill ' + (m[s] || 'p-printed') + '">' + s + '</span>'; }
+
+      function renderC() {
+        var q = ($('#searchC').val() || '').toLowerCase();
+        $('#cRows').html(CHQ.filter(c => c.no.toLowerCase().includes(q) || c.payee.toLowerCase().includes(q)).map(c => '<tr><td><span class="fw-bold text-gold">' + c.no + '</span></td><td class="text-muted-2">' + App.shortDate(c.date) + '</td><td class="text-muted-2">' + c.bank + '</td><td>' + c.payee + '</td><td>' + c.type + '</td><td class="num tabular fw-bold">' + App.currency(c.amount, CUR) + '</td><td>' + cBadge(c.status) + '</td><td class="text-end">' + App.kebab(c.id, [{ act: 'print', icon: 'bx-printer', label: 'Print Cheque' }, { act: 'clear', icon: 'bx-check-circle', label: 'Mark Cleared' }, { act: 'bounce', icon: 'bx-x-circle', label: 'Mark Bounced', danger: true }]) + '</td></tr>').join('') || '<tr><td colspan="8" class="text-center text-muted-2 py-4">No cheques</td></tr>');
+      }
+      function renderA() {
+        $('#aRows').html(ADV.map(a => '<tr><td><span class="fw-bold text-gold">' + a.no + '</span></td><td class="text-muted-2">' + App.shortDate(a.date) + '</td><td>' + a.party + '</td><td class="text-muted-2">' + a.bank + '</td><td>' + a.cheque_no + '</td><td class="num tabular fw-bold">' + App.currency(a.amount, CUR) + '</td><td class="text-muted-2">' + a.against + '</td><td><span class="po-pill p-sent">' + a.status + '</span></td><td class="text-end"><button class="btn btn-soft btn-sm adv-print" data-id="' + a.id + '"><i class="bx bx-printer"></i> Print</button></td></tr>').join('') || '<tr><td colspan="9" class="text-center text-muted-2 py-4">No advices</td></tr>');
+      }
+      function renderPos() {
+        var tot = { book: 0, unp: 0, dep: 0, avail: 0 };
+        $('#pRows').html(BANKS.map(function (b) {
+          var unp = CHQ.filter(c => c.bank === b.name && c.type === 'Payment' && (c.status === 'Issued' || c.status === 'Printed')).reduce((s, c) => s + c.amount, 0);
+          var dep = CHQ.filter(c => c.bank === b.name && c.type === 'Receipt' && (c.status === 'Issued' || c.status === 'Printed')).reduce((s, c) => s + c.amount, 0);
+          var avail = b.book_balance - unp + dep;
+          tot.book += b.book_balance; tot.unp += unp; tot.dep += dep; tot.avail += avail;
+          return '<tr><td class="fw-bold" style="color:var(--ink-900)">' + b.name + '</td><td class="num tabular">' + App.currency(b.book_balance, CUR) + '</td><td class="num tabular text-danger">' + App.currency(unp, CUR) + '</td><td class="num tabular text-success">' + App.currency(dep, CUR) + '</td><td class="num tabular fw-bold text-gold">' + App.currency(avail, CUR) + '</td></tr>';
+        }).join(''));
+        $('#pFoot').html('<tr style="border-top:2px solid var(--line)"><td class="fw-8">Total</td><td class="num fw-8 tabular">' + App.currency(tot.book, CUR) + '</td><td class="num fw-8 tabular text-danger">' + App.currency(tot.unp, CUR) + '</td><td class="num fw-8 tabular text-success">' + App.currency(tot.dep, CUR) + '</td><td class="num fw-8 tabular text-gold">' + App.currency(tot.avail, CUR) + '</td></tr>');
+      }
+      $('#searchC').on('input', renderC);
+
+      // tabs
+      $('.tab-btn').on('click', function () { $('.tab-btn').removeClass('active'); $(this).addClass('active'); var t = $(this).data('tab'); $('#printView').addClass('d-none'); $('.tab-pane').addClass('d-none'); $('.tab-pane[data-pane="' + t + '"]').removeClass('d-none'); $('#btnNew').toggleClass('d-none', t !== 'chq'); });
+
+      // actions
+      function chqById(el) { return CHQ.find(x => x.id == $(el).data('id')); }
+      $(document).on('click', '[data-act="clear"]', function () { var c = chqById(this); c.status = 'Cleared'; renderC(); renderPos(); App.toast('Cheque ' + c.no + ' cleared (demo)'); });
+      $(document).on('click', '[data-act="bounce"]', function () { var c = chqById(this); c.status = 'Bounced'; renderC(); renderPos(); App.toast('Cheque ' + c.no + ' marked bounced (demo)'); });
+      $(document).on('click', '[data-act="print"]', function () { printCheque(chqById(this)); });
+      $(document).on('click', '.adv-print', function () { App.toast('Payment advice printed (demo)'); });
+
+      function printCheque(c) {
+        if (!c) return;
+        $('.tab-pane').addClass('d-none'); $('#printView').removeClass('d-none');
+        var d = new Date(c.date);
+        var dd = String(d.getDate()).padStart(2, '0'), mm = String(d.getMonth() + 1).padStart(2, '0'), yy = String(d.getFullYear());
+        $('#printView').html('<div class="card card-pad" data-aos="fade-up"><div class="d-flex align-items-center mb-3"><h5 class="card-title me-auto">Cheque Print Preview — ' + c.no + '</h5><button class="btn btn-soft btn-sm" onclick="window.print()"><i class="bx bx-printer"></i> Print</button><button class="btn btn-soft btn-sm ms-2" id="closePrint"><i class="bx bx-x"></i> Close</button></div>' +
+          '<div class="cheque">' +
+            '<div class="d-flex justify-content-between"><div class="fw-8" style="color:#223">' + c.bank + '</div><div><span class="lbl">Date</span> <span class="amtbox" style="font-size:.95rem;padding:.1rem .4rem">' + dd + mm + yy + '</span></div></div>' +
+            '<div class="mt-3"><span class="lbl">Pay</span> <span class="val" style="border-bottom:1px dotted #889;padding:0 .5rem">' + c.payee + '</span> <span class="lbl">or Bearer</span></div>' +
+            '<div class="mt-2 d-flex justify-content-between align-items-center"><div style="max-width:65%"><span class="lbl">Rupees</span> <span class="val">' + inWords(c.amount) + ' Only</span></div><div class="amtbox">' + CUR + ' ' + App.number(c.amount) + '</div></div>' +
+            '<div class="mt-4 d-flex justify-content-between"><div><span class="lbl">A/C Payee</span></div><div class="text-end"><div style="border-top:1px solid #445;padding-top:2px">For ' + COMPANY + '</div><div class="lbl mt-2">Authorised Signatory</div></div></div>' +
+            '<div class="ml">⑈ ' + c.no + ' ⑆ 001234 ⑆ 24 ⑈</div><div style="height:18px"></div>' +
+          '</div>' +
+          '<div class="card-sub mt-2">Amount in words auto-generated. MICR line and layout shown for demonstration of cheque-printing alignment.</div></div>');
+        $('#closePrint').on('click', function () { $('#printView').addClass('d-none'); $('.tab-pane[data-pane="chq"]').removeClass('d-none'); });
+      }
+
+      // new cheque
+      $('#btnNew').on('click', function () { $('#fNo').val(String(seq).padStart(6, '0')); $('#fBank').html(BANKS.map(b => '<option>' + b.name + '</option>').join('')); $('#fPayee,#fAgainst').val(''); $('#fAmt').val(0); $('#fType').val('Payment'); chqModal.show(); });
+      $('#chqSave').on('click', function () {
+        var payee = $('#fPayee').val(), amt = parseFloat($('#fAmt').val()) || 0;
+        if (!payee || amt <= 0) { App.toast('Enter payee and amount', 'error'); return; }
+        var c = { id: Date.now(), no: $('#fNo').val(), date: $('#fDate').val(), bank: $('#fBank').val(), payee: payee, amount: amt, type: $('#fType').val(), status: 'Printed', against: $('#fAgainst').val() };
+        CHQ.unshift(c); seq++; chqModal.hide(); renderC(); renderPos(); printCheque(c); App.toast('Cheque saved & printed (demo)');
+      });
+    });
+  </script>
+</body>
+</html>

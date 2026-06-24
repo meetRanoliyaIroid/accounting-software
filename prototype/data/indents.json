@@ -1,0 +1,17 @@
+{
+  "currency": "₹",
+  "indents": [
+    { "id": 1, "no": "IND-2026-0008", "date": "2026-06-04", "department": "Production", "status": "PO Created", "remark": "Raw material for June run",
+      "lines": [ { "item": "Cotton Fabric (per metre)", "qty": 2000, "rate": 208.00, "required_date": "2026-06-14", "approved_qty": 2000, "po_no": "PO-2026-0033" } ] },
+    { "id": 2, "no": "IND-2026-0009", "date": "2026-06-12", "department": "Production", "status": "Approved", "remark": "Dye top-up",
+      "lines": [ { "item": "Dye Chemical (litre)", "qty": 400, "rate": 298.00, "required_date": "2026-06-20", "approved_qty": 400, "po_no": "" } ] },
+    { "id": 3, "no": "IND-2026-0010", "date": "2026-06-22", "department": "Packing", "status": "Pending", "remark": "Packaging boxes requirement",
+      "lines": [ { "item": "Packaging Box (Large)", "qty": 3000, "rate": 28.50, "required_date": "2026-07-02", "approved_qty": 0, "po_no": "" } ] }
+  ],
+  "requisitions": [
+    { "id": 1, "no": "REQ-2026-0012", "date": "2026-06-15", "store": "Raw Material Store", "department": "Production", "status": "Issued", "remark": "For WO-2026-0006",
+      "lines": [ { "item": "Cotton Fabric (per metre)", "req_qty": 800, "rec_qty": 800 } ] },
+    { "id": 2, "no": "REQ-2026-0013", "date": "2026-06-23", "store": "Raw Material Store", "department": "Dyeing", "status": "Pending", "remark": "For next dye batch",
+      "lines": [ { "item": "Dye Chemical (litre)", "req_qty": 180, "rec_qty": 0 } ] }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "currency": "₹",
+  "complaints": [
+    { "id": 1, "no": "CMP-2026-014", "customer": "Galaxy Enterprises", "item": "Dye Chemical (litre)", "date": "2026-06-19", "priority": "High", "type": "Quality", "status": "Open", "assigned": "QC Team",
+      "subject": "Colour inconsistency in batch", "description": "Customer reports shade variation across two drums delivered against SINV-2026-0136.", "timeline": [ { "date": "2026-06-19", "note": "Complaint logged via phone." } ] },
+    { "id": 2, "no": "CMP-2026-013", "customer": "Aarav Textiles", "item": "Finished Shirt", "date": "2026-06-17", "priority": "Medium", "type": "Shortage", "status": "In Progress", "assigned": "Dispatch Dept",
+      "subject": "Short supply of 6 pcs", "description": "Received 138 against 144 dispatched on DC-2026-0031.", "timeline": [ { "date": "2026-06-17", "note": "Logged." }, { "date": "2026-06-18", "note": "Verifying packing list with warehouse." } ] },
+    { "id": 3, "no": "CMP-2026-012", "customer": "Blue Ocean Ltd", "item": "Cotton Fabric (per metre)", "date": "2026-06-12", "priority": "Low", "type": "Billing", "status": "Resolved", "assigned": "Accounts",
+      "subject": "Rate mismatch on invoice", "description": "Billed at ₹320 vs agreed ₹315 on SINV-2026-0140.", "timeline": [ { "date": "2026-06-12", "note": "Logged." }, { "date": "2026-06-13", "note": "Credit note issued for difference." }, { "date": "2026-06-14", "note": "Customer confirmed. Closed." } ] }
+  ],
+  "visitors": [
+    { "id": 1, "name": "Rakesh Shah", "company": "Apex Raw Materials", "purpose": "Material sample review", "host": "Purchase Dept", "in_time": "2026-06-24 10:15", "out_time": "2026-06-24 11:00", "status": "Out" },
+    { "id": 2, "name": "Priya Menon", "company": "HDFC Bank", "purpose": "Loan documentation", "host": "Finance", "in_time": "2026-06-24 12:30", "out_time": "", "status": "In" },
+    { "id": 3, "name": "Imran Qureshi", "company": "Gati Express", "purpose": "Dispatch pickup", "host": "Dispatch Dept", "in_time": "2026-06-24 14:00", "out_time": "", "status": "In" }
+  ]
+}

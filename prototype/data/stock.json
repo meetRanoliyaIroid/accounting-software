@@ -1,0 +1,39 @@
+{
+  "currency": "₹",
+  "valuation_method": "Weighted Average",
+  "warehouses": [
+    { "code": "WH-RM", "name": "Raw Material Store", "location": "Surat" },
+    { "code": "WH-MAIN", "name": "Main Store", "location": "Surat" },
+    { "code": "WH-FG", "name": "Finished Goods Godown", "location": "Surat" }
+  ],
+  "items": [
+    { "item_id": 1, "code": "ITM-001", "name": "Cotton Fabric (per metre)", "group": "Raw Material", "uom": "Metre", "rate": 210.00, "reorder": 1500 },
+    { "item_id": 2, "code": "ITM-002", "name": "Polyester Yarn (kg)", "group": "Raw Material", "uom": "Kg", "rate": 120.00, "reorder": 800 },
+    { "item_id": 3, "code": "ITM-003", "name": "Finished Shirt", "group": "Finished Goods", "uom": "Nos", "rate": 540.00, "reorder": 500 },
+    { "item_id": 4, "code": "ITM-004", "name": "Packaging Box (Large)", "group": "Packaging", "uom": "Nos", "rate": 28.00, "reorder": 2000 },
+    { "item_id": 7, "code": "ITM-005", "name": "Dye Chemical (litre)", "group": "Raw Material", "uom": "Litre", "rate": 295.00, "reorder": 600 }
+  ],
+  "movements": [
+    { "id": 1,  "item_id": 1, "date": "2026-06-01", "voucher": "OPEN-2026-0001", "type": "Opening",  "warehouse": "WH-RM",   "in": 3000, "out": 0,    "rate": 210.00, "ref": "Opening Balance" },
+    { "id": 2,  "item_id": 1, "date": "2026-06-09", "voucher": "GRN-2026-0014",  "type": "Receipt",  "warehouse": "WH-RM",   "in": 2000, "out": 0,    "rate": 208.00, "ref": "PO-2026-0031 · Zenith Supplies" },
+    { "id": 3,  "item_id": 1, "date": "2026-06-15", "voucher": "STK-2026-0008",  "type": "Issue",    "warehouse": "WH-RM",   "in": 0,    "out": 800,  "rate": 210.00, "ref": "Issue to Production · WO-2026-0006" },
+    { "id": 4,  "item_id": 2, "date": "2026-06-01", "voucher": "OPEN-2026-0002", "type": "Opening",  "warehouse": "WH-RM",   "in": 1500, "out": 0,    "rate": 120.00, "ref": "Opening Balance" },
+    { "id": 5,  "item_id": 2, "date": "2026-06-11", "voucher": "GRN-2026-0016",  "type": "Receipt",  "warehouse": "WH-RM",   "in": 600,  "out": 0,    "rate": 122.00, "ref": "PO-2026-0033 · Metro Yarn Mills" },
+    { "id": 6,  "item_id": 2, "date": "2026-06-17", "voucher": "STK-2026-0010",  "type": "Issue",    "warehouse": "WH-RM",   "in": 0,    "out": 250,  "rate": 120.00, "ref": "Issue to Production · WO-2026-0006" },
+    { "id": 7,  "item_id": 3, "date": "2026-06-12", "voucher": "WO-2026-0006",   "type": "Receipt",  "warehouse": "WH-FG",   "in": 1200, "out": 0,    "rate": 540.00, "ref": "Production Receipt · Work Order 0006" },
+    { "id": 8,  "item_id": 3, "date": "2026-06-19", "voucher": "SINV-2026-0148", "type": "Issue",    "warehouse": "WH-FG",   "in": 0,    "out": 220,  "rate": 540.00, "ref": "Dispatch · Galaxy Enterprises" },
+    { "id": 9,  "item_id": 4, "date": "2026-06-01", "voucher": "OPEN-2026-0003", "type": "Opening",  "warehouse": "WH-MAIN", "in": 5000, "out": 0,    "rate": 28.00,  "ref": "Opening Balance" },
+    { "id": 10, "item_id": 4, "date": "2026-06-10", "voucher": "GRN-2026-0015",  "type": "Receipt",  "warehouse": "WH-MAIN", "in": 2000, "out": 0,    "rate": 28.50,  "ref": "PO-2026-0032 · PackWell Industries" },
+    { "id": 11, "item_id": 4, "date": "2026-06-19", "voucher": "STK-2026-0011",  "type": "Issue",    "warehouse": "WH-MAIN", "in": 0,    "out": 600,  "rate": 28.00,  "ref": "Issue to Packing Dept" },
+    { "id": 12, "item_id": 7, "date": "2026-06-01", "voucher": "OPEN-2026-0004", "type": "Opening",  "warehouse": "WH-RM",   "in": 500,  "out": 0,    "rate": 295.00, "ref": "Opening Balance" },
+    { "id": 13, "item_id": 7, "date": "2026-06-13", "voucher": "GRN-2026-0017",  "type": "Receipt",  "warehouse": "WH-RM",   "in": 400,  "out": 0,    "rate": 298.00, "ref": "PO-2026-0034 · ColorChem Ltd" },
+    { "id": 14, "item_id": 7, "date": "2026-06-18", "voucher": "STK-2026-0009",  "type": "Issue",    "warehouse": "WH-RM",   "in": 0,    "out": 180,  "rate": 295.00, "ref": "Issue to Dyeing · WO-2026-0006" }
+  ],
+  "entries": [
+    { "id": 1, "no": "STK-2026-0011", "date": "2026-06-19", "type": "Material Issue",    "warehouse": "WH-MAIN", "to_warehouse": "", "ref": "Issue to Packing Dept",        "status": "Submitted", "lines": [ { "item_id": 4, "qty": 600, "rate": 28.00 } ] },
+    { "id": 2, "no": "STK-2026-0010", "date": "2026-06-17", "type": "Material Issue",    "warehouse": "WH-RM",   "to_warehouse": "", "ref": "Issue to Production · WO-2026-0006", "status": "Submitted", "lines": [ { "item_id": 2, "qty": 250, "rate": 120.00 } ] },
+    { "id": 3, "no": "STK-2026-0009", "date": "2026-06-18", "type": "Material Issue",    "warehouse": "WH-RM",   "to_warehouse": "", "ref": "Issue to Dyeing · WO-2026-0006",   "status": "Submitted", "lines": [ { "item_id": 7, "qty": 180, "rate": 295.00 } ] },
+    { "id": 4, "no": "STK-2026-0008", "date": "2026-06-15", "type": "Material Issue",    "warehouse": "WH-RM",   "to_warehouse": "", "ref": "Issue to Production · WO-2026-0006", "status": "Submitted", "lines": [ { "item_id": 1, "qty": 800, "rate": 210.00 } ] },
+    { "id": 5, "no": "STK-2026-0007", "date": "2026-06-05", "type": "Stock Transfer",    "warehouse": "WH-RM",   "to_warehouse": "WH-MAIN", "ref": "Shift surplus to Main Store", "status": "Submitted", "lines": [ { "item_id": 1, "qty": 0, "rate": 210.00 } ] }
+  ]
+}

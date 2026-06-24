@@ -1,0 +1,41 @@
+{
+  "currency": "₹",
+  "orders": [
+    { "id": 1, "no": "SO-2026-0051", "customer": "Aarav Textiles", "date": "2026-06-08", "delivery": "2026-06-18",
+      "status": "Partially Dispatched", "approval": "Approved", "approved_by": "John (VP)", "approved_on": "2026-06-08",
+      "agent": "R. Mehta", "freight": 1200.00, "po_ref": "AT/PO/2231", "remark": "Shirts for summer collection",
+      "lines": [
+        { "item": "Finished Shirt", "qty": 200, "rate": 899.00, "tax": "GST 12%", "dispatched": 144 }
+      ] },
+    { "id": 2, "no": "SO-2026-0052", "customer": "Blue Ocean Ltd", "date": "2026-06-09", "delivery": "2026-06-20",
+      "status": "Approved", "approval": "Approved", "approved_by": "John (VP)", "approved_on": "2026-06-09",
+      "agent": "S. Kapoor", "freight": 2200.00, "po_ref": "BO-4471", "remark": "Cotton fabric order",
+      "lines": [
+        { "item": "Cotton Fabric (per metre)", "qty": 700, "rate": 320.00, "tax": "GST 18%", "dispatched": 0 }
+      ] },
+    { "id": 3, "no": "SO-2026-0053", "customer": "Galaxy Enterprises", "date": "2026-06-03", "delivery": "2026-06-05",
+      "status": "Dispatched", "approval": "Approved", "approved_by": "John (VP)", "approved_on": "2026-06-03",
+      "agent": "R. Mehta", "freight": 900.00, "po_ref": "GE/2026/118", "remark": "Dye chemical supply",
+      "lines": [
+        { "item": "Dye Chemical (litre)", "qty": 412, "rate": 410.00, "tax": "GST 18%", "dispatched": 412 }
+      ] },
+    { "id": 4, "no": "SO-2026-0054", "customer": "Meridian Corp", "date": "2026-06-14", "delivery": "2026-06-25",
+      "status": "Approved", "approval": "Approved", "approved_by": "John (VP)", "approved_on": "2026-06-14",
+      "agent": "", "freight": 0.00, "po_ref": "MC-7781", "remark": "Consulting engagement",
+      "lines": [
+        { "item": "Consulting Service (hour)", "qty": 100, "rate": 2500.00, "tax": "GST 18%", "dispatched": 0 }
+      ] },
+    { "id": 5, "no": "SO-2026-0055", "customer": "Sunrise Traders", "date": "2026-06-22", "delivery": "2026-07-01",
+      "status": "Pending Approval", "approval": "Pending", "approved_by": "", "approved_on": "",
+      "agent": "S. Kapoor", "freight": 0.00, "po_ref": "ST-9920", "remark": "Awaiting VP approval",
+      "lines": [
+        { "item": "Packaging Box (Large)", "qty": 1500, "rate": 45.00, "tax": "GST 18%", "dispatched": 0 }
+      ] },
+    { "id": 6, "no": "SO-2026-0056", "customer": "Aarav Textiles", "date": "2026-06-23", "delivery": "2026-07-05",
+      "status": "Draft", "approval": "Pending", "approved_by": "", "approved_on": "",
+      "agent": "R. Mehta", "freight": 0.00, "po_ref": "", "remark": "Draft order",
+      "lines": [
+        { "item": "Polyester Yarn (kg)", "qty": 600, "rate": 185.00, "tax": "GST 12%", "dispatched": 0 }
+      ] }
+  ]
+}

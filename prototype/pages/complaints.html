@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complaints &amp; Service · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .po-pill { font-size:.7rem; font-weight:700; padding:.18rem .55rem; border-radius:999px; white-space:nowrap; }
+    .p-open { background:var(--danger-soft); color:var(--danger); }
+    .p-prog { background:var(--warning-soft); color:var(--warning); }
+    .p-done { background:var(--success-soft); color:var(--success); }
+    .p-hi { background:var(--danger-soft); color:var(--danger); }
+    .p-md { background:var(--warning-soft); color:var(--warning); }
+    .p-lo { background:var(--bg-soft); color:var(--ink-700); }
+    .seg { display:inline-flex; background:var(--bg-soft); border-radius:999px; padding:.25rem; gap:.25rem; }
+    .seg button { border:none; background:transparent; padding:.4rem .9rem; border-radius:999px; font-weight:700; font-size:.85rem; color:var(--ink-700); }
+    .seg button.active { background:#fff; color:var(--gold-700); box-shadow:var(--shadow-sm); }
+    .tl { list-style:none; padding-left:0; margin:0 }
+    .tl li { position:relative; padding-left:1.4rem; padding-bottom:.9rem; border-left:2px solid var(--gold-200,var(--gold-100)); margin-left:.4rem }
+    .tl li:before { content:''; position:absolute; left:-7px; top:2px; width:12px; height:12px; border-radius:50%; background:var(--gold-500,var(--gold-600)) }
+    .tl li:last-child { border-left-color:transparent }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Complaints &amp; Service</h1>
+            <div class="crumb">CRM · <b>Complaints / Service / Visitors</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Complaint</button>
+          </div>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up"><div class="seg">
+          <button class="tab-btn active" data-tab="comp">Complaints / Service</button>
+          <button class="tab-btn" data-tab="visit">Visitor Register</button>
+        </div></div>
+
+        <div id="listView">
+          <!-- COMPLAINTS -->
+          <div class="tab-pane" data-pane="comp">
+            <div class="row g-3 mb-3">
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-message-square-dots"></i></div><div><div class="kpi-label">Total</div><div class="kpi-value" id="kTotal">0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-error-circle"></i></div><div><div class="kpi-label">Open</div><div class="kpi-value" id="kOpen">0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-loader-circle"></i></div><div><div class="kpi-label">In Progress</div><div class="kpi-value" id="kProg">0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-check-circle"></i></div><div><div class="kpi-label">Resolved</div><div class="kpi-value" id="kDone">0</div></div></div></div>
+            </div>
+            <div class="card">
+              <div class="card-pad d-flex flex-wrap align-items-center gap-2"><h5 class="card-title me-auto">Complaint / Service Register</h5>
+                <select class="form-select form-select-sm" id="fltStatus" style="width:auto"><option value="">All</option><option>Open</option><option>In Progress</option><option>Resolved</option></select>
+                <div style="max-width:220px;width:100%"><input id="search" class="form-control form-control-sm" placeholder="Search…"></div>
+              </div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>No.</th><th>Customer</th><th>Item</th><th>Date</th><th>Type</th><th>Priority</th><th>Status</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+            </div>
+          </div>
+          <!-- VISITORS -->
+          <div class="tab-pane d-none" data-pane="visit">
+            <div class="card">
+              <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Visitor Register</h5><button class="btn btn-outline-gold btn-sm" id="newVisitor"><i class="bx bx-plus"></i> Check-in Visitor</button></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Visitor</th><th>Company</th><th>Purpose</th><th>Host</th><th>In</th><th>Out</th><th>Status</th><th></th></tr></thead><tbody id="visRows"></tbody></table></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL -->
+        <div id="detailView" class="d-none"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Complaint modal -->
+  <div class="modal fade" id="cModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none;border-radius:var(--radius)">
+    <div class="modal-header" style="border-bottom:1px solid var(--line)"><h5 class="modal-title fw-8">New Complaint</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><div class="row g-3">
+      <div class="col-md-6"><label class="form-label">No.</label><input class="form-control" id="cNo" readonly></div>
+      <div class="col-md-6"><label class="form-label">Customer *</label><select class="form-select" id="cCust"></select></div>
+      <div class="col-md-6"><label class="form-label">Item</label><select class="form-select" id="cItem"></select></div>
+      <div class="col-md-3"><label class="form-label">Type</label><select class="form-select" id="cType"><option>Quality</option><option>Shortage</option><option>Billing</option><option>Service</option><option>Other</option></select></div>
+      <div class="col-md-3"><label class="form-label">Priority</label><select class="form-select" id="cPri"><option>High</option><option>Medium</option><option>Low</option></select></div>
+      <div class="col-12"><label class="form-label">Subject *</label><input class="form-control" id="cSubject"></div>
+      <div class="col-12"><label class="form-label">Description</label><textarea class="form-control" id="cDesc" rows="2"></textarea></div>
+    </div></div>
+    <div class="modal-footer" style="border-top:1px solid var(--line)"><button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button><button class="btn btn-gold" id="cSave"><i class="bx bx-check"></i> Log Complaint</button></div>
+  </div></div></div>
+
+  <!-- Visitor modal -->
+  <div class="modal fade" id="vModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none;border-radius:var(--radius)">
+    <div class="modal-header" style="border-bottom:1px solid var(--line)"><h5 class="modal-title fw-8">Check-in Visitor</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Name *</label><input class="form-control" id="vName"></div>
+      <div class="col-md-6"><label class="form-label">Company</label><input class="form-control" id="vCompany"></div>
+      <div class="col-md-6"><label class="form-label">Purpose</label><input class="form-control" id="vPurpose"></div>
+      <div class="col-md-6"><label class="form-label">Host / Dept</label><input class="form-control" id="vHost"></div>
+    </div></div>
+    <div class="modal-footer" style="border-top:1px solid var(--line)"><button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button><button class="btn btn-gold" id="vSave"><i class="bx bx-log-in"></i> Check In</button></div>
+  </div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('complaints');
+      var DATA = [], VIS = [], CUR = '₹', seq = 15, vseq = 4, CUSTOMERS = [], ITEMS = [];
+      var cModal = new bootstrap.Modal('#cModal'), vModal = new bootstrap.Modal('#vModal');
+
+      $.when(App.data('complaints.json'), App.data('customers.json'), App.data('items.json')).done(function (c, cu, it) {
+        DATA = c[0].complaints; VIS = c[0].visitors; CUR = c[0].currency;
+        CUSTOMERS = cu[0].customers; ITEMS = it[0].items;
+        renderStats(); render(); renderVis();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function statusPill(s) { return '<span class="po-pill ' + (s === 'Open' ? 'p-open' : s === 'In Progress' ? 'p-prog' : 'p-done') + '">' + s + '</span>'; }
+      function priPill(p) { return '<span class="po-pill ' + (p === 'High' ? 'p-hi' : p === 'Medium' ? 'p-md' : 'p-lo') + '">' + p + '</span>'; }
+
+      function renderStats() {
+        $('#kTotal').text(DATA.length);
+        $('#kOpen').text(DATA.filter(c => c.status === 'Open').length);
+        $('#kProg').text(DATA.filter(c => c.status === 'In Progress').length);
+        $('#kDone').text(DATA.filter(c => c.status === 'Resolved').length);
+      }
+
+      function render() {
+        var q = ($('#search').val() || '').toLowerCase(), st = $('#fltStatus').val();
+        var list = DATA.filter(c => (!st || c.status === st) && (c.no.toLowerCase().includes(q) || c.customer.toLowerCase().includes(q) || c.subject.toLowerCase().includes(q)));
+        $('#rows').html(list.length ? list.map(function (c) {
+          return '<tr class="row-click" style="cursor:pointer" data-id="' + c.id + '" title="View complaint">' +
+            '<td><span class="fw-bold text-gold">' + c.no + '</span></td><td>' + c.customer + '</td><td class="text-muted-2">' + c.item + '</td><td class="text-muted-2">' + App.shortDate(c.date) + '</td>' +
+            '<td>' + c.type + '</td><td>' + priPill(c.priority) + '</td><td>' + statusPill(c.status) + '</td>' +
+            '<td class="text-end">' + App.kebab(c.id, [{ act: 'view', icon: 'bx-show', label: 'View Details' }]) + '</td></tr>';
+        }).join('') : '<tr><td colspan="8" class="text-center text-muted-2 py-4">No complaints</td></tr>');
+      }
+      $('#search, #fltStatus').on('input change', render);
+
+      function byId(el) { return DATA.find(x => x.id == $(el).data('id')); }
+      $(document).on('click', '.row-click', function (e) { if ($(e.target).closest('.dropdown').length) return; showDetail(byId(this)); });
+      $(document).on('click', '[data-act="view"]', function () { showDetail(byId(this)); });
+
+      function showDetail(c) {
+        if (!c) return; window.__c = c;
+        $('#listView').addClass('d-none'); $('#detailView').removeClass('d-none'); $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        var tl = c.timeline.map(t => '<li><div class="fw-bold" style="color:var(--ink-900)">' + App.shortDate(t.date) + '</div><div class="card-sub">' + t.note + '</div></li>').join('');
+        var actions = c.status !== 'Resolved'
+          ? '<div class="d-flex gap-2 mt-3">' + (c.status === 'Open' ? '<button class="btn btn-soft" id="startC"><i class="bx bx-play"></i> Start Working</button>' : '') + '<button class="btn btn-gold" id="resolveC"><i class="bx bx-check-double"></i> Mark Resolved</button></div>'
+          : '<div class="mt-3"><span class="po-pill p-done"><i class="bx bx-check"></i> Resolved</span></div>';
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up"><div class="d-flex flex-wrap align-items-start gap-3">' +
+            '<div><div class="kpi-label">Complaint</div><h2 class="fw-8 mb-0 text-gold">' + c.no + '</h2><div class="card-sub mt-1">' + c.subject + '</div></div>' +
+            '<div class="ms-auto text-end">' + statusPill(c.status) + ' ' + priPill(c.priority) + '</div>' +
+          '</div><div class="divider"></div><div class="row g-3">' +
+            '<div class="col-md-3"><div class="kpi-label">Customer</div><div class="fw-bold" style="color:var(--ink-900)">' + c.customer + '</div></div>' +
+            '<div class="col-md-3"><div class="kpi-label">Item</div><div class="fw-bold">' + c.item + '</div></div>' +
+            '<div class="col-md-3"><div class="kpi-label">Type</div><div class="fw-bold">' + c.type + '</div></div>' +
+            '<div class="col-md-3"><div class="kpi-label">Assigned To</div><div class="fw-bold">' + c.assigned + '</div></div>' +
+          '</div>' + actions + '</div>' +
+          '<div class="row g-3"><div class="col-lg-7"><div class="card card-pad" data-aos="fade-up"><h5 class="card-title mb-2">Description</h5><p class="text-muted-2">' + c.description + '</p></div></div>' +
+          '<div class="col-lg-5"><div class="card card-pad" data-aos="fade-up"><h5 class="card-title mb-3">Activity Timeline</h5><ul class="tl">' + tl + '</ul></div></div></div>';
+        $('#detailView').html(html);
+      }
+      $(document).on('click', '#startC', function () { var c = window.__c; c.status = 'In Progress'; c.timeline.push({ date: '2026-06-24', note: 'Work started — assigned to ' + c.assigned + '.' }); renderStats(); render(); showDetail(c); App.toast('Complaint in progress (demo)'); });
+      $(document).on('click', '#resolveC', function () {
+        var c = window.__c;
+        App.confirm({ danger: false, title: 'Resolve complaint?', message: c.no + ' will be marked resolved.', confirmText: 'Resolve',
+          onConfirm: function () { c.status = 'Resolved'; c.timeline.push({ date: '2026-06-24', note: 'Resolved and closed.' }); renderStats(); render(); showDetail(c); App.toast('Complaint resolved (demo)'); } });
+      });
+
+      function renderVis() {
+        $('#visRows').html(VIS.map(function (v) {
+          return '<tr><td class="fw-bold" style="color:var(--ink-900)">' + v.name + '</td><td>' + v.company + '</td><td class="text-muted-2">' + v.purpose + '</td><td>' + v.host + '</td>' +
+            '<td class="text-muted-2">' + v.in_time + '</td><td class="text-muted-2">' + (v.out_time || '—') + '</td>' +
+            '<td><span class="po-pill ' + (v.status === 'In' ? 'p-prog' : 'p-done') + '">' + (v.status === 'In' ? 'Inside' : 'Checked Out') + '</span></td>' +
+            '<td class="text-end">' + (v.status === 'In' ? '<button class="btn btn-soft btn-sm out-v" data-id="' + v.id + '"><i class="bx bx-log-out"></i> Check Out</button>' : '') + '</td></tr>';
+        }).join(''));
+      }
+      $(document).on('click', '.out-v', function () { var v = VIS.find(x => x.id == $(this).data('id')); v.status = 'Out'; v.out_time = '2026-06-24 ' + (new Date().getHours() + ':' + String(new Date().getMinutes()).padStart(2, '0')); renderVis(); App.toast(v.name + ' checked out (demo)'); });
+
+      // tabs
+      $('.tab-btn').on('click', function () {
+        $('.tab-btn').removeClass('active'); $(this).addClass('active');
+        var t = $(this).data('tab');
+        $('#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none');
+        $('.tab-pane').addClass('d-none'); $('.tab-pane[data-pane="' + t + '"]').removeClass('d-none');
+        $('#btnNew').toggleClass('d-none', t !== 'comp');
+      });
+      $('#btnBack').on('click', function () { $('#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none'); });
+
+      // new complaint
+      $('#btnNew').on('click', function () {
+        $('#cNo').val('CMP-2026-' + String(seq).padStart(3, '0'));
+        $('#cCust').html('<option value="">Select customer…</option>' + CUSTOMERS.map(c => '<option>' + c.name + '</option>').join(''));
+        $('#cItem').html('<option value="">Select item…</option>' + ITEMS.map(i => '<option>' + i.name + '</option>').join(''));
+        $('#cSubject,#cDesc').val(''); $('#cType').val('Quality'); $('#cPri').val('High');
+        cModal.show();
+      });
+      $('#cSave').on('click', function () {
+        var cust = $('#cCust').val(), subj = $('#cSubject').val();
+        if (!cust || !subj) { App.toast('Customer and subject are required', 'error'); return; }
+        DATA.unshift({ id: Date.now(), no: $('#cNo').val(), customer: cust, item: $('#cItem').val() || '—', date: '2026-06-24', priority: $('#cPri').val(), type: $('#cType').val(), status: 'Open', assigned: 'Support Desk', subject: subj, description: $('#cDesc').val(), timeline: [{ date: '2026-06-24', note: 'Complaint logged.' }] });
+        seq++; cModal.hide(); renderStats(); render(); App.toast('Complaint logged (demo)');
+      });
+
+      // new visitor
+      $('#newVisitor').on('click', function () { $('#vName,#vCompany,#vPurpose,#vHost').val(''); vModal.show(); });
+      $('#vSave').on('click', function () {
+        var name = $('#vName').val(); if (!name) { App.toast('Enter visitor name', 'error'); return; }
+        VIS.unshift({ id: Date.now(), name: name, company: $('#vCompany').val(), purpose: $('#vPurpose').val(), host: $('#vHost').val(), in_time: '2026-06-24 ' + (new Date().getHours() + ':' + String(new Date().getMinutes()).padStart(2, '0')), out_time: '', status: 'In' });
+        vModal.hide(); renderVis(); App.toast('Visitor checked in (demo)');
+      });
+    });
+  </script>
+</body>
+</html>

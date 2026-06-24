@@ -1,0 +1,16 @@
+{
+  "currency": "₹",
+  "warehouses": [
+    { "code": "WH-RM", "name": "Raw Material Store" },
+    { "code": "WH-MAIN", "name": "Main Store" },
+    { "code": "WH-FG", "name": "Finished Goods Godown" }
+  ],
+  "challans": [
+    { "id": 1, "no": "DC-2026-0031", "so_no": "SO-2026-0051", "customer": "Aarav Textiles", "date": "2026-06-16",
+      "warehouse": "WH-FG", "transporter": "Gati Express", "lr_no": "GTI-558211", "vehicle": "GJ05AB1234", "status": "Submitted", "invoiced": true,
+      "lines": [ { "item": "Finished Shirt", "ordered": 200, "dispatched": 144, "rate": 899.00, "tax": "GST 12%" } ] },
+    { "id": 2, "no": "DC-2026-0030", "so_no": "SO-2026-0053", "customer": "Galaxy Enterprises", "date": "2026-06-05",
+      "warehouse": "WH-RM", "transporter": "VRL Logistics", "lr_no": "VRL-99812", "vehicle": "DL01CG7788", "status": "Submitted", "invoiced": true,
+      "lines": [ { "item": "Dye Chemical (litre)", "ordered": 412, "dispatched": 412, "rate": 410.00, "tax": "GST 18%" } ] }
+  ]
+}

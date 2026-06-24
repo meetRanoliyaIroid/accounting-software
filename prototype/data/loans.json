@@ -1,0 +1,16 @@
+{
+  "currency": "₹",
+  "loans": [
+    { "id": 1, "no": "LN-001", "lender": "HDFC Bank", "type": "Term Loan", "principal": 5000000.00, "rate": 11.0, "tenure": 60, "start": "2025-04-01", "emi": 108714.00, "outstanding": 4250000.00, "status": "Active", "account": "2210 · Term Loan - HDFC" },
+    { "id": 2, "no": "LN-002", "lender": "ICICI Bank", "type": "Working Capital", "principal": 2000000.00, "rate": 12.5, "tenure": 36, "start": "2025-10-01", "emi": 66904.00, "outstanding": 1750000.00, "status": "Active", "account": "2220 · WC Loan - ICICI" },
+    { "id": 3, "no": "LN-003", "lender": "Bajaj Finserv", "type": "Equipment Loan", "principal": 1200000.00, "rate": 13.5, "tenure": 24, "start": "2024-06-01", "emi": 57400.00, "outstanding": 0.00, "status": "Closed", "account": "2230 · Equipment Loan" }
+  ],
+  "budget": [
+    { "account": "4100 · Sales Revenue", "type": "Income", "budget": 1500000, "actual": 945300 },
+    { "account": "5100 · Cost of Goods Sold", "type": "Expense", "budget": 600000, "actual": 461750 },
+    { "account": "5200 · Salaries & Wages", "type": "Expense", "budget": 350000, "actual": 312000 },
+    { "account": "5300 · Commission Expense", "type": "Expense", "budget": 30000, "actual": 20496 },
+    { "account": "5400 · Utilities", "type": "Expense", "budget": 80000, "actual": 71400 },
+    { "account": "5500 · Freight & Transport", "type": "Expense", "budget": 60000, "actual": 48200 }
+  ]
+}

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dispatch / Delivery Challan · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .ln td { padding: .4rem .5rem; }
+    .ln .form-control, .ln .form-select { padding: .4rem .6rem; font-size: .84rem; }
+    .gl-preview { background: var(--gold-50); border:1px dashed var(--gold-300); border-radius: var(--radius); }
+    .tot-line { display:flex; justify-content:space-between; padding:.35rem 0; }
+    .tot-line.grand { border-top:2px solid var(--line); margin-top:.3rem; padding-top:.6rem; font-size:1.15rem; font-weight:800; color:var(--ink-900); }
+    .po-pill { font-size:.7rem; font-weight:700; padding:.18rem .55rem; border-radius:999px; white-space:nowrap; }
+    .p-recv { background:var(--success-soft); color:var(--success); }
+    .p-pend { background:var(--warning-soft); color:var(--warning); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Dispatch / Delivery Challan</h1>
+            <div class="crumb">Sales · <b>Dispatch</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back to List</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Dispatch</button>
+          </div>
+        </div>
+
+        <!-- LIST -->
+        <div id="listView">
+          <div class="row g-3 mb-3" data-aos="fade-up">
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-package"></i></div><div><div class="kpi-label">Total Challans</div><div class="kpi-value" id="stTotal">0</div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-rupee"></i></div><div><div class="kpi-label">Dispatched Value</div><div class="kpi-value" id="stValue">₹0</div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-receipt"></i></div><div><div class="kpi-label">To Invoice</div><div class="kpi-value" id="stInv">0</div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-store-alt"></i></div><div><div class="kpi-label">Warehouses</div><div class="kpi-value" id="stWh">0</div></div></div></div>
+          </div>
+          <div class="card" data-aos="fade-up">
+            <div class="card-pad d-flex flex-wrap align-items-center gap-2">
+              <h5 class="card-title me-auto">Dispatch Register</h5>
+              <div style="max-width:240px;width:100%"><input id="search" class="form-control form-control-sm" placeholder="Search challan, order or customer…"></div>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead><tr><th>Challan No.</th><th>Order No.</th><th>Customer</th><th>Date</th><th>Transporter</th><th class="num">Qty</th><th class="num">Value</th><th>Invoice</th><th></th></tr></thead>
+                <tbody id="rows"><tr><td colspan="9" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL -->
+        <div id="detailView" class="d-none"></div>
+
+        <!-- FORM -->
+        <div id="formView" class="d-none">
+          <div class="row g-3">
+            <div class="col-lg-8">
+              <div class="card card-pad mb-3" data-aos="fade-up">
+                <div class="row g-3">
+                  <div class="col-md-3"><label class="form-label">Challan No.</label><input class="form-control" id="dNo" readonly></div>
+                  <div class="col-md-3"><label class="form-label">Date</label><input class="form-control" type="date" id="dDate"></div>
+                  <div class="col-md-6"><label class="form-label">Against Sales Order *</label><select class="form-select" id="dSO"></select></div>
+                  <div class="col-md-4"><label class="form-label">Customer</label><input class="form-control" id="dCust" readonly></div>
+                  <div class="col-md-4"><label class="form-label">Dispatch from Warehouse *</label><select class="form-select" id="dWh"></select></div>
+                  <div class="col-md-4"><label class="form-label">Transporter</label><input class="form-control" id="dTrans" placeholder="e.g. Gati Express"></div>
+                  <div class="col-md-6"><label class="form-label">LR / Docket No.</label><input class="form-control" id="dLR"></div>
+                  <div class="col-md-6"><label class="form-label">Vehicle No.</label><input class="form-control" id="dVeh" placeholder="e.g. GJ05AB1234"></div>
+                </div>
+              </div>
+              <div class="card" data-aos="fade-up">
+                <div class="card-pad"><h5 class="card-title">Dispatch Items <span class="card-sub">(quantities pending against the order)</span></h5></div>
+                <div class="table-wrap">
+                  <table class="tbl ln">
+                    <thead><tr><th style="width:34%">Item</th><th class="num">Ordered</th><th class="num">Already Disp.</th><th class="num">Pending</th><th class="num">Dispatch Now</th><th class="num">Rate</th><th class="num">Value</th></tr></thead>
+                    <tbody id="lnRows"><tr><td colspan="7" class="text-center text-muted-2 py-3">Select a Sales Order to load items</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card card-pad mb-3" data-aos="fade-up">
+                <h5 class="card-title mb-3">Summary</h5>
+                <div class="tot-line"><span class="text-muted-2">Total Qty Dispatched</span><span class="tabular fw-bold" id="sQty">0</span></div>
+                <div class="tot-line grand"><span>Goods Value</span><span class="tabular text-gold" id="sVal">₹0.00</span></div>
+                <div class="d-grid gap-2 mt-3">
+                  <button class="btn btn-gold" id="submitDC"><i class="bx bx-check-double"></i> Submit Dispatch</button>
+                </div>
+              </div>
+              <div class="card card-pad gl-preview" data-aos="fade-up">
+                <h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> GL Posting Preview</h6>
+                <div class="card-sub mb-2">On dispatch, stock leaves at cost (revenue is booked at invoicing):</div>
+                <table class="tbl" style="background:transparent"><tbody id="glRows"></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('dispatch');
+      var DATA = [], CUR = '₹', WH = [], SOS = [], ITEMS = [], seq = 32;
+
+      function qs(name) { return new URLSearchParams(window.location.search).get(name); }
+
+      $.when(App.data('dispatch.json'), App.data('sales-orders.json'), App.data('items.json'))
+        .done(function (dc, so, it) {
+          DATA = dc[0].challans; CUR = dc[0].currency; WH = dc[0].warehouses;
+          SOS = so[0].orders; ITEMS = it[0].items;
+          renderStats(); render();
+          var preset = qs('so');
+          if (preset) { showForm(preset); }
+        }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function costRate(item) { var i = ITEMS.find(x => x.name === item); return i ? i.purchase_rate : 0; }
+      function dcQty(g) { return g.lines.reduce((s, l) => s + l.dispatched, 0); }
+      function dcValue(g) { return g.lines.reduce((s, l) => s + l.dispatched * l.rate, 0); }
+      function dcCost(g) { return g.lines.reduce((s, l) => s + l.dispatched * costRate(l.item), 0); }
+      function whName(code) { var w = WH.find(x => x.code === code); return w ? w.name : code; }
+
+      function renderStats() {
+        $('#stTotal').text(DATA.length);
+        App.countUp($('#stValue'), DATA.reduce((s, g) => s + dcValue(g), 0), { prefix: CUR, decimals: 0 });
+        $('#stInv').text(DATA.filter(g => !g.invoiced).length);
+        $('#stWh').text(WH.length);
+      }
+
+      function render() {
+        var q = ($('#search').val() || '').toLowerCase();
+        var list = DATA.filter(g => g.no.toLowerCase().includes(q) || g.so_no.toLowerCase().includes(q) || g.customer.toLowerCase().includes(q));
+        if (!list.length) { $('#rows').html('<tr><td colspan="9" class="text-center text-muted-2 py-4">No dispatches</td></tr>'); return; }
+        $('#rows').html(list.map(function (g) {
+          return '<tr class="row-click" style="cursor:pointer" data-id="' + g.id + '" title="View challan">' +
+            '<td><span class="fw-bold text-gold">' + g.no + '</span></td>' +
+            '<td>' + g.so_no + '</td>' +
+            '<td>' + g.customer + '</td>' +
+            '<td class="text-muted-2">' + App.shortDate(g.date) + '</td>' +
+            '<td>' + (g.transporter || '—') + '</td>' +
+            '<td class="num tabular fw-bold">' + App.number(dcQty(g)) + '</td>' +
+            '<td class="num tabular">' + App.currency(dcValue(g), CUR) + '</td>' +
+            '<td>' + (g.invoiced ? '<span class="po-pill p-recv">Invoiced</span>' : '<span class="po-pill p-pend">To Invoice</span>') + '</td>' +
+            '<td class="text-end">' + App.kebab(g.id, [
+              { act: 'view', icon: 'bx-show', label: 'View Details' },
+              { act: 'k-inv', icon: 'bx-receipt', label: 'Make Sales Invoice' }
+            ]) + '</td>' +
+          '</tr>';
+        }).join(''));
+      }
+      $('#search').on('input', render);
+
+      function byId(el) { return DATA.find(x => x.id == $(el).data('id')); }
+      $(document).on('click', '.row-click', function (e) { if ($(e.target).closest('.dropdown').length) return; showDetail(byId(this)); });
+      $(document).on('click', '[data-act="view"]', function () { showDetail(byId(this)); });
+      $(document).on('click', '[data-act="k-inv"]', function () { window.location.href = 'sales-invoice.html'; });
+
+      function showDetail(g) {
+        if (!g) return;
+        $('#listView,#formView').addClass('d-none'); $('#detailView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        var lines = g.lines.map(l => '<tr><td>' + l.item + '</td><td class="num tabular">' + App.number(l.ordered) + '</td><td class="num tabular fw-bold">' + App.number(l.dispatched) + '</td><td class="num tabular">' + App.currency(l.rate, CUR) + '</td><td class="num tabular fw-bold">' + App.currency(l.dispatched * l.rate, CUR) + '</td></tr>').join('');
+        var val = dcValue(g), cost = dcCost(g);
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up">' +
+            '<div class="d-flex flex-wrap align-items-start gap-3">' +
+              '<div><div class="kpi-label">Delivery Challan</div><h2 class="fw-8 mb-0 text-gold">' + g.no + '</h2><div class="card-sub mt-1">Dispatched ' + App.shortDate(g.date) + ' · against <a href="sales-orders.html">' + g.so_no + '</a></div></div>' +
+              '<div class="ms-auto text-end">' + (g.invoiced ? '<span class="po-pill p-recv">Invoiced</span>' : '<span class="po-pill p-pend">To Invoice</span>') + '<div class="mt-2"><div class="kpi-label">Goods Value</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(val, CUR) + '</div></div></div>' +
+            '</div><div class="divider"></div>' +
+            '<div class="row g-3">' +
+              '<div class="col-md-3"><div class="kpi-label">Customer</div><div class="fw-bold" style="color:var(--ink-900)">' + g.customer + '</div></div>' +
+              '<div class="col-md-3"><div class="kpi-label">Warehouse</div><div class="fw-bold">' + whName(g.warehouse) + '</div></div>' +
+              '<div class="col-md-2"><div class="kpi-label">Transporter</div><div class="fw-bold">' + (g.transporter || '—') + '</div></div>' +
+              '<div class="col-md-2"><div class="kpi-label">LR / Docket</div><div class="fw-bold">' + (g.lr_no || '—') + '</div></div>' +
+              '<div class="col-md-2"><div class="kpi-label">Vehicle</div><div class="fw-bold">' + (g.vehicle || '—') + '</div></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="row g-3"><div class="col-lg-8">' +
+            '<div class="card" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Dispatched Items</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Item</th><th class="num">Ordered</th><th class="num">Dispatched</th><th class="num">Rate</th><th class="num">Value</th></tr></thead><tbody>' + lines + '</tbody></table></div></div>' +
+          '</div><div class="col-lg-4">' +
+            '<div class="card card-pad gl-preview" data-aos="fade-up"><h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> Posted GL Entries (at cost)</h6>' +
+              '<table class="tbl" style="background:transparent"><tbody>' +
+                '<tr><td class="small">5100 · Cost of Goods Sold</td><td class="num tabular small">' + App.number(cost) + '</td><td class="num tabular small">—</td></tr>' +
+                '<tr><td class="small">1400 · Inventory</td><td class="num tabular small">—</td><td class="num tabular small">' + App.number(cost) + '</td></tr>' +
+              '</tbody></table><div class="card-sub mt-2">Revenue of ' + App.currency(val, CUR) + ' is booked when the Sales Invoice is raised.</div></div>' +
+            (!g.invoiced ? '<div class="d-grid mt-3"><a class="btn btn-gold" href="sales-invoice.html"><i class="bx bx-receipt"></i> Make Sales Invoice</a></div>' : '') +
+          '</div></div>';
+        $('#detailView').html(html);
+      }
+
+      // ---- Form ----
+      function soOptions() {
+        var open = SOS.filter(p => ['Approved', 'Partially Dispatched'].indexOf(p.status) > -1);
+        return '<option value="">Select order…</option>' + open.map(p => '<option value="' + p.no + '">' + p.no + ' · ' + p.customer + '</option>').join('');
+      }
+      function whOptions() { return WH.map(w => '<option value="' + w.code + '">' + w.name + '</option>').join(''); }
+
+      function alreadyDispatched(soNo, item) {
+        return DATA.filter(g => g.so_no === soNo).reduce(function (s, g) {
+          var l = g.lines.find(x => x.item === item); return s + (l ? l.dispatched : 0);
+        }, 0);
+      }
+      function loadSO(soNo) {
+        var so = SOS.find(p => p.no === soNo);
+        if (!so) { $('#lnRows').html('<tr><td colspan="7" class="text-center text-muted-2 py-3">Select a Sales Order to load items</td></tr>'); $('#dCust').val(''); recalc(); return; }
+        $('#dCust').val(so.customer);
+        var rows = so.lines.map(function (l) {
+          var done = alreadyDispatched(so.no, l.item);
+          var pend = l.qty - done;
+          return '<tr data-item="' + l.item + '" data-rate="' + l.rate + '">' +
+            '<td>' + l.item + '</td>' +
+            '<td class="num tabular">' + App.number(l.qty) + '</td>' +
+            '<td class="num tabular text-muted-2">' + App.number(done) + '</td>' +
+            '<td class="num tabular fw-bold">' + App.number(pend) + '</td>' +
+            '<td><input class="form-control num li-disp text-end" value="' + (pend > 0 ? pend : 0) + '" max="' + pend + '"></td>' +
+            '<td class="num tabular">' + App.currency(l.rate, CUR) + '</td>' +
+            '<td class="num tabular li-val fw-bold">0.00</td>' +
+          '</tr>';
+        }).join('');
+        $('#lnRows').html(rows); recalc();
+      }
+      $('#dSO').on('change', function () { loadSO($(this).val()); });
+      $(document).on('input', '.li-disp', recalc);
+
+      function recalc() {
+        var qty = 0, val = 0, cost = 0;
+        $('#lnRows tr[data-item]').each(function () {
+          var d = parseFloat($(this).find('.li-disp').val()) || 0;
+          var rate = parseFloat($(this).data('rate')) || 0;
+          $(this).find('.li-val').text(App.number(d * rate));
+          qty += d; val += d * rate; cost += d * costRate($(this).data('item'));
+        });
+        $('#sQty').text(App.number(qty));
+        $('#sVal').text(App.currency(val, CUR));
+        $('#glRows').html(
+          '<tr><td class="small">5100 · Cost of Goods Sold</td><td class="num tabular small">' + App.number(cost) + '</td><td class="num tabular small">—</td></tr>' +
+          '<tr><td class="small">1400 · Inventory</td><td class="num tabular small">—</td><td class="num tabular small">' + App.number(cost) + '</td></tr>');
+      }
+
+      function showForm(presetSO) {
+        $('#listView,#detailView').addClass('d-none'); $('#formView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        $('#dNo').val('DC-2026-' + String(seq).padStart(4, '0'));
+        $('#dDate').val('2026-06-24'); $('#dTrans').val(''); $('#dLR').val(''); $('#dVeh').val('');
+        $('#dSO').html(soOptions()); $('#dWh').html(whOptions());
+        if (presetSO) { $('#dSO').val(presetSO); }
+        loadSO($('#dSO').val());
+      }
+      function showList() {
+        $('#formView,#detailView').addClass('d-none'); $('#listView').removeClass('d-none');
+        $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none');
+        if (qs('so')) history.replaceState(null, '', 'dispatch.html');
+      }
+      $('#btnNew').on('click', function () { showForm(); });
+      $('#btnBack').on('click', showList);
+
+      $('#submitDC').on('click', function () {
+        var soNo = $('#dSO').val();
+        if (!soNo) { App.toast('Select a Sales Order', 'error'); return; }
+        var so = SOS.find(p => p.no === soNo);
+        var lines = [];
+        $('#lnRows tr[data-item]').each(function () {
+          var d = parseFloat($(this).find('.li-disp').val()) || 0;
+          if (d > 0) {
+            var sl = so.lines.find(x => x.item === $(this).data('item'));
+            lines.push({ item: $(this).data('item'), ordered: sl ? sl.qty : d, dispatched: d, rate: parseFloat($(this).data('rate')) || 0, tax: sl ? sl.tax : '' });
+          }
+        });
+        if (!lines.length) { App.toast('Enter at least one dispatch quantity', 'error'); return; }
+        var no = $('#dNo').val();
+        DATA.unshift({ id: Date.now(), no: no, so_no: soNo, customer: so.customer, date: $('#dDate').val(),
+          warehouse: $('#dWh').val(), transporter: $('#dTrans').val(), lr_no: $('#dLR').val(), vehicle: $('#dVeh').val(), status: 'Submitted', invoiced: false, lines: lines });
+        lines.forEach(function (l) { var sl = so.lines.find(x => x.item === l.item); if (sl) sl.dispatched = (sl.dispatched || 0) + l.dispatched; });
+        var fully = so.lines.every(l => (l.dispatched || 0) >= l.qty);
+        so.status = fully ? 'Dispatched' : 'Partially Dispatched';
+        seq++;
+        App.toast('Dispatch ' + no + ' submitted — stock out, order marked ' + so.status + ' (demo)');
+        renderStats(); render(); showList();
+      });
+    });
+  </script>
+</body>
+</html>

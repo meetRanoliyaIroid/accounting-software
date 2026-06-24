@@ -1,0 +1,19 @@
+{
+  "currency": "₹",
+  "warehouses": [
+    { "code": "WH-RM", "name": "Raw Material Store" },
+    { "code": "WH-MAIN", "name": "Main Store" },
+    { "code": "WH-FG", "name": "Finished Goods Godown" }
+  ],
+  "grns": [
+    { "id": 1, "no": "GRN-2026-0015", "po_no": "PO-2026-0032", "supplier": "Crystal Packaging", "date": "2026-06-10",
+      "challan_no": "CP/CH/4471", "challan_date": "2026-06-09", "warehouse": "WH-MAIN", "status": "Submitted", "billed": true,
+      "lines": [ { "item": "Packaging Box (Large)", "ordered": 2000, "received": 2000, "rate": 28.50, "tax": "GST 18%" } ] },
+    { "id": 2, "no": "GRN-2026-0016", "po_no": "PO-2026-0031", "supplier": "Zenith Supplies", "date": "2026-06-11",
+      "challan_no": "ZS/2026/881", "challan_date": "2026-06-10", "warehouse": "WH-RM", "status": "Submitted", "billed": true,
+      "lines": [ { "item": "Polyester Yarn (kg)", "ordered": 700, "received": 600, "rate": 120.00, "tax": "GST 18%" } ] },
+    { "id": 3, "no": "GRN-2026-0017", "po_no": "PO-2026-0033", "supplier": "Apex Raw Materials", "date": "2026-06-09",
+      "challan_no": "APX-9921", "challan_date": "2026-06-08", "warehouse": "WH-RM", "status": "Submitted", "billed": false,
+      "lines": [ { "item": "Cotton Fabric (per metre)", "ordered": 2000, "received": 1500, "rate": 208.00, "tax": "GST 18%" } ] }
+  ]
+}

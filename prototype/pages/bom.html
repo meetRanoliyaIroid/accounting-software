@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bill of Materials · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .ln td { padding: .4rem .5rem; }
+    .ln .form-control, .ln .form-select { padding: .4rem .6rem; font-size: .84rem; }
+    .tot-line { display:flex; justify-content:space-between; padding:.35rem 0; }
+    .tot-line.grand { border-top:2px solid var(--line); margin-top:.3rem; padding-top:.6rem; font-size:1.15rem; font-weight:800; color:var(--ink-900); }
+    .cost-card { background:var(--gold-50); border:1px dashed var(--gold-300); border-radius:var(--radius); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Bill of Materials</h1>
+            <div class="crumb">Manufacturing · <b>BOM</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back to List</button>
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New BOM</button>
+          </div>
+        </div>
+
+        <!-- LIST -->
+        <div id="listView">
+          <div class="row g-3 mb-3" data-aos="fade-up">
+            <div class="col-6 col-xl-4"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-sitemap"></i></div><div><div class="kpi-label">Total BOMs</div><div class="kpi-value" id="stTotal">0</div></div></div></div>
+            <div class="col-6 col-xl-4"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-check-circle"></i></div><div><div class="kpi-label">Active</div><div class="kpi-value" id="stActive">0</div></div></div></div>
+            <div class="col-6 col-xl-4"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-package"></i></div><div><div class="kpi-label">Finished Products</div><div class="kpi-value" id="stFG">0</div></div></div></div>
+          </div>
+          <div class="card" data-aos="fade-up">
+            <div class="card-pad d-flex flex-wrap align-items-center gap-2">
+              <h5 class="card-title me-auto">Bill of Materials</h5>
+              <div style="max-width:240px;width:100%"><input id="search" class="form-control form-control-sm" placeholder="Search BOM or product…"></div>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead><tr><th>BOM Code</th><th>Finished Product</th><th class="num">Output Qty</th><th class="num">Components</th><th class="num">Material Cost</th><th class="num">Operation Cost</th><th class="num">Total / Unit</th><th>Status</th><th></th></tr></thead>
+                <tbody id="rows"><tr><td colspan="9" class="text-center text-muted-2 py-4">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL -->
+        <div id="detailView" class="d-none"></div>
+
+        <!-- FORM -->
+        <div id="formView" class="d-none">
+          <div class="row g-3">
+            <div class="col-lg-8">
+              <div class="card card-pad mb-3" data-aos="fade-up">
+                <div class="row g-3">
+                  <div class="col-md-3"><label class="form-label">BOM Code</label><input class="form-control" id="bCode" readonly></div>
+                  <div class="col-md-6"><label class="form-label">Finished Product *</label><select class="form-select" id="bFG"></select></div>
+                  <div class="col-md-3"><label class="form-label">Output Qty</label><input class="form-control num text-end" id="bQty" value="1"></div>
+                </div>
+              </div>
+              <div class="card mb-3" data-aos="fade-up">
+                <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Components (Raw Materials)</h5><button class="btn btn-outline-gold btn-sm" id="addComp"><i class="bx bx-plus"></i> Add Component</button></div>
+                <div class="table-wrap">
+                  <table class="tbl ln">
+                    <thead><tr><th style="width:44%">Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th><th></th></tr></thead>
+                    <tbody id="compRows"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card" data-aos="fade-up">
+                <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">Operations (Process Costs)</h5><button class="btn btn-outline-gold btn-sm" id="addOp"><i class="bx bx-plus"></i> Add Operation</button></div>
+                <div class="table-wrap">
+                  <table class="tbl ln">
+                    <thead><tr><th style="width:70%">Process</th><th class="num">Cost / Unit</th><th></th></tr></thead>
+                    <tbody id="opRows"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card card-pad cost-card mb-3" data-aos="fade-up">
+                <h5 class="card-title mb-3">Standard Cost / Unit</h5>
+                <div class="tot-line"><span class="text-muted-2">Material Cost</span><span class="tabular fw-bold" id="sMat">₹0.00</span></div>
+                <div class="tot-line"><span class="text-muted-2">Operation Cost</span><span class="tabular fw-bold" id="sOp">₹0.00</span></div>
+                <div class="tot-line grand"><span>Total / Unit</span><span class="tabular text-gold" id="sTotal">₹0.00</span></div>
+                <div class="d-grid gap-2 mt-3"><button class="btn btn-gold" id="saveBOM"><i class="bx bx-check"></i> Save BOM</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('bom');
+      var DATA = [], CUR = '₹', ITEMS = [], seq = 3;
+
+      $.when(App.data('bom.json'), App.data('items.json')).done(function (b, it) {
+        DATA = b[0].boms; CUR = b[0].currency; ITEMS = it[0].items;
+        renderStats(); render();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function matCost(b) { return b.components.reduce((s, c) => s + c.qty * c.rate, 0); }
+      function opCost(b) { return b.operations.reduce((s, o) => s + o.cost, 0); }
+      function unitCost(b) { return matCost(b) + opCost(b); }
+
+      function renderStats() {
+        $('#stTotal').text(DATA.length);
+        $('#stActive').text(DATA.filter(b => b.status === 'Active').length);
+        $('#stFG').text([...new Set(DATA.map(b => b.fg_item))].length);
+      }
+
+      function render() {
+        var q = ($('#search').val() || '').toLowerCase();
+        var list = DATA.filter(b => b.code.toLowerCase().includes(q) || b.fg_item.toLowerCase().includes(q));
+        if (!list.length) { $('#rows').html('<tr><td colspan="9" class="text-center text-muted-2 py-4">No BOMs</td></tr>'); return; }
+        $('#rows').html(list.map(function (b) {
+          return '<tr class="row-click" style="cursor:pointer" data-id="' + b.id + '" title="View BOM">' +
+            '<td><span class="fw-bold text-gold">' + b.code + '</span></td>' +
+            '<td>' + b.fg_item + '</td>' +
+            '<td class="num tabular">' + App.number(b.output_qty) + ' ' + b.fg_uom + '</td>' +
+            '<td class="num tabular">' + b.components.length + '</td>' +
+            '<td class="num tabular">' + App.currency(matCost(b), CUR) + '</td>' +
+            '<td class="num tabular">' + App.currency(opCost(b), CUR) + '</td>' +
+            '<td class="num tabular fw-bold text-gold">' + App.currency(unitCost(b), CUR) + '</td>' +
+            '<td>' + App.statusBadge(b.status === 'Active' ? 'Paid' : 'Draft').replace('Paid', 'Active') + '</td>' +
+            '<td class="text-end">' + App.kebab(b.id, [
+              { act: 'view', icon: 'bx-show', label: 'View Details' },
+              { act: 'k-wo', icon: 'bx-cog', label: 'Create Work Order' }
+            ]) + '</td>' +
+          '</tr>';
+        }).join(''));
+      }
+      $('#search').on('input', render);
+
+      function byId(el) { return DATA.find(x => x.id == $(el).data('id')); }
+      $(document).on('click', '.row-click', function (e) { if ($(e.target).closest('.dropdown').length) return; showDetail(byId(this)); });
+      $(document).on('click', '[data-act="view"]', function () { showDetail(byId(this)); });
+      $(document).on('click', '[data-act="k-wo"]', function () { window.location.href = 'work-orders.html?bom=' + encodeURIComponent(byId(this).code); });
+
+      function showDetail(b) {
+        if (!b) return;
+        $('#listView,#formView').addClass('d-none'); $('#detailView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        var comps = b.components.map(c => '<tr><td>' + c.item + '</td><td class="num tabular">' + App.number(c.qty) + ' ' + c.uom + '</td><td class="num tabular">' + App.currency(c.rate, CUR) + '</td><td class="num tabular fw-bold">' + App.currency(c.qty * c.rate, CUR) + '</td></tr>').join('');
+        var ops = b.operations.map(o => '<tr><td>' + o.process + '</td><td class="num tabular fw-bold">' + App.currency(o.cost, CUR) + '</td></tr>').join('');
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up">' +
+            '<div class="d-flex flex-wrap align-items-start gap-3">' +
+              '<div><div class="kpi-label">Bill of Materials</div><h2 class="fw-8 mb-0 text-gold">' + b.code + '</h2><div class="card-sub mt-1">Produces ' + App.number(b.output_qty) + ' × ' + b.fg_item + '</div></div>' +
+              '<div class="ms-auto text-end"><div class="kpi-label">Standard Cost / Unit</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(unitCost(b), CUR) + '</div></div>' +
+            '</div></div>' +
+          '<div class="row g-3"><div class="col-lg-8">' +
+            '<div class="card mb-3" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Components</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Item</th><th class="num">Qty / Unit</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead><tbody>' + comps + '</tbody></table></div></div>' +
+            '<div class="card" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Operations</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Process</th><th class="num">Cost / Unit</th></tr></thead><tbody>' + ops + '</tbody></table></div></div>' +
+          '</div><div class="col-lg-4">' +
+            '<div class="card card-pad cost-card mb-3" data-aos="fade-up"><h5 class="card-title mb-3">Cost Sheet</h5>' +
+              '<div class="tot-line"><span class="text-muted-2">Material Cost</span><span class="tabular fw-bold">' + App.currency(matCost(b), CUR) + '</span></div>' +
+              '<div class="tot-line"><span class="text-muted-2">Operation Cost</span><span class="tabular fw-bold">' + App.currency(opCost(b), CUR) + '</span></div>' +
+              '<div class="tot-line grand"><span>Total / Unit</span><span class="tabular text-gold">' + App.currency(unitCost(b), CUR) + '</span></div>' +
+              '<div class="d-grid mt-3"><a class="btn btn-gold" href="work-orders.html?bom=' + encodeURIComponent(b.code) + '"><i class="bx bx-cog"></i> Create Work Order</a></div>' +
+            '</div></div></div>';
+        $('#detailView').html(html);
+      }
+
+      // ---- Form ----
+      function itemOptions(sel) { return '<option value="">Select item…</option>' + ITEMS.map(i => '<option' + (i.name === sel ? ' selected' : '') + ' data-rate="' + i.purchase_rate + '" data-uom="' + i.uom + '">' + i.name + '</option>').join(''); }
+      function addComp(c) {
+        var $tr = $('<tr>' +
+          '<td><select class="form-select c-item">' + itemOptions(c ? c.item : '') + '</select></td>' +
+          '<td><input class="form-control num c-qty text-end" value="' + (c ? c.qty : 1) + '"></td>' +
+          '<td><input class="form-control num c-rate text-end" value="' + (c ? c.rate : 0) + '"></td>' +
+          '<td class="num tabular c-amt fw-bold">0.00</td>' +
+          '<td class="text-center"><button class="icon-btn c-del" style="width:30px;height:30px;font-size:1rem;color:var(--danger)"><i class="bx bx-trash"></i></button></td>' +
+        '</tr>');
+        $('#compRows').append($tr); recalc();
+      }
+      function addOp(o) {
+        var $tr = $('<tr>' +
+          '<td><input class="form-control o-proc" value="' + (o ? o.process : '') + '" placeholder="e.g. Stitching"></td>' +
+          '<td><input class="form-control num o-cost text-end" value="' + (o ? o.cost : 0) + '"></td>' +
+          '<td class="text-center"><button class="icon-btn o-del" style="width:30px;height:30px;font-size:1rem;color:var(--danger)"><i class="bx bx-trash"></i></button></td>' +
+        '</tr>');
+        $('#opRows').append($tr); recalc();
+      }
+      $(document).on('change', '.c-item', function () {
+        var rate = $(this).find(':selected').data('rate');
+        if (rate != null) $(this).closest('tr').find('.c-rate').val(rate);
+        recalc();
+      });
+      $(document).on('input', '.c-qty, .c-rate, .o-cost', recalc);
+      $(document).on('click', '.c-del', function () { $(this).closest('tr').remove(); recalc(); });
+      $(document).on('click', '.o-del', function () { $(this).closest('tr').remove(); recalc(); });
+      $('#addComp').on('click', function () { addComp(); });
+      $('#addOp').on('click', function () { addOp(); });
+
+      function recalc() {
+        var mat = 0, op = 0;
+        $('#compRows tr').each(function () {
+          var q = parseFloat($(this).find('.c-qty').val()) || 0, r = parseFloat($(this).find('.c-rate').val()) || 0;
+          $(this).find('.c-amt').text(App.number(q * r)); mat += q * r;
+        });
+        $('#opRows tr').each(function () { op += parseFloat($(this).find('.o-cost').val()) || 0; });
+        $('#sMat').text(App.currency(mat, CUR));
+        $('#sOp').text(App.currency(op, CUR));
+        $('#sTotal').text(App.currency(mat + op, CUR));
+      }
+
+      function showForm() {
+        $('#listView,#detailView').addClass('d-none'); $('#formView').removeClass('d-none');
+        $('#btnBack').removeClass('d-none'); $('#btnNew').addClass('d-none');
+        $('#bCode').val('BOM-' + String(seq).padStart(3, '0'));
+        $('#bFG').html('<option value="">Select product…</option>' + ITEMS.filter(i => i.is_stock).map(i => '<option>' + i.name + '</option>').join(''));
+        $('#bQty').val(1);
+        $('#compRows').empty(); $('#opRows').empty(); addComp(); addOp(); recalc();
+      }
+      function showList() { $('#formView,#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); $('#btnNew').removeClass('d-none'); }
+      $('#btnNew').on('click', showForm);
+      $('#btnBack').on('click', showList);
+
+      $('#saveBOM').on('click', function () {
+        var fg = $('#bFG').val();
+        if (!fg) { App.toast('Select a finished product', 'error'); return; }
+        var comps = [];
+        $('#compRows tr').each(function () {
+          var it = $(this).find('.c-item').val(); var q = parseFloat($(this).find('.c-qty').val()) || 0;
+          if (it && q > 0) comps.push({ item: it, qty: q, uom: $(this).find('.c-item :selected').data('uom') || '', rate: parseFloat($(this).find('.c-rate').val()) || 0 });
+        });
+        if (!comps.length) { App.toast('Add at least one component', 'error'); return; }
+        var ops = [];
+        $('#opRows tr').each(function () { var p = $(this).find('.o-proc').val(); if (p) ops.push({ process: p, cost: parseFloat($(this).find('.o-cost').val()) || 0 }); });
+        DATA.unshift({ id: Date.now(), code: $('#bCode').val(), fg_item: fg, fg_uom: 'Nos', output_qty: parseFloat($('#bQty').val()) || 1, status: 'Active', components: comps, operations: ops });
+        seq++;
+        App.toast('BOM saved (demo)');
+        renderStats(); render(); showList();
+      });
+    });
+  </script>
+</body>
+</html>

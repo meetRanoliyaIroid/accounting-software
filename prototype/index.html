@@ -15,6 +15,12 @@
   <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
   <!-- Theme -->
   <link href="assets/css/theme.css" rel="stylesheet">
+  <style>
+    /* Keep the page-head (and its period dropdown) above the KPI cards' AOS stacking contexts,
+       while staying below the sticky topbar (z-index 1030). */
+    .page-head { position: relative; z-index: 20; }
+    .page-head .dropdown-menu { z-index: 1055; }
+  </style>
 </head>
 <body>
   <div class="app-wrapper">
@@ -29,11 +35,21 @@
         <div class="page-head" data-aos="fade-down">
           <div>
             <h1>Dashboard</h1>
-            <div class="crumb">Accounting · <b>Overview</b> · FY <span id="fyLabel">—</span></div>
+            <div class="crumb">Accounting · <b>Overview</b> · FY <span id="fyLabel">—</span> · <span id="dashPeriod">This Month</span></div>
           </div>
           <div class="head-actions">
-            <button class="btn btn-soft"><i class="bx bx-calendar"></i> This Month</button>
-            <button class="btn btn-gold"><i class="bx bx-plus"></i> New Invoice</button>
+            <div class="dropdown d-inline-block">
+              <button class="btn btn-soft dropdown-toggle" id="periodBtn" data-bs-toggle="dropdown" aria-expanded="false"><i class="bx bx-calendar"></i> <span id="periodLabel">This Month</span></button>
+              <ul class="dropdown-menu dropdown-menu-end gb-menu">
+                <li><a class="dropdown-item period-opt" data-p="Today" href="javascript:void(0)"><i class="bx bx-sun"></i>Today</a></li>
+                <li><a class="dropdown-item period-opt" data-p="This Week" href="javascript:void(0)"><i class="bx bx-calendar-week"></i>This Week</a></li>
+                <li><a class="dropdown-item period-opt" data-p="This Month" href="javascript:void(0)"><i class="bx bx-calendar"></i>This Month</a></li>
+                <li><a class="dropdown-item period-opt" data-p="Last Month" href="javascript:void(0)"><i class="bx bx-calendar-minus"></i>Last Month</a></li>
+                <li><a class="dropdown-item period-opt" data-p="This Quarter" href="javascript:void(0)"><i class="bx bx-calendar-event"></i>This Quarter</a></li>
+                <li><a class="dropdown-item period-opt" data-p="This Financial Year" href="javascript:void(0)"><i class="bx bx-calendar-star"></i>This Financial Year</a></li>
+              </ul>
+            </div>
+            <a class="btn btn-gold" href="pages/sales-invoice.html?new=1"><i class="bx bx-plus"></i> New Invoice</a>
           </div>
         </div>
 
@@ -164,6 +180,14 @@
     $(function () {
       AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true });
       App.loadShell('dashboard');
+
+      // Period selector (prototype: updates the dashboard period context)
+      $(document).on('click', '.period-opt', function () {
+        var p = $(this).data('p');
+        $('#periodLabel').text(p);
+        $('#dashPeriod').text(p);
+        App.toast('Dashboard period set to: ' + p);
+      });
 
       App.data('dashboard.json').done(function (d) {
         $('#fyLabel').text(d.fiscal_year);

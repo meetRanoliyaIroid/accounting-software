@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statutory · GST / TDS · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .gl-preview { background: var(--gold-50); border:1px dashed var(--gold-300); border-radius: var(--radius); }
+    .tot-line { display:flex; justify-content:space-between; padding:.35rem 0; }
+    .tot-line.grand { border-top:2px solid var(--line); margin-top:.3rem; padding-top:.6rem; font-size:1.15rem; font-weight:800; color:var(--ink-900); }
+    .po-pill { font-size:.7rem; font-weight:700; padding:.18rem .55rem; border-radius:999px; white-space:nowrap; }
+    .p-filed { background:var(--success-soft); color:var(--success); }
+    .p-pend { background:var(--warning-soft); color:var(--warning); }
+    .seg { display:inline-flex; background:var(--bg-soft); border-radius:999px; padding:.25rem; gap:.25rem; }
+    .seg button { border:none; background:transparent; padding:.4rem .9rem; border-radius:999px; font-weight:700; font-size:.85rem; color:var(--ink-700); }
+    .seg button.active { background:#fff; color:var(--gold-700); box-shadow:var(--shadow-sm); }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Statutory — GST &amp; TDS</h1>
+            <div class="crumb">Compliance · <b>GST / TDS / TCS</b> · GSTIN <span id="gstinLbl"></span></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft d-none" id="btnBack"><i class="bx bx-arrow-back"></i> Back</button>
+            <button class="btn btn-gold d-none" id="btnNewTds"><i class="bx bx-plus"></i> Record TDS / TCS</button>
+          </div>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up">
+          <div class="seg">
+            <button class="tab-btn active" data-tab="gst">GST Summary (3B)</button>
+            <button class="tab-btn" data-tab="gstr1">GSTR-1 (Sales)</button>
+            <button class="tab-btn" data-tab="tds">TDS / TCS</button>
+          </div>
+        </div>
+
+        <!-- LIST -->
+        <div id="listView">
+          <!-- GST 3B -->
+          <div class="tab-pane" data-pane="gst">
+            <div class="row g-3 mb-3">
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-upload"></i></div><div><div class="kpi-label">Output Tax (period)</div><div class="kpi-value" id="kOut">₹0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-download"></i></div><div><div class="kpi-label">Input Credit (ITC)</div><div class="kpi-value" id="kIn">₹0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-wallet"></i></div><div><div class="kpi-label">Net Payable</div><div class="kpi-value" id="kNet">₹0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-time-five"></i></div><div><div class="kpi-label">Pending Returns</div><div class="kpi-value" id="kPend">0</div></div></div></div>
+            </div>
+            <div class="card">
+              <div class="card-pad"><h5 class="card-title">GST Returns (GSTR-3B)</h5></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Period</th><th>Type</th><th>Due Date</th><th class="num">Output Tax</th><th class="num">Input ITC</th><th class="num">Net Payable</th><th>Status</th><th></th></tr></thead><tbody id="gstRows"></tbody></table></div>
+            </div>
+          </div>
+          <!-- GSTR-1 -->
+          <div class="tab-pane d-none" data-pane="gstr1">
+            <div class="card">
+              <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto">GSTR-1 — B2B Outward Supplies (Jun 2026)</h5><button class="btn btn-outline-gold btn-sm" onclick="window.print()"><i class="bx bx-export"></i> Export</button></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Invoice</th><th>Date</th><th>Party</th><th>GSTIN</th><th class="num">Taxable</th><th class="num">Rate</th><th class="num">IGST</th><th class="num">Invoice Total</th></tr></thead><tbody id="g1Rows"></tbody>
+                <tfoot><tr style="border-top:2px solid var(--line)"><td colspan="4" class="fw-8">Total</td><td class="num fw-8 tabular" id="g1Taxable"></td><td></td><td class="num fw-8 tabular" id="g1Igst"></td><td class="num fw-8 tabular" id="g1Total"></td></tr></tfoot>
+              </table></div>
+            </div>
+          </div>
+          <!-- TDS -->
+          <div class="tab-pane d-none" data-pane="tds">
+            <div class="row g-3 mb-3">
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-minus-circle"></i></div><div><div class="kpi-label">TDS Deducted</div><div class="kpi-value" id="kTds">₹0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon blue"><i class="bx bx-plus-circle"></i></div><div><div class="kpi-label">TCS Collected</div><div class="kpi-value" id="kTcs">₹0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon red"><i class="bx bx-time"></i></div><div><div class="kpi-label">To Deposit</div><div class="kpi-value" id="kDep">₹0</div></div></div></div>
+              <div class="col-6 col-xl-3"><div class="card card-hover kpi"><div class="kpi-icon green"><i class="bx bx-check-circle"></i></div><div><div class="kpi-label">Entries</div><div class="kpi-value" id="kCnt">0</div></div></div></div>
+            </div>
+            <div class="card">
+              <div class="card-pad"><h5 class="card-title">TDS / TCS Register</h5></div>
+              <div class="table-wrap"><table class="tbl"><thead><tr><th>Type</th><th>Section</th><th>Party</th><th>Date</th><th class="num">Base</th><th class="num">Rate</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead><tbody id="tdsRows"></tbody></table></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL (GST return) -->
+        <div id="detailView" class="d-none"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- TDS modal -->
+  <div class="modal fade" id="tdsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none;border-radius:var(--radius)">
+    <div class="modal-header" style="border-bottom:1px solid var(--line)"><h5 class="modal-title fw-8">Record TDS / TCS</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><div class="row g-3">
+      <div class="col-md-4"><label class="form-label">Type</label><select class="form-select" id="tType"><option>TDS</option><option>TCS</option></select></div>
+      <div class="col-md-8"><label class="form-label">Section</label><select class="form-select" id="tSec"><option>194C - Contractor</option><option>194H - Commission</option><option>194J - Professional</option><option>194Q - Purchase of Goods</option><option>206C(1H) - Sale of Goods</option></select></div>
+      <div class="col-md-12"><label class="form-label">Party</label><input class="form-control" id="tParty"></div>
+      <div class="col-md-4"><label class="form-label">Base Amount</label><input class="form-control num text-end" id="tBase" value="0"></div>
+      <div class="col-md-4"><label class="form-label">Rate %</label><input class="form-control num text-end" id="tRate" value="0"></div>
+      <div class="col-md-4"><label class="form-label">Amount</label><input class="form-control num text-end" id="tAmt" value="0" readonly></div>
+    </div></div>
+    <div class="modal-footer" style="border-top:1px solid var(--line)"><button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button><button class="btn btn-gold" id="tSave"><i class="bx bx-check"></i> Save</button></div>
+  </div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('statutory');
+      var CUR = '₹', RET = [], G1 = [], TDS = [];
+      var tdsModal = new bootstrap.Modal('#tdsModal');
+
+      App.data('statutory.json').done(function (d) {
+        CUR = d.currency; RET = d.gst_returns; G1 = d.gstr1; TDS = d.tds;
+        $('#gstinLbl').text(d.gstin);
+        renderGST(); renderG1(); renderTDS();
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      // ---- tabs ----
+      $('.tab-btn').on('click', function () {
+        $('.tab-btn').removeClass('active'); $(this).addClass('active');
+        var t = $(this).data('tab');
+        showList();
+        $('.tab-pane').addClass('d-none'); $('.tab-pane[data-pane="' + t + '"]').removeClass('d-none');
+        $('#btnNewTds').toggleClass('d-none', t !== 'tds');
+      });
+
+      function showList() { $('#detailView').addClass('d-none'); $('#listView').removeClass('d-none'); $('#btnBack').addClass('d-none'); }
+      $('#btnBack').on('click', showList);
+
+      // ---- GST 3B ----
+      function curr() { return RET.find(r => r.status === 'Pending') || RET[RET.length - 1]; }
+      function renderGST() {
+        var c = curr();
+        App.countUp($('#kOut'), c.output_tax, { prefix: CUR, decimals: 0 });
+        App.countUp($('#kIn'), c.input_tax, { prefix: CUR, decimals: 0 });
+        App.countUp($('#kNet'), c.net_payable, { prefix: CUR, decimals: 0 });
+        $('#kPend').text(RET.filter(r => r.status === 'Pending').length);
+        $('#gstRows').html(RET.map(function (r) {
+          return '<tr class="row-click" style="cursor:pointer" data-id="' + r.id + '">' +
+            '<td><span class="fw-bold text-gold">' + r.period + '</span></td><td>' + r.type + '</td><td class="text-muted-2">' + App.shortDate(r.due_date) + '</td>' +
+            '<td class="num tabular">' + App.currency(r.output_tax, CUR) + '</td><td class="num tabular">' + App.currency(r.input_tax, CUR) + '</td>' +
+            '<td class="num tabular fw-bold">' + App.currency(r.net_payable, CUR) + '</td>' +
+            '<td>' + (r.status === 'Filed' ? '<span class="po-pill p-filed">Filed</span>' : '<span class="po-pill p-pend">Pending</span>') + '</td>' +
+            '<td class="text-end"><i class="bx bx-chevron-right text-muted-2"></i></td></tr>';
+        }).join(''));
+      }
+      $(document).on('click', '#gstRows .row-click', function () {
+        var r = RET.find(x => x.id == $(this).data('id')); if (r) showReturn(r);
+      });
+      function showReturn(r) {
+        window.__ret = r;
+        $('#listView').addClass('d-none'); $('#detailView').removeClass('d-none'); $('#btnBack').removeClass('d-none');
+        var fileBtn = r.status === 'Pending' ? '<button class="btn btn-gold" id="fileRet"><i class="bx bx-check-double"></i> File Return &amp; Generate Challan</button>' : '<button class="btn btn-soft" onclick="window.print()"><i class="bx bx-printer"></i> Print Acknowledgement</button>';
+        var html =
+          '<div class="card card-pad mb-3" data-aos="fade-up"><div class="d-flex flex-wrap align-items-start gap-3">' +
+            '<div><div class="kpi-label">' + r.type + '</div><h2 class="fw-8 mb-0 text-gold">' + r.period + '</h2><div class="card-sub mt-1">Due ' + App.shortDate(r.due_date) + (r.filed_on ? ' · Filed ' + App.shortDate(r.filed_on) : '') + '</div></div>' +
+            '<div class="ms-auto text-end">' + (r.status === 'Filed' ? '<span class="po-pill p-filed">Filed</span>' : '<span class="po-pill p-pend">Pending</span>') + '<div class="mt-2"><div class="kpi-label">Net Payable</div><div class="fw-8 text-gold" style="font-size:1.6rem">' + App.currency(r.net_payable, CUR) + '</div></div></div>' +
+          '</div></div>' +
+          '<div class="row g-3"><div class="col-lg-7"><div class="card" data-aos="fade-up"><div class="card-pad"><h5 class="card-title">Tax Computation</h5></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Description</th><th class="num">IGST</th><th class="num">CGST</th><th class="num">SGST</th></tr></thead><tbody>' +
+            '<tr><td>Output Tax (on sales)</td><td class="num tabular">' + App.currency(r.breakup.igst_out, CUR) + '</td><td class="num tabular">' + App.currency(r.breakup.cgst_out, CUR) + '</td><td class="num tabular">' + App.currency(r.breakup.sgst_out, CUR) + '</td></tr>' +
+            '<tr><td>Less: Input Tax Credit (on purchases)</td><td class="num tabular text-success">-' + App.currency(r.breakup.igst_in, CUR) + '</td><td class="num tabular text-success">-' + App.currency(r.breakup.cgst_in, CUR) + '</td><td class="num tabular text-success">-' + App.currency(r.breakup.sgst_in, CUR) + '</td></tr>' +
+            '<tr style="border-top:2px solid var(--line)"><td class="fw-8">Net Payable in Cash</td><td class="num tabular fw-8">' + App.currency(r.breakup.igst_out - r.breakup.igst_in, CUR) + '</td><td class="num tabular fw-8">' + App.currency(r.breakup.cgst_out - r.breakup.cgst_in, CUR) + '</td><td class="num tabular fw-8">' + App.currency(r.breakup.sgst_out - r.breakup.sgst_in, CUR) + '</td></tr>' +
+            '</tbody></table></div></div></div>' +
+          '<div class="col-lg-5"><div class="card card-pad gl-preview mb-3" data-aos="fade-up"><h6 class="fw-8 mb-2"><i class="bx bx-transfer-alt text-gold"></i> GL on Filing</h6><table class="tbl" style="background:transparent"><tbody>' +
+            '<tr><td class="small">2120 · GST Output Tax</td><td class="num tabular small">' + App.number(r.output_tax) + '</td><td class="num tabular small">—</td></tr>' +
+            '<tr><td class="small">2130 · GST Input Credit</td><td class="num tabular small">—</td><td class="num tabular small">' + App.number(r.input_tax) + '</td></tr>' +
+            '<tr><td class="small">1010 · Bank</td><td class="num tabular small">—</td><td class="num tabular small">' + App.number(r.net_payable) + '</td></tr>' +
+          '</tbody></table></div><div class="d-grid">' + fileBtn + '</div></div></div>';
+        $('#detailView').html(html);
+      }
+      $(document).on('click', '#fileRet', function () {
+        var r = window.__ret;
+        App.confirm({ danger: false, title: 'File ' + r.type + '?', message: r.period + ' will be marked filed and a challan generated for ' + App.currency(r.net_payable, CUR) + '.', confirmText: 'File Return',
+          onConfirm: function () { r.status = 'Filed'; r.filed_on = '2026-06-24'; App.toast(r.type + ' ' + r.period + ' filed (demo)'); renderGST(); showReturn(r); } });
+      });
+
+      // ---- GSTR-1 ----
+      function renderG1() {
+        $('#g1Rows').html(G1.map(g => '<tr><td><span class="fw-bold text-gold">' + g.invoice + '</span></td><td class="text-muted-2">' + App.shortDate(g.date) + '</td><td>' + g.party + '</td><td class="card-sub">' + g.gstin + '</td><td class="num tabular">' + App.currency(g.taxable, CUR) + '</td><td class="num tabular">' + g.rate + '%</td><td class="num tabular">' + App.currency(g.igst, CUR) + '</td><td class="num tabular fw-bold">' + App.currency(g.total, CUR) + '</td></tr>').join(''));
+        $('#g1Taxable').text(App.currency(G1.reduce((s, g) => s + g.taxable, 0), CUR));
+        $('#g1Igst').text(App.currency(G1.reduce((s, g) => s + g.igst, 0), CUR));
+        $('#g1Total').text(App.currency(G1.reduce((s, g) => s + g.total, 0), CUR));
+      }
+
+      // ---- TDS ----
+      function renderTDS() {
+        var tds = TDS.filter(t => t.type === 'TDS').reduce((s, t) => s + t.amount, 0);
+        var tcs = TDS.filter(t => t.type === 'TCS').reduce((s, t) => s + t.amount, 0);
+        var dep = TDS.filter(t => t.status !== 'Paid').reduce((s, t) => s + t.amount, 0);
+        App.countUp($('#kTds'), tds, { prefix: CUR, decimals: 0 });
+        App.countUp($('#kTcs'), tcs, { prefix: CUR, decimals: 0 });
+        App.countUp($('#kDep'), dep, { prefix: CUR, decimals: 0 });
+        $('#kCnt').text(TDS.length);
+        $('#tdsRows').html(TDS.map(function (t) {
+          var paid = t.status === 'Paid';
+          return '<tr><td>' + (t.type === 'TCS' ? '<span class="po-pill p-filed">TCS</span>' : '<span class="po-pill p-pend">TDS</span>') + '</td><td>' + t.section + '</td><td>' + t.party + '</td><td class="text-muted-2">' + App.shortDate(t.date) + '</td>' +
+            '<td class="num tabular">' + App.currency(t.base, CUR) + '</td><td class="num tabular">' + t.rate + '%</td><td class="num tabular fw-bold">' + App.currency(t.amount, CUR) + '</td>' +
+            '<td>' + (paid ? '<span class="po-pill p-filed">Deposited</span>' : '<span class="po-pill p-pend">' + t.status + '</span>') + '</td>' +
+            '<td class="text-end">' + (paid ? '<span class="card-sub">' + t.challan + '</span>' : '<button class="btn btn-soft btn-sm pay-tds" data-id="' + t.id + '"><i class="bx bx-wallet"></i> Deposit</button>') + '</td></tr>';
+        }).join(''));
+      }
+      $(document).on('click', '.pay-tds', function () {
+        var t = TDS.find(x => x.id == $(this).data('id'));
+        App.confirm({ danger: false, title: 'Deposit ' + t.type + '?', message: App.currency(t.amount, CUR) + ' for ' + t.party + ' will be deposited and a challan recorded.', confirmText: 'Deposit',
+          onConfirm: function () { t.status = 'Paid'; t.challan = 'CIN-2026-' + Math.floor(1000 + t.id); renderTDS(); App.toast(t.type + ' deposited (demo)'); } });
+      });
+
+      // TDS form
+      $('#btnNewTds').on('click', function () { $('#tParty').val(''); $('#tBase,#tRate,#tAmt').val(0); $('#tType').val('TDS'); tdsModal.show(); });
+      $('#tBase, #tRate').on('input', function () { $('#tAmt').val(((parseFloat($('#tBase').val()) || 0) * (parseFloat($('#tRate').val()) || 0) / 100).toFixed(2)); });
+      $('#tSave').on('click', function () {
+        var party = $('#tParty').val(); if (!party) { App.toast('Enter party name', 'error'); return; }
+        var base = parseFloat($('#tBase').val()) || 0, rate = parseFloat($('#tRate').val()) || 0;
+        if (base <= 0) { App.toast('Enter base amount', 'error'); return; }
+        var type = $('#tType').val();
+        TDS.unshift({ id: Date.now(), type: type, section: $('#tSec').val(), party: party, date: '2026-06-24', base: base, rate: rate, amount: base * rate / 100, status: type === 'TCS' ? 'Collected' : 'Deducted', challan: '' });
+        tdsModal.hide(); renderTDS(); App.toast(type + ' entry recorded (demo)');
+      });
+    });
+  </script>
+</body>
+</html>

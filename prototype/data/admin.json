@@ -1,0 +1,28 @@
+{
+  "users": [
+    { "id": 1, "uid": "admin", "name": "John Mathew", "role": "Administrator", "department": "Accounts", "status": "Active" },
+    { "id": 2, "uid": "amgr", "name": "Priya Shah", "role": "Accounts Manager", "department": "Accounts", "status": "Active" },
+    { "id": 3, "uid": "acct", "name": "Ravi Kumar", "role": "Accountant", "department": "Accounts", "status": "Active" },
+    { "id": 4, "uid": "audit", "name": "Meena Iyer", "role": "Auditor", "department": "Audit", "status": "Active" },
+    { "id": 5, "uid": "store", "name": "Karan Rao", "role": "Accountant", "department": "Stores", "status": "Inactive" }
+  ],
+  "modules": [
+    "Chart of Accounts", "Journal Entry", "Credit & Debit Notes", "Sales Order", "Sales Invoice", "Dispatch",
+    "Purchase Order", "GRN", "Stock Ledger", "Work Orders", "Payments", "Cheque & Bank",
+    "GST / TDS Returns", "Agents & Commission", "Master Data", "User Rights"
+  ],
+  "roleDefaults": {
+    "Administrator":    { "a": 1, "e": 1, "d": 1, "v": 1, "p": 1 },
+    "Accounts Manager": { "a": 1, "e": 1, "d": 1, "v": 1, "p": 1 },
+    "Accountant":       { "a": 1, "e": 1, "d": 0, "v": 1, "p": 1 },
+    "Auditor":          { "a": 0, "e": 0, "d": 0, "v": 1, "p": 1 }
+  },
+  "audit": [
+    { "id": 1, "datetime": "2026-06-24 12:40", "user": "acct", "action": "Created", "module": "Sales Invoice", "record": "SINV-2026-0148", "detail": "Grand total ₹1,45,200 to Aarav Textiles" },
+    { "id": 2, "datetime": "2026-06-24 11:15", "user": "amgr", "action": "Approved", "module": "Purchase Order", "record": "PO-2026-0031", "detail": "Approved for goods receipt" },
+    { "id": 3, "datetime": "2026-06-24 10:52", "user": "acct", "action": "Updated", "module": "Chart of Accounts", "record": "1130 · Debtors", "detail": "Opening balance 300000 → 312500" },
+    { "id": 4, "datetime": "2026-06-23 18:05", "user": "admin", "action": "Deleted", "module": "Master Data", "record": "Transporter TR099", "detail": "Duplicate record removed" },
+    { "id": 5, "datetime": "2026-06-23 16:30", "user": "amgr", "action": "Filed", "module": "GST / TDS Returns", "record": "GSTR-3B May 2026", "detail": "Net payable ₹88,100" },
+    { "id": 6, "datetime": "2026-06-23 09:10", "user": "admin", "action": "Login", "module": "System", "record": "—", "detail": "Signed in from 192.168.1.24" }
+  ]
+}

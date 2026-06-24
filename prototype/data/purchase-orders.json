@@ -1,0 +1,43 @@
+{
+  "currency": "₹",
+  "orders": [
+    { "id": 1, "no": "PO-2026-0031", "supplier": "Zenith Supplies", "date": "2026-06-05", "expected": "2026-06-12",
+      "status": "Partially Received", "approval": "Approved", "approved_by": "John (VP)", "approved_on": "2026-06-05",
+      "freight": 1500.00, "advance": 0.00, "remark": "Monthly yarn replenishment",
+      "lines": [
+        { "item": "Polyester Yarn (kg)", "qty": 700, "rate": 120.00, "tax": "GST 18%", "received": 600 },
+        { "item": "Dye Chemical (litre)", "qty": 200, "rate": 298.00, "tax": "GST 18%", "received": 0 }
+      ] },
+    { "id": 2, "no": "PO-2026-0032", "supplier": "Crystal Packaging", "date": "2026-06-04", "expected": "2026-06-10",
+      "status": "Received", "approval": "Approved", "approved_by": "John (VP)", "approved_on": "2026-06-04",
+      "freight": 800.00, "advance": 0.00, "remark": "Packaging boxes for Q2",
+      "lines": [
+        { "item": "Packaging Box (Large)", "qty": 2000, "rate": 28.50, "tax": "GST 18%", "received": 2000 }
+      ] },
+    { "id": 3, "no": "PO-2026-0033", "supplier": "Apex Raw Materials", "date": "2026-06-06", "expected": "2026-06-14",
+      "status": "Partially Received", "approval": "Approved", "approved_by": "John (VP)", "approved_on": "2026-06-06",
+      "freight": 2400.00, "advance": 50000.00, "remark": "Cotton fabric bulk order",
+      "lines": [
+        { "item": "Cotton Fabric (per metre)", "qty": 2000, "rate": 208.00, "tax": "GST 18%", "received": 1500 }
+      ] },
+    { "id": 4, "no": "PO-2026-0034", "supplier": "Nova Hardware", "date": "2026-06-12", "expected": "2026-06-20",
+      "status": "Approved", "approval": "Approved", "approved_by": "John (VP)", "approved_on": "2026-06-12",
+      "freight": 600.00, "advance": 0.00, "remark": "Dye chemical top-up",
+      "lines": [
+        { "item": "Dye Chemical (litre)", "qty": 400, "rate": 298.00, "tax": "GST 18%", "received": 0 }
+      ] },
+    { "id": 5, "no": "PO-2026-0035", "supplier": "Zenith Supplies", "date": "2026-06-22", "expected": "2026-06-30",
+      "status": "Pending Approval", "approval": "Pending", "approved_by": "", "approved_on": "",
+      "freight": 0.00, "advance": 0.00, "remark": "Awaiting VP approval",
+      "lines": [
+        { "item": "Polyester Yarn (kg)", "qty": 500, "rate": 122.00, "tax": "GST 18%", "received": 0 },
+        { "item": "Cotton Fabric (per metre)", "qty": 800, "rate": 210.00, "tax": "GST 18%", "received": 0 }
+      ] },
+    { "id": 6, "no": "PO-2026-0036", "supplier": "Apex Raw Materials", "date": "2026-06-23", "expected": "2026-07-05",
+      "status": "Draft", "approval": "Pending", "approved_by": "", "approved_on": "",
+      "freight": 0.00, "advance": 0.00, "remark": "Draft — pending item finalisation",
+      "lines": [
+        { "item": "Cotton Fabric (per metre)", "qty": 1000, "rate": 209.00, "tax": "GST 18%", "received": 0 }
+      ] }
+  ]
+}

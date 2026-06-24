@@ -1,0 +1,17 @@
+{
+  "currency": "₹",
+  "enquiries": [
+    { "id": 1, "no": "ENQ-2026-0021", "date": "2026-06-10", "customer": "Blue Ocean Ltd", "close_date": "2026-06-20", "status": "Quoted", "remark": "Bulk cotton fabric requirement",
+      "lines": [ { "item": "Cotton Fabric (per metre)", "qty": 700, "pcs": 14, "grade": "Grade A — Premium", "remark": "Export quality" } ] },
+    { "id": 2, "no": "ENQ-2026-0022", "date": "2026-06-15", "customer": "Pioneer Foods", "close_date": "2026-06-25", "status": "Open", "remark": "Packaging boxes enquiry",
+      "lines": [ { "item": "Packaging Box (Large)", "qty": 3000, "pcs": 60, "grade": "Grade B — Standard", "remark": "" } ] },
+    { "id": 3, "no": "ENQ-2026-0023", "date": "2026-06-21", "customer": "Meridian Corp", "close_date": "2026-07-01", "status": "Open", "remark": "Finished shirts for retail",
+      "lines": [ { "item": "Finished Shirt", "qty": 500, "pcs": 25, "grade": "Grade A — Premium", "remark": "Branded packing" } ] }
+  ],
+  "quotations": [
+    { "id": 1, "no": "QTN-2026-0014", "date": "2026-06-12", "offer_no": "OFF-014", "enquiry_ref": "ENQ-2026-0021", "customer": "Blue Ocean Ltd", "status": "Converted", "freight": 2200.00, "valid_till": "2026-06-22", "remark": "Converted to SO-2026-0052",
+      "lines": [ { "item": "Cotton Fabric (per metre)", "qty": 700, "rate": 320.00, "discount": 2.0, "tax": "GST 18%" } ] },
+    { "id": 2, "no": "QTN-2026-0015", "date": "2026-06-18", "offer_no": "OFF-015", "enquiry_ref": "", "customer": "Galaxy Enterprises", "status": "Open", "freight": 900.00, "valid_till": "2026-06-28", "remark": "Awaiting customer confirmation",
+      "lines": [ { "item": "Dye Chemical (litre)", "qty": 400, "rate": 410.00, "discount": 0.0, "tax": "GST 18%" } ] }
+  ]
+}

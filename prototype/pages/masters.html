@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Data · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .mlist { display:flex; flex-direction:column; gap:.15rem }
+    .mlink { cursor:pointer; padding:.55rem .7rem; border-radius:10px; display:flex; align-items:center; gap:.55rem; font-size:.88rem; color:var(--ink-700) }
+    .mlink:hover { background:var(--gold-50); color:var(--gold-700) }
+    .mlink.active { background:var(--gold-50); color:var(--gold-700); font-weight:700 }
+    .mlink .badge-soft { margin-left:auto }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Master Data</h1>
+            <div class="crumb">Setup · <b>Masters</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-gold" id="btnNew"><i class="bx bx-plus"></i> New Record</button>
+          </div>
+        </div>
+
+        <div class="row g-3" data-aos="fade-up">
+          <div class="col-lg-3">
+            <div class="card card-pad" style="position:sticky;top:1rem">
+              <div class="kpi-label mb-2">Master Tables</div>
+              <div class="mlist" id="mlist"></div>
+            </div>
+          </div>
+          <div class="col-lg-9">
+            <div class="card">
+              <div class="card-pad d-flex flex-wrap align-items-center gap-2">
+                <h5 class="card-title me-auto" id="mTitle">—</h5>
+                <div style="max-width:240px;width:100%"><input id="search" class="form-control form-control-sm" placeholder="Search…"></div>
+              </div>
+              <div class="table-wrap">
+                <table class="tbl"><thead id="mHead"></thead><tbody id="mBody"></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- record modal -->
+  <div class="modal fade" id="recModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none;border-radius:var(--radius)">
+    <div class="modal-header" style="border-bottom:1px solid var(--line)"><h5 class="modal-title fw-8" id="recTitle">New Record</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><div class="row g-3" id="recFields"></div></div>
+    <div class="modal-footer" style="border-top:1px solid var(--line)"><button class="btn btn-soft" data-bs-dismiss="modal">Cancel</button><button class="btn btn-gold" id="recSave"><i class="bx bx-check"></i> Save</button></div>
+  </div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('masters');
+      var DB = {}, CUR = '₹', CURRENT = null, EDIT = null;
+      var recModal = new bootstrap.Modal('#recModal');
+
+      // ---- master definitions (fields aligned to FAS schema) ----
+      // f: field {k key, l label, type text|number|select, opts, req, hideTable}
+      var M = {
+        countries:    { key: 'countries',    label: 'Countries',     icon: 'bx-globe',     fas: 'COUNTRY',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Country Name', req: 1 }] },
+        states:       { key: 'states',       label: 'States',        icon: 'bx-map',       fas: 'STATEMASTER',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'State Name', req: 1 }, { k: 'country', l: 'Country', type: 'select', src: 'countries' }] },
+        cities:       { key: 'cities',       label: 'Cities',        icon: 'bx-buildings', fas: 'CITYMASTER',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'City Name', req: 1 }, { k: 'state', l: 'State', type: 'select', src: 'states' }] },
+        transporters: { key: 'transporters', label: 'Transporters',  icon: 'bx-bus',       fas: 'TRANSPORTMST',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Transporter', req: 1 }, { k: 'address', l: 'Address', full: 1 }, { k: 'phone', l: 'Phone' }, { k: 'gstin', l: 'GSTIN / Service Tax No.' }, { k: 'pan', l: 'PAN' }, { k: 'vehicles', l: 'No. of Vehicles', type: 'number' }, { k: 'status', l: 'Status', type: 'select', opts: ['Active', 'Inactive'] }] },
+        grades:       { key: 'grades',       label: 'Grades',        icon: 'bx-medal',     fas: 'GRDMST',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Grade Name', req: 1 }, { k: 'sequence', l: 'Sequence', type: 'number' }] },
+        colours:      { key: 'colours',      label: 'Colours',       icon: 'bx-palette',   fas: 'COLORMST',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Colour Name', req: 1 }] },
+        uoms:         { key: 'uoms',         label: 'Units of Measure', icon: 'bx-ruler',  fas: 'UNTCFG',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Unit Name', req: 1 }, { k: 'decimals', l: 'Decimals', type: 'number' }] },
+        cost_centres: { key: 'cost_centres', label: 'Cost Centres',  icon: 'bx-target-lock', fas: 'COSTCENTRE',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Cost Centre', req: 1 }, { k: 'location', l: 'Location' }, { k: 'status', l: 'Status', type: 'select', opts: ['Active', 'Inactive'] }] },
+        banks:        { key: 'banks',        label: 'Banks',         icon: 'bxs-bank',      fas: 'BANKMST',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Bank / Account', req: 1 }, { k: 'account_no', l: 'Account No.' }, { k: 'ifsc', l: 'IFSC / RTGS Code' }, { k: 'swift', l: 'SWIFT Code' }, { k: 'gl_account', l: 'GL Account' }, { k: 'opening', l: 'Opening Balance', type: 'number', money: 1 }] },
+        narrations:   { key: 'narrations',   label: 'Narrations',    icon: 'bx-message-alt-detail', fas: 'NARRMAST',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'text', l: 'Narration Text', req: 1, full: 1 }, { k: 'module', l: 'Module', type: 'select', opts: ['Sales', 'Purchase', 'Receipt', 'Payment', 'Journal', 'Contra'] }] },
+        departments:  { key: 'departments',  label: 'Departments',   icon: 'bx-been-here', fas: 'DEPT_MST',
+          fields: [{ k: 'code', l: 'Code', req: 1 }, { k: 'name', l: 'Department', req: 1 }, { k: 'email', l: 'Email' }, { k: 'status', l: 'Status', type: 'select', opts: ['Active', 'Inactive'] }] }
+      };
+
+      App.data('masters.json').done(function (d) {
+        DB = d;
+        buildNav(); select('cities');
+      }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function buildNav() {
+        $('#mlist').html(Object.keys(M).map(function (k) {
+          return '<div class="mlink' + (CURRENT === k ? ' active' : '') + '" data-k="' + k + '"><i class="bx ' + M[k].icon + '"></i>' + M[k].label + '<span class="badge-soft badge-draft">' + (DB[k] ? DB[k].length : 0) + '</span></div>';
+        }).join(''));
+      }
+      $(document).on('click', '.mlink', function () { select($(this).data('k')); });
+
+      function select(k) {
+        CURRENT = k; buildNav();
+        var m = M[k];
+        $('#mTitle').text(m.label + '  ·  FAS: ' + m.fas);
+        $('#mHead').html('<tr>' + m.fields.map(f => '<th' + (f.money || f.type === 'number' ? ' class="num"' : '') + '>' + f.l + '</th>').join('') + '<th></th></tr>');
+        render();
+      }
+
+      function render() {
+        var m = M[CURRENT], rows = DB[CURRENT] || [], q = ($('#search').val() || '').toLowerCase();
+        var list = rows.filter(r => m.fields.some(f => String(r[f.k] != null ? r[f.k] : '').toLowerCase().includes(q)));
+        $('#mBody').html(list.length ? list.map(function (r) {
+          return '<tr>' + m.fields.map(function (f, i) {
+            var v = r[f.k];
+            if (f.money) return '<td class="num tabular">' + App.currency(v || 0, CUR) + '</td>';
+            if (f.type === 'number') return '<td class="num tabular">' + (v != null ? v : '—') + '</td>';
+            if (i === 0) return '<td><span class="fw-bold text-gold">' + (v || '—') + '</span></td>';
+            if (f.k === 'status') return '<td>' + App.statusBadge(v === 'Active' ? 'Paid' : 'Draft').replace('Paid', 'Active').replace('Draft', 'Inactive') + '</td>';
+            return '<td>' + (v != null && v !== '' ? v : '—') + '</td>';
+          }).join('') + '<td class="text-end">' + App.kebab(r.id, [{ act: 'edit', icon: 'bx-edit', label: 'Edit' }, { act: 'del', icon: 'bx-trash', label: 'Delete', danger: true }]) + '</td></tr>';
+        }).join('') : '<tr><td colspan="' + (m.fields.length + 1) + '" class="text-center text-muted-2 py-4">No records</td></tr>');
+      }
+      $('#search').on('input', render);
+
+      function recById(id) { return (DB[CURRENT] || []).find(x => x.id == id); }
+      $(document).on('click', '[data-act="edit"]', function () { openForm(recById($(this).data('id'))); });
+      $(document).on('click', '[data-act="del"]', function () {
+        var r = recById($(this).data('id'));
+        App.confirm({ title: 'Delete record?', message: 'This ' + M[CURRENT].label.replace(/s$/, '').toLowerCase() + ' will be removed.', confirmText: 'Delete',
+          onConfirm: function () { DB[CURRENT] = DB[CURRENT].filter(x => x.id != r.id); buildNav(); render(); App.toast('Record deleted (demo)'); } });
+      });
+
+      function optionsFor(src, sel) {
+        var rows = DB[src] || [];
+        return '<option value="">Select…</option>' + rows.map(r => '<option' + (r.name === sel ? ' selected' : '') + '>' + r.name + '</option>').join('');
+      }
+      function openForm(rec) {
+        EDIT = rec || null;
+        var m = M[CURRENT];
+        $('#recTitle').text((rec ? 'Edit ' : 'New ') + m.label.replace(/s$/, ''));
+        $('#recFields').html(m.fields.map(function (f) {
+          var v = rec ? (rec[f.k] != null ? rec[f.k] : '') : '';
+          var col = f.full ? 'col-12' : 'col-md-6';
+          var input;
+          if (f.type === 'select' && f.src) input = '<select class="form-select" data-k="' + f.k + '">' + optionsFor(f.src, v) + '</select>';
+          else if (f.type === 'select') input = '<select class="form-select" data-k="' + f.k + '">' + f.opts.map(o => '<option' + (o === v ? ' selected' : '') + '>' + o + '</option>').join('') + '</select>';
+          else input = '<input class="form-control' + (f.type === 'number' ? ' num text-end' : '') + '" data-k="' + f.k + '" value="' + v + '">';
+          return '<div class="' + col + '"><label class="form-label">' + f.l + (f.req ? ' *' : '') + '</label>' + input + '</div>';
+        }).join(''));
+        recModal.show();
+      }
+      $('#btnNew').on('click', function () { openForm(null); });
+
+      $('#recSave').on('click', function () {
+        var m = M[CURRENT], obj = EDIT || { id: Date.now() }, ok = true;
+        m.fields.forEach(function (f) {
+          var $el = $('#recFields [data-k="' + f.k + '"]'), val = $el.val();
+          if (f.req && !val) ok = false;
+          obj[f.k] = (f.type === 'number') ? (parseFloat(val) || 0) : val;
+        });
+        if (!ok) { App.toast('Please fill the required (*) fields', 'error'); return; }
+        if (!EDIT) DB[CURRENT].unshift(obj);
+        recModal.hide(); buildNav(); render();
+        App.toast(M[CURRENT].label.replace(/s$/, '') + (EDIT ? ' updated' : ' added') + ' (demo)');
+      });
+    });
+  </script>
+</body>
+</html>

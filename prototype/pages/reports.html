@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports · GoldBooks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="../assets/css/theme.css" rel="stylesheet">
+  <style>
+    .rep-item { cursor:pointer; padding:.55rem .7rem; border-radius:var(--radius-sm,10px); display:flex; align-items:center; gap:.55rem; font-size:.88rem; color:var(--ink-700); }
+    .rep-item:hover { background:var(--gold-50); color:var(--gold-700); }
+    .rep-item.active { background:var(--gold-100,var(--gold-50)); color:var(--gold-700); font-weight:700; }
+    .rep-group-title { font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-400,#9aa); font-weight:700; padding:.7rem .7rem .25rem; }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content">
+        <div class="page-head" data-aos="fade-down">
+          <div>
+            <h1>Reports</h1>
+            <div class="crumb">Reports · <b>Report Centre</b></div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-soft" id="btnExport"><i class="bx bx-download"></i> Export</button>
+            <button class="btn btn-gold" id="btnPrint" onclick="window.print()"><i class="bx bx-printer"></i> Print</button>
+          </div>
+        </div>
+
+        <div class="row g-3" data-aos="fade-up">
+          <!-- Catalog -->
+          <div class="col-lg-3">
+            <div class="card card-pad" style="position:sticky;top:1rem">
+              <input id="repSearch" class="form-control form-control-sm mb-2" placeholder="Search reports…">
+              <div id="catalog" style="max-height:70vh;overflow:auto"></div>
+            </div>
+          </div>
+          <!-- Runner -->
+          <div class="col-lg-9">
+            <div class="card card-pad mb-3">
+              <div class="d-flex flex-wrap align-items-end gap-2">
+                <div><div class="kpi-label">Report</div><div class="fw-8" id="repTitle" style="color:var(--ink-900);font-size:1.1rem">Select a report</div></div>
+                <div class="ms-auto d-flex flex-wrap align-items-end gap-2">
+                  <div><label class="form-label mb-1">From</label><input type="date" class="form-control form-control-sm" id="pFrom" value="2026-06-01"></div>
+                  <div><label class="form-label mb-1">To</label><input type="date" class="form-control form-control-sm" id="pTo" value="2026-06-30"></div>
+                  <div id="pPartyWrap"><label class="form-label mb-1">Party</label><select class="form-select form-select-sm" id="pParty"><option value="">All</option></select></div>
+                  <button class="btn btn-gold btn-sm" id="runBtn"><i class="bx bx-play"></i> Run</button>
+                </div>
+              </div>
+            </div>
+            <div id="repKpis" class="row g-3 mb-3"></div>
+            <div class="card">
+              <div class="card-pad d-flex align-items-center"><h5 class="card-title me-auto" id="repHead">Result</h5><span class="badge-soft badge-draft" id="repCount"></span></div>
+              <div class="table-wrap"><table class="tbl"><thead id="repThead"></thead><tbody id="repBody"><tr><td class="text-center text-muted-2 py-5">Choose a report from the left and click <b>Run</b></td></tr></tbody><tfoot id="repTfoot"></tfoot></table></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    $(function () {
+      AOS.init({ duration: 600, once: true });
+      App.loadShell('reports');
+      var CUR = '₹', D = {}, CURRENT = null;
+
+      $.when(App.data('sales-invoices.json'), App.data('purchase-invoices.json'), App.data('stock.json'),
+             App.data('customers.json'), App.data('suppliers.json'), App.data('statutory.json'), App.data('agents.json'))
+        .done(function (si, pi, st, cu, su, stat, ag) {
+          D.sales = si[0].invoices; D.purch = pi[0].invoices; D.stock = st[0];
+          D.cust = cu[0].customers; D.supp = su[0].suppliers; D.stat = stat[0]; D.agents = ag[0].agents;
+          buildCatalog(); selectReport(REPORTS[0]);
+        }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
+
+      function inRange(d) { var x = new Date(d), f = new Date($('#pFrom').val()), t = new Date($('#pTo').val()); return x >= f && x <= t; }
+      function C(n) { return App.currency(n, CUR); }
+      function N(n) { return App.number(n); }
+
+      // ---- Report catalog (the "configurable engine") ----
+      var REPORTS = [
+        { id: 'sales-reg', name: 'Sales Register', group: 'Sales', party: 'customer',
+          cols: [{ k: 'no', l: 'Invoice' }, { k: 'customer', l: 'Customer' }, { k: 'date', l: 'Date', d: 1 }, { k: 'net_total', l: 'Net', n: 1 }, { k: 'tax_total', l: 'Tax', n: 1 }, { k: 'grand_total', l: 'Total', n: 1 }, { k: 'status', l: 'Status' }],
+          run: function (p) { return D.sales.filter(r => inRange(r.date) && (!p.party || r.customer === p.party)); },
+          sum: ['net_total', 'tax_total', 'grand_total'] },
+        { id: 'sales-cust', name: 'Sales Summary by Customer', group: 'Sales',
+          cols: [{ k: 'customer', l: 'Customer' }, { k: 'count', l: 'Invoices', n: 1 }, { k: 'net_total', l: 'Net', n: 1 }, { k: 'tax_total', l: 'Tax', n: 1 }, { k: 'grand_total', l: 'Total', n: 1 }],
+          run: function () { var g = {}; D.sales.filter(r => inRange(r.date)).forEach(function (r) { g[r.customer] = g[r.customer] || { customer: r.customer, count: 0, net_total: 0, tax_total: 0, grand_total: 0 }; g[r.customer].count++; g[r.customer].net_total += r.net_total; g[r.customer].tax_total += r.tax_total; g[r.customer].grand_total += r.grand_total; }); return Object.values(g); },
+          sum: ['count', 'net_total', 'tax_total', 'grand_total'] },
+        { id: 'purch-reg', name: 'Purchase Register', group: 'Purchase', party: 'supplier',
+          cols: [{ k: 'no', l: 'Bill' }, { k: 'supplier', l: 'Supplier' }, { k: 'date', l: 'Date', d: 1 }, { k: 'net_total', l: 'Net', n: 1 }, { k: 'tax_total', l: 'Tax', n: 1 }, { k: 'grand_total', l: 'Total', n: 1 }, { k: 'status', l: 'Status' }],
+          run: function (p) { return D.purch.filter(r => inRange(r.date) && (!p.party || r.supplier === p.party)); },
+          sum: ['net_total', 'tax_total', 'grand_total'] },
+        { id: 'stock-bal', name: 'Stock Balance', group: 'Inventory',
+          cols: [{ k: 'code', l: 'Code' }, { k: 'name', l: 'Item' }, { k: 'group', l: 'Group' }, { k: 'balance', l: 'Balance', n: 1 }, { k: 'rate', l: 'Rate', n: 1 }, { k: 'value', l: 'Value', n: 1 }],
+          run: function () { return D.stock.items.map(function (it) { var m = D.stock.movements.filter(x => x.item_id === it.item_id); var bal = m.reduce((s, x) => s + x.in - x.out, 0); return { code: it.code, name: it.name, group: it.group, balance: bal, rate: it.rate, value: bal * it.rate }; }); },
+          sum: ['value'] },
+        { id: 'item-ledger', name: 'Item Movement Ledger', group: 'Inventory',
+          cols: [{ k: 'date', l: 'Date', d: 1 }, { k: 'voucher', l: 'Voucher' }, { k: 'item', l: 'Item' }, { k: 'type', l: 'Type' }, { k: 'in', l: 'In', n: 1 }, { k: 'out', l: 'Out', n: 1 }],
+          run: function () { var nameOf = {}; D.stock.items.forEach(i => nameOf[i.item_id] = i.code); return D.stock.movements.filter(m => inRange(m.date)).map(m => ({ date: m.date, voucher: m.voucher, item: nameOf[m.item_id], type: m.type, in: m.in, out: m.out })); },
+          sum: ['in', 'out'] },
+        { id: 'ar', name: 'Receivables Outstanding', group: 'Outstanding',
+          cols: [{ k: 'code', l: 'Code' }, { k: 'name', l: 'Customer' }, { k: 'city', l: 'City' }, { k: 'payment_terms', l: 'Terms' }, { k: 'balance', l: 'Outstanding', n: 1 }],
+          run: function () { return D.cust.filter(c => c.balance > 0); }, sum: ['balance'] },
+        { id: 'ap', name: 'Payables Outstanding', group: 'Outstanding',
+          cols: [{ k: 'code', l: 'Code' }, { k: 'name', l: 'Supplier' }, { k: 'city', l: 'City' }, { k: 'payment_terms', l: 'Terms' }, { k: 'balance', l: 'Outstanding', n: 1 }],
+          run: function () { return D.supp.filter(c => c.balance > 0); }, sum: ['balance'] },
+        { id: 'gst-out', name: 'GST Output (GSTR-1)', group: 'Statutory',
+          cols: [{ k: 'invoice', l: 'Invoice' }, { k: 'party', l: 'Party' }, { k: 'gstin', l: 'GSTIN' }, { k: 'taxable', l: 'Taxable', n: 1 }, { k: 'igst', l: 'IGST', n: 1 }, { k: 'total', l: 'Total', n: 1 }],
+          run: function () { return D.stat.gstr1.filter(r => inRange(r.date)); }, sum: ['taxable', 'igst', 'total'] },
+        { id: 'tds-reg', name: 'TDS / TCS Register', group: 'Statutory',
+          cols: [{ k: 'type', l: 'Type' }, { k: 'section', l: 'Section' }, { k: 'party', l: 'Party' }, { k: 'base', l: 'Base', n: 1 }, { k: 'amount', l: 'Tax', n: 1 }, { k: 'status', l: 'Status' }],
+          run: function () { return D.stat.tds.filter(r => inRange(r.date)); }, sum: ['base', 'amount'] },
+        { id: 'comm', name: 'Agent Commission', group: 'Commission',
+          cols: [{ k: 'code', l: 'Code' }, { k: 'name', l: 'Agent' }, { k: 'sales', l: 'Sales', n: 1 }, { k: 'comm', l: 'Commission', n: 1 }, { k: 'tds', l: 'TDS', n: 1 }, { k: 'net', l: 'Net Payable', n: 1 }],
+          run: function () { return D.agents.map(function (a) { var s = a.sales.reduce((x, y) => x + y.amount, 0); var c = s * a.commission_pct / 100; var t = c * a.tds_pct / 100; return { code: a.code, name: a.name, sales: s, comm: c, tds: t, net: c - t }; }); },
+          sum: ['sales', 'comm', 'tds', 'net'] }
+      ];
+
+      function buildCatalog() {
+        var groups = {};
+        REPORTS.forEach(r => { (groups[r.group] = groups[r.group] || []).push(r); });
+        var icons = { Sales: 'bx-trending-up', Purchase: 'bx-cart', Inventory: 'bx-package', Outstanding: 'bx-time-five', Statutory: 'bx-file', Commission: 'bx-group' };
+        var q = ($('#repSearch').val() || '').toLowerCase();
+        var html = Object.keys(groups).map(function (g) {
+          var items = groups[g].filter(r => r.name.toLowerCase().includes(q));
+          if (!items.length) return '';
+          return '<div class="rep-group-title">' + g + '</div>' + items.map(r => '<div class="rep-item' + (CURRENT && CURRENT.id === r.id ? ' active' : '') + '" data-id="' + r.id + '"><i class="bx ' + (icons[g] || 'bx-bar-chart') + '"></i>' + r.name + '</div>').join('');
+        }).join('');
+        $('#catalog').html(html || '<div class="text-muted-2 p-3 small">No reports match.</div>');
+      }
+      $('#repSearch').on('input', buildCatalog);
+      $(document).on('click', '.rep-item', function () { var r = REPORTS.find(x => x.id == $(this).data('id')); selectReport(r); });
+
+      function selectReport(r) {
+        CURRENT = r; buildCatalog();
+        $('#repTitle').text(r.name); $('#repHead').text(r.name);
+        // party filter
+        if (r.party) {
+          var src = r.party === 'customer' ? D.cust : D.supp;
+          $('#pPartyWrap').show();
+          $('#pParty').html('<option value="">All ' + (r.party === 'customer' ? 'Customers' : 'Suppliers') + '</option>' + src.map(x => '<option>' + x.name + '</option>').join(''));
+        } else { $('#pPartyWrap').hide(); }
+        run();
+      }
+
+      function run() {
+        if (!CURRENT) return;
+        var r = CURRENT, rows = r.run({ party: $('#pParty').val() });
+        // header
+        $('#repThead').html('<tr>' + r.cols.map(c => '<th' + (c.n ? ' class="num"' : '') + '>' + c.l + '</th>').join('') + '</tr>');
+        // body
+        $('#repBody').html(rows.length ? rows.map(function (row) {
+          return '<tr>' + r.cols.map(function (c) {
+            var v = row[c.k];
+            if (c.n) return '<td class="num tabular">' + (c.k === 'count' ? v : (typeof v === 'number' ? N(v) : v)) + '</td>';
+            if (c.d) return '<td class="text-muted-2">' + App.shortDate(v) + '</td>';
+            if (c.k === 'no' || c.k === 'invoice' || c.k === 'code') return '<td><span class="fw-bold text-gold">' + v + '</span></td>';
+            if (c.k === 'status') return '<td>' + App.statusBadge(v) + '</td>';
+            return '<td>' + (v != null ? v : '—') + '</td>';
+          }).join('') + '</tr>';
+        }).join('') : '<tr><td colspan="' + r.cols.length + '" class="text-center text-muted-2 py-5">No data for the selected period / filter</td></tr>');
+        // totals
+        if (r.sum && rows.length) {
+          $('#repTfoot').html('<tr style="border-top:2px solid var(--line)">' + r.cols.map(function (c, i) {
+            if (i === 0) return '<td class="fw-8">Total (' + rows.length + ')</td>';
+            if (r.sum.indexOf(c.k) > -1) { var t = rows.reduce((s, x) => s + (x[c.k] || 0), 0); return '<td class="num fw-8 tabular">' + N(t) + '</td>'; }
+            return '<td></td>';
+          }).join('') + '</tr>');
+        } else { $('#repTfoot').html(''); }
+        $('#repCount').text(rows.length + ' rows');
+        // KPI strip from first 2 summed columns
+        var kpis = '';
+        (r.sum || []).slice(0, 3).forEach(function (k) {
+          var col = r.cols.find(c => c.k === k); var t = rows.reduce((s, x) => s + (x[k] || 0), 0);
+          var val = (k === 'count') ? t : C(t);
+          kpis += '<div class="col-6 col-xl-4"><div class="card card-hover kpi"><div class="kpi-icon gold"><i class="bx bx-bar-chart-alt-2"></i></div><div><div class="kpi-label">' + (col ? col.l : k) + '</div><div class="kpi-value">' + val + '</div></div></div></div>';
+        });
+        $('#repKpis').html(kpis);
+        CURRENT._rows = rows;
+      }
+      $('#runBtn, #pFrom, #pTo, #pParty').on('click change', function (e) { if (e.type === 'click' && e.currentTarget.id !== 'runBtn') return; run(); });
+      $('#runBtn').on('click', run);
+
+      // export -> CSV download
+      $('#btnExport').on('click', function () {
+        if (!CURRENT || !CURRENT._rows) { App.toast('Run a report first', 'error'); return; }
+        var r = CURRENT, head = r.cols.map(c => c.l).join(',');
+        var lines = r._rows.map(row => r.cols.map(c => '"' + (row[c.k] != null ? row[c.k] : '') + '"').join(',')).join('\n');
+        var blob = new Blob([head + '\n' + lines], { type: 'text/csv' });
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = r.id + '.csv'; a.click();
+        App.toast('Exported ' + r.name + ' (' + r._rows.length + ' rows)');
+      });
+    });
+  </script>
+</body>
+</html>

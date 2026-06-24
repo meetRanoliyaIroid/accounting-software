@@ -125,6 +125,7 @@
           ITEMS = it[0].items; CUSTOMERS = cu[0].customers;
           TAXES = tx[0].taxes.filter(t => t.scope !== 'Purchase');
           renderStats(); render();
+          if (new URLSearchParams(location.search).get('new')) { showForm(); history.replaceState(null, '', 'sales-invoice.html'); }
         }).fail(function () { App.toast('Serve via XAMPP http:// to load data', 'error'); });
 
       function renderStats() {
